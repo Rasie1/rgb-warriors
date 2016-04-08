@@ -55,10 +55,8 @@ var eurecaClientSetup = function() {
 		
 		if (i == myId) return; //this is me
 		
-		console.log('SPAWN');
 		var tnk = new Tank(i, game, tank);
 		tanksList[i] = tnk;
-		console.log('SPWAWNhealth: ', tnk.health);
 	}
 	
 	eurecaClient.exports.updateState = function(id, state)
@@ -337,7 +335,7 @@ function update () {
 					console.log("health: ", tanksList[j].health);
 					if (tanksList[j].health <= 0)
 					{
-						tanksList[j].kill();
+						eurecaServer.killPlayer(tanksList[j].tank.id);
 						console.log("DIE");
 					}
 				}

@@ -88,4 +88,10 @@ eurecaServer.exports.handleKeys = function (keys) {
 	}
 }
 
+eurecaServer.exports.killPlayer = function(id)
+{
+	for (var c in clients)
+		clients[c].remote.kill(id);
+}
+
 server.listen(8000);
