@@ -47,6 +47,19 @@ var eurecaClientSetup = function() {
 			console.log('killing ', id, tanksList[id]);
 		}
 	}	
+
+	eurecaClient.exports.updateHP = function(id, difHP)
+	{
+		if (tanksList[id])
+		{
+			tanksList[id].health += difHP;
+			if (tanksList[id].health <= 0 && id == tank.id)
+			{
+				console.log('talk server about killing');
+				eurecaServer.killPlayer(id);
+			}
+		}
+	}
 	
 	eurecaClient.exports.spawnEnemy = function(i, x, y)
 	{
@@ -302,9 +315,6 @@ function update () {
 
     land.tilePosition.x = -game.camera.x;
     land.tilePosition.y = -game.camera.y;
-
-    	
-	
     for (var i in tanksList)
     {
 		if (!tanksList[i]) continue;
@@ -318,12 +328,11 @@ function update () {
 			
 				var targetTank = tanksList[j].tank;
 				
-				if (game.physics.arcade.collide(targetTank, curBullets, bulletHitPlayer, null, this))
+				if (game.physics.arcade.collide(targetTank, curBullets, bulletHitPlayer, null, this)
+					&& tanksList[i].tank.id == myId)
 				{
-					tanksList[j].health -= 10;
-					console.log("health: ", tanksList[j].health);
-					if (tanksList[j].health <= 0)
-						eurecaServer.killPlayer(tanksList[j].tank.id);
+					console.log('talk server about collide');
+					eurecaServer.updateHP(targetTank.id, -10);
 				}
 			
 			}
