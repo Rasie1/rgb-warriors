@@ -334,10 +334,7 @@ function update () {
 					tanksList[j].health -= 10;
 					console.log("health: ", tanksList[j].health);
 					if (tanksList[j].health <= 0)
-					{
 						eurecaServer.killPlayer(tanksList[j].tank.id);
-						console.log("DIE");
-					}
 				}
 			
 			}
