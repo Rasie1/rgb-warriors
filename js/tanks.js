@@ -267,6 +267,10 @@ function create ()
     tanksList = {};
 	
 	player = new Tank(myId, game, tank);
+	player.healthBar = game.add.text(10, 10, "HP: 99999%", 
+    	{ font: "32px Arial", fill: "#ffffff", align: "left" });
+    player.healthBar.fixedToCamera = true;
+    player.healthBar.cameraOffset.setTo(10, 10);
 	tanksList[myId] = player;
 	tank = player.tank;
 	turret = player.turret;
@@ -308,7 +312,8 @@ function update () {
 	player.input.tx = game.input.x+ game.camera.x;
 	player.input.ty = game.input.y+ game.camera.y;
 	
-	
+	//player.healthBar.setText("");
+	player.healthBar.setText("HP: " + player.health + "%");
 	
 	turret.rotation = game.physics.arcade.angleToPointer(turret);	
 	tank.rotation = game.physics.arcade.angleToPointer(tank);	
