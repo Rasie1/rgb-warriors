@@ -57,6 +57,19 @@ var eurecaClientSetup = function() {
 			console.log('killing ', id, tanksList[id]);
 		}
 	}	
+
+	eurecaClient.exports.updateHP = function(id, difHP)
+	{
+		if (tanksList[id])
+		{
+			tanksList[id].health += difHP;
+			if (tanksList[id].health <= 0 && id == tank.id)
+			{
+				console.log('talk server about killing');
+				eurecaServer.killPlayer(id);
+			}
+		}
+	}
 	
 	eurecaClient.exports.spawnEnemy = function(i, x, y)
 	{
@@ -306,6 +319,10 @@ function create ()
     tanksList = {};
 	
 	player = new Tank(myId, game, tank);
+	player.healthBar = game.add.text(10, 10, "HP: 99999%", 
+    	{ font: "32px Arial", fill: "#ffffff", align: "left" });
+    player.healthBar.fixedToCamera = true;
+    player.healthBar.cameraOffset.setTo(10, 10);
 	tanksList[myId] = player;
 	tank = player.tank;
 	turret = player.turret;
@@ -344,22 +361,21 @@ function update () {
     player.input.down = cursors.down.isDown;
 
     player.input.fire = game.input.activePointer.isDown;
-    player.input.tx = game.input.x+ game.camera.x;
-    player.input.ty = game.input.y+ game.camera.y;
+    player.input.tx = game.input.x + game.camera.x;
+    player.input.ty = game.input.y + game.camera.y;
 
     player.input.spell0 = cursors.spell0.isDown;
     player.input.spell1 = cursors.spell1.isDown;
     player.input.spell2 = cursors.spell2.isDown;
     player.input.spell3 = cursors.spell3.isDown;
+
+	player.healthBar.setText("HP: " + player.health + "%");
 	
 	turret.rotation = game.physics.arcade.angleToPointer(turret);	
 	tank.rotation = game.physics.arcade.angleToPointer(tank);	
 
     land.tilePosition.x = -game.camera.x;
     land.tilePosition.y = -game.camera.y;
-
-    	
-	
     for (var i in tanksList)
     {
 		if (!tanksList[i]) continue;
@@ -373,12 +389,11 @@ function update () {
 			
 				var targetTank = tanksList[j].tank;
 				
-				if (game.physics.arcade.collide(targetTank, curBullets, bulletHitPlayer, null, this))
+				if (game.physics.arcade.collide(targetTank, curBullets, bulletHitPlayer, null, this)
+					&& tanksList[i].tank.id == myId)
 				{
-					tanksList[j].health -= 10;
-					console.log("health: ", tanksList[j].health);
-					if (tanksList[j].health <= 0)
-						eurecaServer.killPlayer(tanksList[j].tank.id);
+					console.log('talk server about collide');
+					eurecaServer.updateHP(targetTank.id, -10);
 				}
 			
 			}
