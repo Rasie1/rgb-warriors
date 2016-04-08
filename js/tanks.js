@@ -8,7 +8,17 @@ var player;
 var tanksList;
 var explosions;
 
-var cursors;
+var cursors = {
+    left:false,
+    right:false,
+    up:false,
+    down:false,
+    fire:false,
+    spell0:false,
+    spell1:false,
+    spell2:false,
+    spell3:false
+};
 
 var bullets;
 
@@ -77,7 +87,11 @@ Tank = function (index, game) {
 		right:false,
 		up:false,
 		down:false,
-		fire:false		
+		fire:false,
+        spell0:false,
+        spell1:false,
+        spell2:false,
+        spell3:false
 	}
 
 	this.input = {
@@ -85,7 +99,11 @@ Tank = function (index, game) {
 		right:false,
 		up:false,
 		down:false,
-		fire:false
+		fire:false,
+        spell0:false,
+        spell1:false,
+        spell2:false,
+        spell3:false
 	}
 
     var x = 0;
@@ -120,6 +138,7 @@ Tank = function (index, game) {
     this.tank.body.collideWorldBounds = true;
     this.tank.body.bounce.setTo(0, 0);
 
+    this.spell0Slot = new Spell()
 };
 
 Tank.prototype.update = function() {
@@ -129,7 +148,11 @@ Tank.prototype.update = function() {
 		this.cursor.right != this.input.right ||
 		this.cursor.up != this.input.up ||
 		this.cursor.down != this.input.down ||
-		this.cursor.fire != this.input.fire
+		this.cursor.fire != this.input.fire ||
+        this.cursor.spell0 != this.input.spell0 ||
+        this.cursor.spell1 != this.input.spell1 ||
+        this.cursor.spell2 != this.input.spell2 ||
+        this.cursor.spell3 != this.input.spell3
 	);
 	
 	
@@ -184,6 +207,23 @@ Tank.prototype.update = function() {
 		this.fire({x:this.cursor.tx, y:this.cursor.ty});
     }
 
+    if (this.cursor.spell0)
+    {
+         this.spell0Slot.cast()
+    }
+    if (this.cursor.spell0)
+    {
+
+    }
+    if (this.cursor.spell0)
+    {
+
+    }
+    if (this.cursor.spell0)
+    {
+
+    }
+
     this.turret.x = this.tank.x;
     this.turret.y = this.tank.y;
 };
@@ -211,7 +251,7 @@ Tank.prototype.kill = function() {
 	this.turret.kill();
 }
 
-var game = new Phaser.Game(screenWidth, screenHeight, Phaser.AUTO, 'phaser-example', { preload: preload, create: eurecaClientSetup, update: update, render: render });
+var game = new Phaser.Game(screenWidth, screenHeight, Phaser.CANVAS, 'phaser-example', { preload: preload, create: eurecaClientSetup, update: update, render: render });
 
 var onScreenChange = function(){
 	screenWidth = window.innerWidth;
@@ -235,11 +275,23 @@ function preload () {
 }
 
 
+function initializeInput ()
+{
+    cursors.up = game.input.keyboard.addKey(Phaser.Keyboard.UP)
+    cursors.down = game.input.keyboard.addKey(Phaser.Keyboard.DOWN)
+    cursors.left = game.input.keyboard.addKey(Phaser.Keyboard.LEFT)
+    cursors.right = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT)
+
+    cursors.fire = game.input.keyboard.addKey(Phaser.Mouse.LEFT_BUTTON)
+    
+    cursors.spell0 = game.input.keyboard.addKey(Phaser.Keyboard.ONE)
+    cursors.spell1 = game.input.keyboard.addKey(Phaser.Keyboard.TWO)
+    cursors.spell2 = game.input.keyboard.addKey(Phaser.Keyboard.THREE)
+    cursors.spell3 = game.input.keyboard.addKey(Phaser.Keyboard.FOUR)
+}
 
 function create () 
 {
-
-    //  Resize our game world to be a 2000 x 2000 square
     game.world.setBounds(mapBoundsLeft, 
                          mapBoundsTop, 
                          mapBoundsRight, 
@@ -279,23 +331,26 @@ function create ()
     game.camera.deadzone = new Phaser.Rectangle((screenWidth-200)/2, (screenHeight-200)/2, 200, 200);
     game.camera.focusOnXY(0, 0);
 
-    cursors = game.input.keyboard.createCursorKeys();
+    initializeInput()
 }
 
 function update () {
-	//do not update if client not ready
-	if (!ready) return;
-	
-	player.input.left = cursors.left.isDown;
-	player.input.right = cursors.right.isDown;
-	player.input.up = cursors.up.isDown;
-	player.input.down = cursors.down.isDown;
+    //do not update if client not ready
+    if (!ready) return;
+    
+    player.input.left = cursors.left.isDown;
+    player.input.right = cursors.right.isDown;
+    player.input.up = cursors.up.isDown;
+    player.input.down = cursors.down.isDown;
 
-	player.input.fire = game.input.activePointer.isDown;
-	player.input.tx = game.input.x+ game.camera.x;
-	player.input.ty = game.input.y+ game.camera.y;
-	
-	
+    player.input.fire = game.input.activePointer.isDown;
+    player.input.tx = game.input.x+ game.camera.x;
+    player.input.ty = game.input.y+ game.camera.y;
+
+    player.input.spell0 = cursors.spell0.isDown;
+    player.input.spell1 = cursors.spell1.isDown;
+    player.input.spell2 = cursors.spell2.isDown;
+    player.input.spell3 = cursors.spell3.isDown;
 	
 	turret.rotation = game.physics.arcade.angleToPointer(turret);	
 	tank.rotation = game.physics.arcade.angleToPointer(tank);	
