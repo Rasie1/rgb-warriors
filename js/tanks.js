@@ -11,7 +11,6 @@ var explosions;
 
 var logo;
 
-
 var cursors;
 
 var bullets;
@@ -101,7 +100,7 @@ Tank = function (index, game, player) {
     this.bullets.setAll('anchor.x', 0.5);
     this.bullets.setAll('anchor.y', 0.5);
     this.bullets.setAll('outOfBoundsKill', true);
-    this.bullets.setAll('checkWorldBounds', true);	
+    this.bullets.setAll('checkWorldBounds', true);
 	
 	
 	this.currentSpeed =0;
@@ -215,6 +214,8 @@ Tank.prototype.fire = function(target) {
             this.nextFire = this.game.time.now + this.fireRate;
             var bullet = this.bullets.getFirstDead();
             bullet.reset(this.turret.x, this.turret.y);
+            bullet.magicType = 'fireball';
+            console.log('bullet type', bullet.magicType);
 
 			bullet.rotation = this.game.physics.arcade.moveToObject(bullet, target, 500);
         }
