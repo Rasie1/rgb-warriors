@@ -13,8 +13,6 @@ var explosions;
 var cursors;
 
 var bullets;
-var fireRate = 100;
-var nextFire = 0;
 
 var ready = false;
 var eurecaServer;
@@ -238,7 +236,10 @@ function preload () {
 function create () {
 
     //  Resize our game world to be a 2000 x 2000 square
-    game.world.setBounds(-1000, -1000, 2000, 2000);
+    game.world.setBounds(mapBoundsLeft, 
+                         mapBoundsTop, 
+                         mapBoundsRight, 
+                         mapBoundsBottom);
 	game.stage.disableVisibilityChange  = true;
 	
     //  Our tiled scrolling background
@@ -330,4 +331,3 @@ function bulletHitPlayer (tank, bullet) {
 
 function render () {
 }
-

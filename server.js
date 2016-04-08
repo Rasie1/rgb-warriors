@@ -4,6 +4,8 @@ var express = require('express')
 
 // serve static files from the current directory
 app.use(express.static(__dirname));
+// app.use(express.static("./js/phaser.js"));
+// app.use(express.static("./js/tanks.js"));
 
 //we'll keep clients data here
 var clients = {};
@@ -62,8 +64,8 @@ eurecaServer.exports.handshake = function()
 		for (var cc in clients)
 		{		
 			//send latest known position
-			var x = clients[cc].laststate ? clients[cc].laststate.x:  0;
-			var y = clients[cc].laststate ? clients[cc].laststate.y:  0;
+			var x = clients[cc].laststate ? clients[cc].laststate.x : 0;
+			var y = clients[cc].laststate ? clients[cc].laststate.y : 0;
 
 			remote.spawnEnemy(clients[cc].id, x, y);		
 		}
