@@ -1,4 +1,4 @@
-var myId=0;
+var myId = 0;
 
 var land;
 
@@ -11,12 +11,9 @@ var explosions;
 
 var logo;
 
-
 var cursors;
 
 var bullets;
-var fireRate = 100;
-var nextFire = 0;
 
 var ready = false;
 var eurecaServer;
@@ -105,7 +102,7 @@ Tank = function (index, game, player) {
     this.bullets.setAll('checkWorldBounds', true);	
 	
 	
-	this.currentSpeed =0;
+	this.currentSpeed = 0;
     this.fireRate = 500;
     this.nextFire = 0;
     this.alive = true;
@@ -247,7 +244,10 @@ function preload () {
 function create () {
 
     //  Resize our game world to be a 2000 x 2000 square
-    game.world.setBounds(-1000, -1000, 2000, 2000);
+    game.world.setBounds(mapBoundsLeft, 
+                         mapBoundsTop, 
+                         mapBoundsRight, 
+                         mapBoundsBottom);
 	game.stage.disableVisibilityChange  = true;
 	
     //  Our tiled scrolling background
