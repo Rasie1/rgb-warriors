@@ -8,7 +8,7 @@ app.use(express.static(__dirname));
 //we'll keep clients data here
 var clients = {};
   
-//get Eureca class
+//get EurecaServer class
 var Eureca = require('eureca.io');
 
 //create an instance of EurecaServer

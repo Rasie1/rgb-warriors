@@ -18,6 +18,17 @@ var nextFire = 0;
 
 var ready = false;
 var eurecaServer;
+
+var screenWidth = window.innerWidth;
+var screenHeight = window.innerHeight;
+
+var onScreenChange = function(){
+	screenWidth = window.innerWidth;
+	screenHeight = window.innerHeight;
+	game.renderer.resize(screenWidth, screenHeight);
+}
+window.addEventListener("resize",onScreenChange);
+
 //this function will handle client communication with the server
 var eurecaClientSetup = function() {
 	//create an instance of eureca.io client
@@ -210,7 +221,7 @@ Tank.prototype.kill = function() {
 	this.turret.kill();
 }
 
-var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser-example', { preload: preload, create: eurecaClientSetup, update: update, render: render });
+var game = new Phaser.Game(screenWidth, screenHeight, Phaser.AUTO, 'phaser-example', { preload: preload, create: eurecaClientSetup, update: update, render: render });
 
 function preload () {
 
@@ -231,7 +242,7 @@ function create () {
 	game.stage.disableVisibilityChange  = true;
 	
     //  Our tiled scrolling background
-    land = game.add.tileSprite(0, 0, 800, 600, 'earth');
+    land = game.add.tileSprite(0, 0, screenWidth, screenHeight, 'earth');
     land.fixedToCamera = true;
     
     tanksList = {};
@@ -258,7 +269,7 @@ function create () {
     turret.bringToTop();
 
     game.camera.follow(tank);
-    game.camera.deadzone = new Phaser.Rectangle(300, 200, 200, 200);
+    game.camera.deadzone = new Phaser.Rectangle((screenWidth-200)/2, (screenHeight-200)/2, 200, 200);
     game.camera.focusOnXY(0, 0);
 
     cursors = game.input.keyboard.createCursorKeys();
