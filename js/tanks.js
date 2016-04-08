@@ -58,6 +58,7 @@ var eurecaClientSetup = function() {
 		console.log('SPAWN');
 		var tnk = new Tank(i, game, tank);
 		tanksList[i] = tnk;
+		console.log('SPWAWNhealth: ', tnk.health);
 	}
 	
 	eurecaClient.exports.updateState = function(id, state)
@@ -328,9 +329,18 @@ function update () {
 			if (j!=i) 
 			{
 			
-				var targetTank = tanksList[j].tank;
+				var targetTankSprite = tanksList[j].tank;
 				
-				game.physics.arcade.overlap(curBullets, targetTank, bulletHitPlayer, null, this);
+				if (game.physics.arcade.collide(targetTankSprite, curBullets, bulletHitPlayer, null, this))
+				{
+					tanksList[j].health -= 10;
+					console.log("health: ", tanksList[j].health);
+					if (tanksList[j].health <= 0)
+					{
+						tanksList[j].kill();
+						console.log("DIE");
+					}
+				}
 			
 			}
 			if (tanksList[j].alive)
@@ -341,9 +351,8 @@ function update () {
     }
 }
 
-function bulletHitPlayer (tank, bullet) {
-
-    bullet.kill();
+function bulletHitPlayer (tnk, bullet) {
+	bullet.kill();
 }
 
 function render () {}
