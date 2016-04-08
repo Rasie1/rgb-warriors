@@ -20,13 +20,6 @@ var eurecaServer;
 var screenWidth = window.innerWidth;
 var screenHeight = window.innerHeight;
 
-var onScreenChange = function(){
-	screenWidth = window.innerWidth;
-	screenHeight = window.innerHeight;
-	game.renderer.resize(screenWidth, screenHeight);
-}
-window.addEventListener("resize",onScreenChange);
-
 //this function will handle client communication with the server
 var eurecaClientSetup = function() {
 	//create an instance of eureca.io client
@@ -220,6 +213,15 @@ Tank.prototype.kill = function() {
 }
 
 var game = new Phaser.Game(screenWidth, screenHeight, Phaser.AUTO, 'phaser-example', { preload: preload, create: eurecaClientSetup, update: update, render: render });
+
+var onScreenChange = function(){
+	screenWidth = window.innerWidth;
+	screenHeight = window.innerHeight;
+	game.renderer.resize(screenWidth, screenHeight);
+	land.width = screenWidth;
+	land.height = screenHeight;
+}
+window.addEventListener("resize",onScreenChange);
 
 function preload () {
 

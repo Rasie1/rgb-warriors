@@ -4,7 +4,7 @@
 	"filename": "shadow",
 	"frame": {"x":0,"y":0,"w":80,"h":80},
 	"rotated": false,
-	"trimmed": false,
+	"trimmed": false, 
 	"spriteSourceSize": {"x":0,"y":0,"w":80,"h":80},
 	"sourceSize": {"w":80,"h":80}
 },
