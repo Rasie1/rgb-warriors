@@ -327,9 +327,9 @@ function update () {
 			if (j!=i) 
 			{
 			
-				var targetTankSprite = tanksList[j].tank;
+				var targetTank = tanksList[j].tank;
 				
-				if (game.physics.arcade.collide(targetTankSprite, curBullets, bulletHitPlayer, null, this))
+				if (game.physics.arcade.collide(targetTank, curBullets, bulletHitPlayer, null, this))
 				{
 					tanksList[j].health -= 10;
 					console.log("health: ", tanksList[j].health);
@@ -346,7 +346,7 @@ function update () {
     }
 }
 
-function bulletHitPlayer (tnk, bullet) {
+function bulletHitPlayer (tank, bullet) {
 	bullet.kill();
 }
 
