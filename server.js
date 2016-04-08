@@ -4,11 +4,13 @@ var express = require('express')
 
 // serve static files from the current directory
 app.use(express.static(__dirname));
+// app.use(express.static("./js/phaser.js"));
+// app.use(express.static("./js/tanks.js"));
 
 //we'll keep clients data here
 var clients = {};
   
-//get Eureca class
+//get EurecaServer class
 var Eureca = require('eureca.io');
 
 //create an instance of EurecaServer
@@ -85,4 +87,4 @@ eurecaServer.exports.handleKeys = function (keys) {
 		clients[c].laststate = keys;
 	}
 }
-server.listen(8000);
+server.listen(19987);
