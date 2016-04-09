@@ -17,6 +17,7 @@ var cursors = {
     spell2:false,
     spell3:false
 };
+var touchControls
 
 var bullets;
 
@@ -43,6 +44,7 @@ console.log(gameWidth);
 
 var itemTimer = 0
 var items = []
+
 //this function will handle client communication with the server
 var eurecaClientSetup = function() {
 	//create an instance of eureca.io client
@@ -193,8 +195,15 @@ function preload () {
     
 }
 
-
 function initializeInput ()
+{
+    if (!game.device.desktop) {
+        touchControls = new TouchControls(player)
+        touchControls.init()
+    }
+}
+
+function handleInput()
 {
     cursors.up = game.input.keyboard.addKey(Phaser.Keyboard.UP)
     cursors.down = game.input.keyboard.addKey(Phaser.Keyboard.DOWN)
@@ -207,6 +216,10 @@ function initializeInput ()
     cursors.spell1 = game.input.keyboard.addKey(Phaser.Keyboard.TWO)
     cursors.spell2 = game.input.keyboard.addKey(Phaser.Keyboard.THREE)
     cursors.spell3 = game.input.keyboard.addKey(Phaser.Keyboard.FOUR)
+
+    if (!game.device.desktop)
+        this.touchControls.processInput();
+    
 }
 
 function create () 
@@ -228,7 +241,7 @@ function create ()
     player = new Character(myId, game, character);
     player.healthBar = game.add.text(10, 10, "HP: 99999%", 
         { font: "32px Arial", fill: "#ffffff", align: "left" });
-    player.healthBar.fixedToCamera = true;
+    player.healthBar.fixedToCamera = true
     player.healthBar.cameraOffset.setTo(10, 10);
     charactersList[myId] = player;
     baseSprite = player.baseSprite;
@@ -264,6 +277,8 @@ function create ()
                              gameHeight*cameraDeadzoneHeight);
     game.camera.focusOnXY(baseSprite.x, baseSprite.y);
 
+    initializeInput()
+
 }
 
 function makeItem(x,y) {
@@ -286,7 +301,9 @@ function update () {
                                         null, 
                                         this)
 	if (itemTimer == 60) {
-		makeItem(Math.random() * mapHeight, Math.random() * mapWidth)
+		makeItem(Math.random() * mapHeight, Math.random() * mapWidth);
+		if (player.health < 30)
+			eurecaServer.updateHP(myId, +1);
 		itemTimer = 0
 	}
 	itemTimer++
@@ -309,7 +326,7 @@ function update () {
     player.input.spell2 = cursors.spell2.isDown;
     player.input.spell3 = cursors.spell3.isDown;
 
-    initializeInput()
+    handleInput()
 
 	player.healthBar.setText("HP: " + player.health + "%");
 	

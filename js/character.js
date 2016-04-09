@@ -73,12 +73,13 @@ Character = function (index, game, x, y) {
     else if (randomElement == 3) this.BCounter++
 
 
+    this.shouldMoveRight = false
+    this.shouldMoveLeft = false
+    this.shouldMoveTop = false
+    this.shouldMoveBottom = false
+
     this.spell0Slot = new Spell()
 
-    if (!game.device.desktop) {
-        this.touchControls = new TouchControls(this)
-        this.touchControls.init()
-    }
 };
 
 Character.prototype.recreate = function (x,y) {
@@ -118,8 +119,6 @@ Character.prototype.update = function() {
         this.cursor.spell3 != this.input.spell3
     );
     
-    if (!game.device.desktop)
-        this.touchControls.processInput();
     
     if (inputChanged)
     {
@@ -142,32 +141,20 @@ Character.prototype.update = function() {
     
     if (this.cursor.left)
     {
-        this.baseSprite.body.velocity.x = -this.SpeedX;
-        baseSprite.rotation = -3.14
+        this.shouldMoveLeft = true
     }
     else if (this.cursor.right)
     {
-        this.baseSprite.body.velocity.x = this.SpeedX;
-        baseSprite.rotation = 0
-    }
-    else
-    {
-        this.baseSprite.body.velocity.x = 0;
+        this.shouldMoveRight = true
     }
 
     if (this.cursor.down)
     {
-        this.baseSprite.body.velocity.y = this.SpeedY;
-        baseSprite.rotation = baseSprite.rotation==-3.14 ? 3*3.14/4 : baseSprite.rotation==0 ? 3.14/4 : 3.14/2
+        this.shouldMoveBottom = true
     }
     else if (this.cursor.up)
     {
-        this.baseSprite.body.velocity.y = -this.SpeedY;
-        baseSprite.rotation = baseSprite.rotation==-3.14 ? -3*3.14/4 : baseSprite.rotation==0 ? -3.14/4 : -3.14/2
-    }
-    else
-    {
-        this.baseSprite.body.velocity.y = 0;
+        this.shouldMoveTop = true
     }
 
     if (this.cursor.fire)
@@ -192,8 +179,41 @@ Character.prototype.update = function() {
 
     }
 
+
+    // commit movement
+    if (this.shouldMoveLeft) {
+        this.baseSprite.body.velocity.x = -this.SpeedX
+        baseSprite.rotation = -3.14
+        this.shouldMoveLeft   = false
+    }
+    else if (this.shouldMoveRight) {
+        this.baseSprite.body.velocity.x = this.SpeedX
+        baseSprite.rotation = 0
+        this.shouldMoveRight  = false
+    }
+    else
+    {
+        this.baseSprite.body.velocity.x = 0
+    }
+
+    if (this.shouldMoveTop) {
+        this.baseSprite.body.velocity.y = -this.SpeedY;
+        baseSprite.rotation = baseSprite.rotation==-3.14 ? -3*3.14/4 : baseSprite.rotation==0 ? -3.14/4 : -3.14/2
+        this.shouldMoveTop    = false
+    }
+    else if (this.shouldMoveBottom) {
+        this.baseSprite.body.velocity.y = this.SpeedY;
+        baseSprite.rotation = baseSprite.rotation==-3.14 ? 3*3.14/4 : baseSprite.rotation==0 ? 3.14/4 : 3.14/2
+        this.shouldMoveBottom = false
+    }
+    else
+    {
+        this.baseSprite.body.velocity.y = 0
+    }
+
     this.headSprite.x = this.baseSprite.x;
     this.headSprite.y = this.baseSprite.y;
+
 };
 
 
