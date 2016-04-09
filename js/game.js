@@ -47,6 +47,8 @@ else {
 var itemTimer = 0
 var items = []
 
+var positions;
+
 var game = new Phaser.Game(
 	gameWidth, 
 	gameHeight, 

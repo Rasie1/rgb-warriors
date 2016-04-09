@@ -207,10 +207,34 @@ setInterval(function(){
 server.listen(8000);
 
 //obstacles
+var obstaclesPosition = [];
 var obstaclesList = [];
+
+function shuffle(a) {
+    var j, x, i;
+    for (i = a.length; i; i -= 1) {
+        j = Math.floor(Math.random() * i);
+        x = a[i - 1];
+        a[i - 1] = a[j];
+        a[j] = x;
+    }
+}
+
+for (var i = 0; i < Math.floor(mapWidth/128)-2; i++) {
+    for (var j = 0; j < Math.floor(mapHeight/128)-2; j++) {
+        obstaclesPosition.push({
+            x:i * 128+64,
+            y:j * 128+64,
+            
+        });
+    }
+};
+shuffle(obstaclesPosition)
+
 for(i=0;i<50;i++){
 	obstaclesList[i]={};
-	obstaclesList[i].x = (Math.random()*(mapWidth/100-1))*100+100;
-	obstaclesList[i].y = (Math.random()*(mapHeight/100-1))*100+100;
+	obstaclesList[i].x = obstaclesPosition[i].x+128;
+	obstaclesList[i].y = obstaclesPosition[i].y+128;
 	obstaclesList[i].spriteType = i%2;
 }
+//console.log(obstaclesPosition)
