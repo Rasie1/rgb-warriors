@@ -1,4 +1,4 @@
-var eurecaClientSetup = function() {
+var EurecaClientSetup = function() {
 	//create an instance of eureca.io client
 
 	var eurecaClient = new Eureca.Client();

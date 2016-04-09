@@ -17,7 +17,8 @@ var cursors = {
     spell2:false,
     spell3:false
 };
-var touchControls
+
+var touchControls;
 
 var bullets;
 
@@ -47,7 +48,7 @@ var game = new Phaser.Game(
 	gameHeight, 
 	Phaser.CANVAS, 
 	'phaser-example', 
-	{ preload: preload, create: eurecaClientSetup, update: update, render: render }
+	{ preload: preload, create: EurecaClientSetup, update: update, render: render }
 );
 
 
@@ -107,11 +108,10 @@ function preload () {
 
 function initializeInput ()
 {
-    // if (!game.device.desktop) {
-    //     touchControls = new TouchControls(player)
-    //     debugMessage(111)
-    //     touchControls.init(game)
-    // }
+    if (!game.device.desktop) {
+        touchControls = new TouchControls(player)
+        touchControls.init(game)
+    }
 }
 
 function handleInput()
@@ -128,8 +128,8 @@ function handleInput()
     cursors.spell2 = game.input.keyboard.addKey(Phaser.Keyboard.THREE)
     cursors.spell3 = game.input.keyboard.addKey(Phaser.Keyboard.FOUR)
 
-    // if (!game.device.desktop)
-    //     this.touchControls.processInput();
+    if (!game.device.desktop)
+        this.touchControls.processInput();
     
 }
 
@@ -194,7 +194,6 @@ function create ()
     game.camera.focusOnXY(baseSprite.x, baseSprite.y);
 
     initializeInput()
-
 }
 
 function makeItem(x,y) {
