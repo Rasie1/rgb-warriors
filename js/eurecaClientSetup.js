@@ -34,6 +34,8 @@ var eurecaClientSetup = function() {
 		if (charactersList[id])
 		{
 			charactersList[id].health += difHP;
+			if (charactersList[id].hpBar != null)
+				charactersList[id].hpBar.scale.setTo(charactersList[id].health / 30, 1);
 			if (charactersList[id].health <= 0 && id == player.baseSprite.id)
 			{
 				console.log('talk server about killing');

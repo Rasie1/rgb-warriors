@@ -84,6 +84,13 @@ Character = function (index, game) {
         this.touchControls = new TouchControls(this)
         this.touchControls.init()
     }
+
+    this.hpBar = null;
+    if (myId != this.baseSprite.id)
+    {
+        this.hpBar = game.add.sprite(x - 32, y - 32, 'hpBar');
+        this.hpBar.anchor.set(0.5);
+    }
 };
 
 Character.prototype.update = function() {
@@ -198,6 +205,11 @@ Character.prototype.update = function() {
     this.headSprite.x = this.baseSprite.x;
     this.headSprite.y = this.baseSprite.y;
 
+    if (myId != this.baseSprite.id)
+    {
+        this.hpBar.x = this.baseSprite.x;
+        this.hpBar.y = this.baseSprite.y - 42;    
+    }
 };
 
 
@@ -223,6 +235,8 @@ Character.prototype.fire = function(target) {
 Character.prototype.kill = function() {
     this.alive = false;
     this.baseSprite.kill();
+    if (myId != this.baseSprite.id)
+        this.hpBar.kill();
     this.headSprite.kill();
     this.dropItem()
 }
