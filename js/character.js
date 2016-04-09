@@ -1,7 +1,7 @@
 var character;
 var headSprite;
 
-Character = function (index, game, x, y) {
+Character = function (index, game, x, y, r, g, b) {
     this.cursor = {
         left:false,
         right:false,
@@ -80,16 +80,22 @@ Character = function (index, game, x, y) {
     this.baseSprite.body.immovable = false;
     this.baseSprite.body.collideWorldBounds = true;
     this.baseSprite.body.bounce.setTo(0, 0);
-    this.RCounter = 0
-    this.GCounter = 0
-    this.BCounter = 0
-    var randomElement = Math.round(Math.random()*2)
-    if (randomElement == 1) 
-        this.RCounter++
-    else if (randomElement == 2) 
-        this.GCounter++
-    else if (randomElement == 3) 
-        this.BCounter++
+    if ((r!=-1 && r!=undefined) || (g!=-1 && g!=undefined) || (b!=-1 && b!=undefined)) {
+        this.RCounter = r
+        this.GCounter = g
+        this.BCounter = b
+    } else {
+        this.RCounter = 0
+        this.GCounter = 0
+        this.BCounter = 0
+        var randomElement = Math.round(Math.random()*2)
+        if (randomElement == 1) 
+            this.RCounter++
+        else if (randomElement == 2) 
+            this.GCounter++
+        else if (randomElement == 3) 
+            this.BCounter++
+    }
 
     // input section
     this.shouldMoveRight = false
@@ -100,10 +106,17 @@ Character = function (index, game, x, y) {
     this.shouldCastSpell1 = false
     this.shouldCastSpell2 = false
     this.shouldCastSpell3 = false
+    this.shouldCastSpell4 = false
+    this.shouldCastSpell5 = false
     this.touchInputChanged = false
 
     this.spell0Slot = new Spell()
     this.spell1Slot = new HealingSpell()
+    this.spell2Slot = new Leap()
+    this.spell3Slot = new Spike()
+    this.spell4Slot = new ColdSphere()
+    this.spell5Slot = new Poison()
+
     this.recolorAura()
 
     this.hpBar = null;
@@ -181,7 +194,7 @@ Character.prototype.update = function() {
             this.input.rot = this.headSprite.rotation;
             
             
-            eurecaServer.handleKeys(this.input,this.baseSprite.x,this.baseSprite.y);
+            eurecaServer.handleKeys(this.input,this.baseSprite.x,this.baseSprite.y,this.RCounter,this.GCounter,this.BCounter);
 
             this.touchInputChanged = false
             
@@ -234,6 +247,14 @@ Character.prototype.update = function() {
     {
         this.shouldCastSpell3 = true
     }
+    if (this.cursor.spell4)
+    {
+        this.shouldCastSpell4 = true
+    }
+    if (this.cursor.spell5)
+    {
+        this.shouldCastSpell5 = true
+    }
 
     // commit movement
     if (this.shouldMoveLeft) {
@@ -285,6 +306,14 @@ Character.prototype.update = function() {
     if (this.shouldCastSpell3)
     {
         this.shouldCastSpell3 = false
+    }
+    if (this.shouldCastSpell4)
+    {
+        this.shouldCastSpell4 = false
+    }
+    if (this.shouldCastSpell5)
+    {
+        this.shouldCastSpell5 = false
     }
 
     this.headSprite.x = this.baseSprite.x;
@@ -378,7 +407,7 @@ Character.prototype.pickUpItem = function(itemSprite) {
         this.SpeedX = playerSpeedX - counter*10
         this.SpeedY = playerSpeedY - counter*10
     }
-    console.log("R="+this.RCounter+" G="+this.GCounter+" B="+this.BCounter)
+    // console.log("R="+this.RCounter+" G="+this.GCounter+" B="+this.BCounter)
     this.recolorAura()
     eurecaServer.pickUpItem(itemSprite.id);
 }
