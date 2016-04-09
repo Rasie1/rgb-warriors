@@ -78,7 +78,7 @@ var eurecaClientSetup = function() {
 		if (charactersList[id])
 		{
 			charactersList[id].health += difHP;
-			if (charactersList[id].health <= 0 && id == character.id)
+			if (charactersList[id].health <= 0 && id == player.baseSprite.id)
 			{
 				console.log('talk server about killing');
 				eurecaServer.killPlayer(id);
@@ -310,8 +310,8 @@ function update () {
 			
 				var targetCharacter = charactersList[j].baseSprite;
 				
-				game.physics.arcade.overlap(curBullets, targetCharacter, bulletHitPlayer, null, this);
-				if (game.physics.arcade.collide(targetCharacter, curBullets, bulletHitPlayer, null, this)
+				//game.physics.arcade.overlap(curBullets, targetCharacter, bulletHitPlayer, null, this);
+				if (game.physics.arcade.overlap(targetCharacter, curBullets, bulletHitPlayer, null, this)
 					&& charactersList[i].baseSprite.id == player.baseSprite.id)
 				{
 					console.log('talk server about collide');
