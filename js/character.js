@@ -297,11 +297,8 @@ Character.prototype.update = function() {
         this.hpBar.y = this.baseSprite.y - 42;    
     }
 
-    game.physics.arcade.collide(this.baseSprite, cactuses);
-    game.physics.arcade.collide(this.baseSprite, stones);
-    game.physics.arcade.collide(this.bullets, cactuses, function(a){a.kill()},null,this);
-    game.physics.arcade.collide(this.baseSprite, walls);
-    game.physics.arcade.collide(this.bullets, walls, function(a){a.kill()},null,this);
+    game.physics.arcade.collide(this.baseSprite, obstacles);
+    game.physics.arcade.collide(this.bullets, obstacles, function(a){a.kill()},null,this);
 };
 
 
