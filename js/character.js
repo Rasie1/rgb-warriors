@@ -122,7 +122,7 @@ Character.prototype.recreate = function (x,y) {
     if (randomElement == 1) this.RCounter++
     else if (randomElement == 2) this.GCounter++
     else if (randomElement == 3) this.BCounter++
-
+    this.recolorAura()
 
 }
 Character.prototype.update = function() {
@@ -272,6 +272,7 @@ Character.prototype.kill = function() {
     if (myId != this.baseSprite.id)
         this.hpBar.kill();
     this.headSprite.kill();
+    this.auraSprite.kill();
     this.dropItem();
     setTimeout("recreate('"+this.id+"')",3000)
 }
