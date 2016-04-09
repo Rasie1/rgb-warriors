@@ -167,7 +167,8 @@ function create ()
 
 
     console.log('creating character')
-    player = new Character(myId, game, initialSpawnLocationX, initialSpawnLocationY);
+
+    player = new Character(myId, game, initialSpawnLocationX, initialSpawnLocationY, -1, -1, -1); // -1 чтобы можно было отлечить потрачено было или не задано
     player.HUD = game.add.group();
     player.healthBar = game.add.text(10, 10, "HP: 99999%",
         { font: "32px Arial", fill: "#ffffff", align: "left" });
@@ -258,6 +259,7 @@ function update () {
     if (!ready) 
         return;
     
+    player.spell1Slot.currentCooldown--;
     
     player.input.left = cursors.left.isDown;
     player.input.right = cursors.right.isDown;
@@ -275,7 +277,7 @@ function update () {
 
     handleInput(player)
 
-    player.healthBar.setText("HP: " + player.health + "%");
+    player.healthBar.setText("HP: " + player.health);
     
     headSprite.rotation = game.physics.arcade.angleToPointer(headSprite);   
     //baseSprite.rotation = game.physics.arcade.angleToPointer(baseSprite); 

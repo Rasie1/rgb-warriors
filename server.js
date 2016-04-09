@@ -116,20 +116,22 @@ eurecaServer.onDisconnect(function (conn) {
 });
 
 
-eurecaServer.exports.handshake = function(id,x,y)
+eurecaServer.exports.handshake = function(id,x,y,r,g,b)
 {
 	var enemy=clients[id]
 	for (var c in clients)
 		if (c!=id) {
-			clients[c].remote.spawnEnemy(id,x,y)
-			enemy.remote.spawnEnemy(c,clients[c].lastX,clients[c].lastY)
+			clients[c].remote.spawnEnemy(id,x,y,r,g,b)
+			var cl = clients[c]
+			console.log("RGB=="+cl.r+cl.g+cl.b)
+			enemy.remote.spawnEnemy(c,cl.lastX,cl.lastY,cl.r,cl.g,cl.b)
 		}
 	
 }
 
 
 //be exposed to client side
-eurecaServer.exports.handleKeys = function (keys,x,y) {
+eurecaServer.exports.handleKeys = function (keys,x,y,r,g,b) {
 	var conn = this.connection;
 	var updatedClient = clients[conn.id];
 	
@@ -141,6 +143,9 @@ eurecaServer.exports.handleKeys = function (keys,x,y) {
 		clients[c].laststate = keys;
 		clients[c].lastX = x;
 		clients[c].lastY = y;
+		clients[c].r = r;
+		clients[c].g = g;
+		clients[c].b = b;
 	}
 }	
 eurecaServer.exports.handleRotation = function (keys) {

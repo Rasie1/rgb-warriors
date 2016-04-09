@@ -105,12 +105,30 @@ TouchControls.prototype.init = function create(game) {
                                0, 0, 0);
     buttonS3.scale.x = 1
     buttonS3.scale.y = 1
+    buttonS4 = game.add.button(window.innerWidth - this.segmentSize - this.margin, 
+                               this.offsetY + this.segmentSize + this.segmentSize + this.segmentSize + this.segmentSize,
+                               'button-circle', 
+                               this.spell4buttonAction, 
+                               this, 
+                               0, 0, 0);
+    buttonS4.scale.x = 1
+    buttonS4.scale.y = 1
+    buttonS5 = game.add.button(window.innerWidth - this.segmentSize - this.margin, 
+                               this.offsetY + this.segmentSize + this.segmentSize + this.segmentSize + this.segmentSize + this.segmentSize,
+                               'button-circle', 
+                               this.spell5buttonAction, 
+                               this, 
+                               0, 0, 0);
+    buttonS5.scale.x = 1
+    buttonS5.scale.y = 1
 
 
     buttonS0.fixedToCamera = true
     buttonS1.fixedToCamera = true
     buttonS2.fixedToCamera = true
     buttonS3.fixedToCamera = true
+    buttonS4.fixedToCamera = true
+    buttonS5.fixedToCamera = true
 
 }
 
@@ -135,6 +153,14 @@ TouchControls.prototype.spell2buttonAction = function() {
 
 TouchControls.prototype.spell3buttonAction = function() {
     debugMessage(3)
+}
+
+TouchControls.prototype.spell4buttonAction = function() {
+    debugMessage(4)
+}
+
+TouchControls.prototype.spell5buttonAction = function() {
+    debugMessage(5)
 }
 
 TouchControls.prototype.processInput = function(character) {
