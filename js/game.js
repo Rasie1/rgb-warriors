@@ -46,7 +46,7 @@ var items = []
 var game = new Phaser.Game(
 	gameWidth, 
 	gameHeight, 
-	Phaser.CANVAS, 
+	Phaser.WEBGL, 
 	'phaser-example', 
 	{ preload: preload, create: EurecaClientSetup, update: update, render: render }
 );
@@ -179,11 +179,12 @@ function create ()
     //baseSprite.bringToTop();
     player.HUD.bringToTop(player.HUD);
 
-    //if(game.renderType!=2){
-        game.scale.pageAlignHorizontally = true;
-        game.scale.pageAlignVertically = true;
-        game.scale.setScreenSize(true);
-    //} 
+    if(game.renderType!=2){
+	    game.scale.pageAlignHorizontally = true;
+	    game.scale.pageAlignVertically = true;
+	    game.scale.setScreenSize(true);
+    } 
+
 
     game.camera.follow(baseSprite);
     game.camera.deadzone = 
@@ -195,34 +196,47 @@ function create ()
 
     initializeInput()
 }
+createItem = function(x, y, elementForDrop)
+{
+	var item = game.add.sprite(x,y,'item'+elementForDrop)
+	game.physics.enable(item, Phaser.Physics.ARCADE)
+	item.enableBody = true
+	item.physicsBodyType = Phaser.Physics.ARCADE
+	item.element = elementForDrop
+	items[items.length] = item
+}
 
-function makeItem(x,y) {
-    var found = false
-    var elementForDrop = Math.round(Math.random()*2)+1
-    for (var i in items) 
-        if (!items[i].alive && items[i].element == elementForDrop) 
-            eurecaServer.activateItem(i, x, y);
-
-    if (!found && items.length < 10) 
-        eurecaServer.createItem(x, y, elementForDrop);
+activateItem = function(index, x, y)
+{
+	if (items[index])
+	{
+		var item = items[index]
+		item.x = x
+		item.y = y
+		item.alive = true
+		found = true	
+	}
 
 }
 
-function update () {
-    for (var j in charactersList)
-        for (var i in items) 
-            game.physics.arcade.overlap(items[i], charactersList[j].baseSprite, 
-                                        function(a){charactersList[j].pickUpItem(items[i])}, 
-                                        null, 
-                                        this)
-    if (itemTimer == 60) {
-        makeItem(Math.random() * mapHeight, Math.random() * mapWidth);
-        if (player.health < 30 && player.alive)
-            eurecaServer.updateHP(myId, +1);
-        itemTimer = 0
-    }
-    itemTimer++
 
+function update () {
+	for (var j in charactersList)
+		for (var i in items) 
+            game.physics.arcade.overlap(
+            	items[i],
+            	charactersList[j].baseSprite, 
+                function(a){charactersList[j].pickUpItem(items[i])}, 
+                null, 
+                this
+            )
+	if (itemTimer == 60) {
+		//makeItem(Math.random() * mapHeight, Math.random() * mapWidth);
+		if (player.health < 30 && player.alive)
+			eurecaServer.updateHP(myId, +1);
+		itemTimer = 0
+	}
+	itemTimer++
     
     //do not update if client not ready
     if (!ready) 

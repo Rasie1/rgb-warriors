@@ -1,3 +1,21 @@
+var mapX   = 0;
+var mapWidth  =  2000;
+var mapY    = 0;
+var mapHeight =  2000;
+
+var cameraDeadzoneWidth = 0.25;
+var cameraDeadzoneHeight = 0.25; 
+
+var playerSpeedX = 300;
+var playerSpeedY = 300;
+
+var maxGameWidth = 3000; 
+var maxGameHeight = 3000;
+
+var itemX;
+var itemY;
+var elementForDrop;
+
 var express = require('express')
   , app = express(app)
   , server = require('http').createServer(app);
@@ -24,8 +42,8 @@ var eurecaServer = new Eureca.Server({allow:[
 	'updateState',
 	'updateRotation',
 	'updateHP', 
-	'createItem', 
-	'activateItem', 
+	'makeItem', 
+	'dropItem',
 	'pickUpItem']
 });
 
@@ -71,24 +89,14 @@ eurecaServer.onDisconnect(function (conn) {
 
 eurecaServer.exports.handshake = function(id,x,y)
 {
-    for (var c in clients)
-    {
-        var remote = clients[c].remote
-        for (var cc in clients)
-        {       
-            //send latest known position
-            var x = clients[cc].laststate ? clients[cc].laststate.x : 0;
-            var y = clients[cc].laststate ? clients[cc].laststate.y : 0;
- 
-            remote.spawnEnemy(clients[cc].id, x, y)
-        }
-    }
-	// console.log("handshake()")
-	// console.log("enemy="+id)
-	// var enemy
-	// for (var c in clients) if (clients[c].id==id) enemy=clients[c]
-	// for (var c in clients) if (clients[c].id!=id) clients[c].remote.spawnEnemy(id,x,y)			// я это
-	// for (var c in clients) if (clients[c].id!=id) enemy.remote.spawnEnemy(clients[c].id,clients[c].lastX,clients[c].lastY)	// починю
+	var enemy=clients[id];
+	for (var c in clients){
+		if (c!=id){
+			clients[c].remote.spawnEnemy(id,x,y);
+			enemy.remote.spawnEnemy(c,clients[c].lastX,clients[c].lastY)
+		}
+	}
+
 }
 
 
@@ -103,8 +111,8 @@ eurecaServer.exports.handleKeys = function (keys,x,y) {
 		remote.updateState(updatedClient.id, keys);
 		//keep last known state so we can send it to new connected clients
 		clients[c].laststate = keys;
-		clients[c].lastX = x
-		clients[c].lastY = y
+		clients[c].lastX = x;
+		clients[c].lastY = y;
 	}
 }	
 eurecaServer.exports.handleRotation = function (keys) {
@@ -132,17 +140,13 @@ eurecaServer.exports.updateHP = function(id, difHP)
 		clients[c].remote.updateHP(id, difHP);
 }
 
-eurecaServer.exports.createItem = function(x, y, elementForDrop)
+eurecaServer.exports.dropItem = function(x, y, elementForDrop)
 {
+	elementForDrop = Math.round(Math.random()*2)+1;
 	for (var c in clients)
-		clients[c].remote.createItem(x, y, elementForDrop);
+		clients[c].remote.makeItem(x, y, elementForDrop);
 }
 
-eurecaServer.exports.activateItem = function(index, x, y)
-{
-	for (var c in clients)
-		clients[c].remote.activateItem(index, x, y);
-}
 /*
 eurecaServer.exports.pickUpItem = function(itemSprite)
 {
@@ -150,4 +154,16 @@ eurecaServer.exports.pickUpItem = function(itemSprite)
 		clients[c].remote.pickUpItem(itemSprite);
 }
 */
+
+
+
+setInterval(function(){
+	itemX = Math.random() * mapWidth;
+	itemY = Math.random() * mapHeight;
+	elementForDrop = Math.round(Math.random()*2)+1;
+	for (var c in clients){		
+		clients[c].remote.makeItem(itemX, itemY, elementForDrop);
+	}
+},5000)
 server.listen(8000);
+
