@@ -6,6 +6,8 @@ var player;
 var charactersList;
 var explosions;
 
+var cactuses
+
 var cursors = {
     left:false,
     right:false,
@@ -97,13 +99,15 @@ function preload () {
     game.load.atlas('enemy', 'assets/enemy-tanks.png', 'assets/tanks.json');
     game.load.image('bullet', 'assets/bullet.png');
     game.load.image('button-circle', 'assets/button_circle.png');
-    game.load.image('earth', 'assets/scorched_earth.png');
+    game.load.image('earth', 'assets/light_sand.png');
     game.load.spritesheet('kaboom', 'assets/explosion.png', 64, 64, 23);
     game.load.image('item1', 'assets/item0.png')
     game.load.image('item2', 'assets/item1.png')
     game.load.image('item3', 'assets/item2.png')
-    game.load.image('aura', 'assets/aura.png')    
+    game.load.image('aura', 'assets/aura.png')
     game.load.image('hpBar', 'assets/HPbar.png')
+    game.load.image('cactus', 'assets/cactus.png')
+    game.load.image('stone', 'assets/stone.png')
 }
 
 function initializeInput ()
@@ -148,6 +152,13 @@ function create ()
     
     charactersList = {};
 
+	cactuses = game.add.group();
+	cactuses.enableBody = true;
+    for (var i=0;i<30;i++) {
+		var cactus = cactuses.create((Math.random()*20)*100,(Math.random()*20)*100, i%2==0?'cactus':'stone');
+		cactus.body.immovable = true;
+		cactus.scale.setTo(1, 1);
+    }
     console.log('creating character')
     player = new Character(myId, game,0,0);
     player.HUD = game.add.group();
@@ -211,12 +222,13 @@ function makeItem(x,y) {
 }
 
 function update () {
-	for (var j in charactersList)
+	for (var j in charactersList) {
 		for (var i in items) 
             game.physics.arcade.overlap(items[i], charactersList[j].baseSprite, 
                                         function(a){charactersList[j].pickUpItem(items[i])}, 
                                         null, 
                                         this)
+    }
 	if (itemTimer == 60) {
 		makeItem(Math.random() * mapHeight, Math.random() * mapWidth);
 		if (player.health < 30 && player.alive)

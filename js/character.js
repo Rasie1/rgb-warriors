@@ -249,6 +249,9 @@ Character.prototype.update = function() {
         this.hpBar.x = this.baseSprite.x;
         this.hpBar.y = this.baseSprite.y - 42;    
     }
+
+    game.physics.arcade.collide(this.baseSprite, cactuses);
+    game.physics.arcade.collide(this.bullets, cactuses, function(a){a.kill()},null,this);
 };
 
 
