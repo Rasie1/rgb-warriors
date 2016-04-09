@@ -196,7 +196,8 @@ function preload () {
     game.load.image('item1', 'assets/item0.png')
     game.load.image('item2', 'assets/item1.png')
     game.load.image('item3', 'assets/item2.png')
-    
+    game.load.image('aura', 'assets/aura.png')    
+    game.load.image('hpBar', 'assets/HPbar.png')
 }
 
 function initializeInput ()

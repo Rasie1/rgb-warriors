@@ -53,9 +53,14 @@ Character = function (index, game, x, y) {
 
     this.baseSprite = game.add.sprite(x, y, 'enemy', 'tank1');
     this.headSprite = game.add.sprite(x, y, 'enemy', 'turret');
+    this.auraSprite = game.add.sprite(x, y, 'aura');
 
     this.baseSprite.anchor.set(0.5);
+    this.auraSprite.anchor.set(0.5);
     this.headSprite.anchor.set(0.3, 0.5);
+
+    this.auraSprite.scale.setTo(10, 10);
+    this.recolorAura()
 
     this.id = index;
     this.baseSprite.id = index;
@@ -68,9 +73,12 @@ Character = function (index, game, x, y) {
     this.GCounter = 0
     this.BCounter = 0
     var randomElement = Math.round(Math.random()*2)
-    if (randomElement == 1) this.RCounter++
-    else if (randomElement == 2) this.GCounter++
-    else if (randomElement == 3) this.BCounter++
+    if (randomElement == 1) 
+        this.RCounter++
+    else if (randomElement == 2) 
+        this.GCounter++
+    else if (randomElement == 3) 
+        this.BCounter++
 
 
     this.shouldMoveRight = false
@@ -79,7 +87,19 @@ Character = function (index, game, x, y) {
     this.shouldMoveBottom = false
 
     this.spell0Slot = new Spell()
+    this.recolorAura()
 
+    if (!game.device.desktop) {
+        this.touchControls = new TouchControls(this)
+        this.touchControls.init()
+    }
+
+    this.hpBar = null;
+    if (myId != this.baseSprite.id)
+    {
+        this.hpBar = game.add.sprite(x - 32, y - 32, 'hpBar');
+        this.hpBar.anchor.set(0.5);
+    }
 };
 
 Character.prototype.recreate = function (x,y) {
@@ -213,7 +233,14 @@ Character.prototype.update = function() {
 
     this.headSprite.x = this.baseSprite.x;
     this.headSprite.y = this.baseSprite.y;
+    this.auraSprite.x = this.baseSprite.x;
+    this.auraSprite.y = this.baseSprite.y;
 
+    if (myId != this.baseSprite.id)
+    {
+        this.hpBar.x = this.baseSprite.x;
+        this.hpBar.y = this.baseSprite.y - 42;    
+    }
 };
 
 
@@ -242,6 +269,8 @@ function recreate(deadId) {
 Character.prototype.kill = function() {
     this.alive = false;
     this.baseSprite.kill();
+    if (myId != this.baseSprite.id)
+        this.hpBar.kill();
     this.headSprite.kill();
     this.dropItem();
     setTimeout("recreate('"+this.id+"')",3000)
@@ -249,6 +278,22 @@ Character.prototype.kill = function() {
 
 Character.prototype.dropItem = function() {
     makeItem(this.baseSprite.x,this.baseSprite.y)
+}
+
+Character.prototype.recolorAura = function() {
+    var total = this.BCounter + this.GCounter + this.BCounter
+    var r = Phaser.Math.clamp(255 * this.RCounter / total, 
+                              0, 255)
+    var g = Phaser.Math.clamp(255 * this.GCounter / total, 
+                              0, 255)
+    var b = Phaser.Math.clamp(255 * this.BCounter / total, 
+                              0, 255)
+    var a = Phaser.Math.clamp((this.RCounter + this.GCounter + this.BCounter) / 32, 
+                              0, 1)
+
+    var newTint = Phaser.Color.getColor(r, g, b)
+    this.auraSprite.tint = newTint;
+    this.auraSprite.alpha = a
 }
 
 Character.prototype.pickUpItem = function(itemSprite) {
@@ -270,4 +315,5 @@ Character.prototype.pickUpItem = function(itemSprite) {
         this.SpeedX = playerSpeedY-Counter*10
     }
     console.log("R="+this.RCounter+" G="+this.GCounter+" B="+this.BCounter)
+    this.recolorAura()
 }
