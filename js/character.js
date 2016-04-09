@@ -350,7 +350,7 @@ Character.prototype.pickUpItem = function(itemSprite) {
             break
         case 3:
             this.BCounter++
-            break
+            break 
     }
     var counter = this.RCounter+this.GCounter+this.BCounter
     if (counter <= 20) {
@@ -359,4 +359,5 @@ Character.prototype.pickUpItem = function(itemSprite) {
     }
     console.log("R="+this.RCounter+" G="+this.GCounter+" B="+this.BCounter)
     this.recolorAura()
+    eurecaServer.pickUpItem(itemSprite.id);
 }

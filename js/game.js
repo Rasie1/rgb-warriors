@@ -237,25 +237,26 @@ function create ()
 
     initializeInput()
 }
-createItem = function(x, y, elementForDrop)
+createItem = function(x, y, elementForDrop,itemID)
 {
 	var item = game.add.sprite(x,y,'item'+elementForDrop)
 	game.physics.enable(item, Phaser.Physics.ARCADE)
 	item.enableBody = true
 	item.physicsBodyType = Phaser.Physics.ARCADE
-	item.element = elementForDrop
-	items[items.length] = item
+	item.element = elementForDrop;
+	item.id = itemID;
+	items[items.length] = item;
 }
 
-activateItem = function(index, x, y)
+activateItem = function(index, x, y,itemID)
 {
 	if (items[index])
 	{
-		var item = items[index]
-		item.x = x
-		item.y = y
-		item.alive = true
-		found = true	
+		var item = items[index];
+		item.x = x;
+		item.y = y;
+		item.alive = true;
+		found = true
 	}
 
 }

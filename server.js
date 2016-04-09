@@ -16,6 +16,9 @@ var itemX;
 var itemY;
 var elementForDrop;
 
+var itemsList = [];
+var itemIdCounter = 0;
+
 var express = require('express')
   , app = express(app)
   , server = require('http').createServer(app);
@@ -44,7 +47,8 @@ var eurecaServer = new Eureca.Server({allow:[
 	'updateHP', 
 	'makeItem', 
 	'dropItem',
-	'pickUpItem']
+	'pickUpItem'
+]
 });
 
 //attach eureca.io to our http server
@@ -67,6 +71,14 @@ eurecaServer.onConnect(function (conn) {
 	
 	//here we call setId (defined in the client side)
 	remote.setId(conn.id);	
+
+	if(itemsList.length){
+		for(i=0;i<itemsList.length;i++){			
+			if(typeof itemsList[i] != 'undefined'){
+				clients[conn.id].remote.makeItem(itemsList[i].x, itemsList[i].y, itemsList[i].element,itemsList[i].id);
+			}
+		}
+	}
 });
 
 //detect client disconnection
@@ -142,17 +154,32 @@ eurecaServer.exports.updateHP = function(id, difHP)
 eurecaServer.exports.dropItem = function(x, y, elementForDrop)
 {
 	elementForDrop = Math.round(Math.random()*2)+1;
-	for (var c in clients)
+	for (var c in clients){
 		clients[c].remote.makeItem(x, y, elementForDrop);
+	}
+	itemsList.push({
+		x:x,
+		y:y,
+		element:elementForDrop,
+		id:itemIdCounter
+	});
+	itemIdCounter++;
 }
 
-/*
-eurecaServer.exports.pickUpItem = function(itemSprite)
+eurecaServer.exports.pickUpItem = function(itemID)
 {
-	for (var c in clients)
-		clients[c].remote.pickUpItem(itemSprite);
+
+	for(i=0;i<itemsList.length;i++){
+		
+		if(typeof itemsList[i] != 'undefined'){
+			if(itemID==itemsList[i].id){
+				delete itemsList[i]
+			}
+		}
+
+	}
 }
-*/
+
 
 
 
@@ -161,8 +188,16 @@ setInterval(function(){
 	itemY = Math.random() * mapHeight;
 	elementForDrop = Math.round(Math.random()*2)+1;
 	for (var c in clients){		
-		clients[c].remote.makeItem(itemX, itemY, elementForDrop);
-	}
+		clients[c].remote.makeItem(itemX, itemY, elementForDrop,itemIdCounter);
+	};
+	itemsList.push({
+		x:itemX,
+		y:itemY,
+		element:elementForDrop,
+		id:itemIdCounter
+	})
+	itemIdCounter++;
+	//console.log(itemsList,itemIdCounter);
 },5000)
 server.listen(8000);
 
