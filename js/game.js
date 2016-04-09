@@ -235,7 +235,7 @@ function create ()
 }
 
 function makeItem(x,y) {
-	var faund = false
+	var found = false
 	var elementForDrop = Math.round(Math.random()*2)+1
 	for (var i in items) if (!items[i].alive && items[i].element==elementForDrop) {
 		var item = items[i]
@@ -244,7 +244,7 @@ function makeItem(x,y) {
 		item.alive = true
 		found = true
 	}
-	if (!faund) {
+	if (!found) {
 		var item = game.add.sprite(x,y,'item'+elementForDrop)
 		game.physics.enable(item, Phaser.Physics.ARCADE)
 		item.enableBody = true
@@ -291,7 +291,7 @@ function update () {
 	player.healthBar.setText("HP: " + player.health + "%");
 	
 	headSprite.rotation = game.physics.arcade.angleToPointer(headSprite);	
-	baseSprite.rotation = game.physics.arcade.angleToPointer(baseSprite);	
+	//baseSprite.rotation = game.physics.arcade.angleToPointer(baseSprite);	
 
     land.tilePosition.x = -game.camera.x;
     land.tilePosition.y = -game.camera.y;

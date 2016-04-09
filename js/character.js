@@ -113,28 +113,32 @@ Character.prototype.update = function() {
     if (this.cursor.left)
     {
         this.baseSprite.body.velocity.x = -playerSpeedX;
+        baseSprite.rotation = -3.14
     }
     else if (this.cursor.right)
     {
         this.baseSprite.body.velocity.x = playerSpeedX;
+        baseSprite.rotation = 0
     }
     else
     {
         this.baseSprite.body.velocity.x = 0;
-    };
+    }
 
     if (this.cursor.down)
     {
         this.baseSprite.body.velocity.y = playerSpeedY;
+        baseSprite.rotation = baseSprite.rotation==-3.14 ? 3*3.14/4 : baseSprite.rotation==0 ? 3.14/4 : 3.14/2
     }
     else if (this.cursor.up)
     {
         this.baseSprite.body.velocity.y = -playerSpeedY;
+        baseSprite.rotation = baseSprite.rotation==-3.14 ? -3*3.14/4 : baseSprite.rotation==0 ? -3.14/4 : -3.14/2
     }
     else
     {
         this.baseSprite.body.velocity.y = 0;
-    };
+    }
 
     if (this.cursor.fire)
     {   
@@ -189,12 +193,10 @@ Character.prototype.kill = function() {
 }
 
 Character.prototype.dropItem = function() {
-    console.log("dropItem()")
     makeItem(this.baseSprite.x,this.baseSprite.y)
 }
 
 Character.prototype.pickUpItem = function(itemSprite) {
-    console.log("pickUpItem()")
     itemSprite.kill()
     switch (itemSprite.element) {
         case 1:
