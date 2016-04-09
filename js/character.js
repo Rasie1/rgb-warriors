@@ -377,7 +377,7 @@ Character.prototype.pickUpItem = function(itemSprite) {
         this.SpeedX = playerSpeedX - counter*10
         this.SpeedY = playerSpeedY - counter*10
     }
-    console.log("R="+this.RCounter+" G="+this.GCounter+" B="+this.BCounter)
+    // console.log("R="+this.RCounter+" G="+this.GCounter+" B="+this.BCounter)
     this.recolorAura()
     eurecaServer.pickUpItem(itemSprite.id);
 }
