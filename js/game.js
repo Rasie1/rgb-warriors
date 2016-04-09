@@ -185,26 +185,29 @@ function create ()
                          mapY, 
                          mapWidth, 
                          mapHeight);
-	game.stage.disableVisibilityChange  = true;
-	
+    game.stage.disableVisibilityChange  = true;
+    
     //  Our tiled scrolling background
     land = game.add.tileSprite(0, 0, gameWidth, gameHeight, 'earth');
 
     land.fixedToCamera = true;
     
     charactersList = {};
-	
-	player = new Character(myId, game, character);
-	player.healthBar = game.add.text(10, 10, "HP: 99999%", 
-    	{ font: "32px Arial", fill: "#ffffff", align: "left" });
+
+    
+    player = new Character(myId, game, character);
+    player.healthBar = game.add.text(10, 10, "HP: 99999%", 
+        { font: "32px Arial", fill: "#ffffff", align: "left" });
     player.healthBar.fixedToCamera = true;
     player.healthBar.cameraOffset.setTo(10, 10);
-	charactersList[myId] = player;
-	baseSprite = player.baseSprite;
-	headSprite = player.headSprite;
-	baseSprite.x=0;
-	baseSprite.y=0;
-	bullets = player.bullets;
+    charactersList[myId] = player;
+    baseSprite = player.baseSprite;
+    headSprite = player.headSprite;
+    baseSprite.x = 0;
+    baseSprite.y = 0;
+    bullets = player.bullets;
+
+    initDebugMessage(game);
 
     //  Explosion pool
     explosions = game.add.group();

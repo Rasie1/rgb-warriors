@@ -7,7 +7,6 @@ TouchControls = function(character)
 };
 
 TouchControls.prototype.init = function create() {
-
     button = game.add.button(0, 
                              400, 
                              'character', 

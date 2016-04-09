@@ -11,3 +11,4 @@ var playerSpeedY = 300;
 
 var maxGameWidth = 3000; 
 var maxGameHeight = 3000;
+
