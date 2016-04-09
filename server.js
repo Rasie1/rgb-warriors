@@ -175,8 +175,9 @@ eurecaServer.exports.pickUpItem = function(itemID)
 		
 		if(typeof itemsList[i] != 'undefined'){
 			if(itemID==itemsList[i].id){
+				itemsList[i].gridPosition.occupied = false;
 				index = itemsList.indexOf(itemsList[i]);
-				itemsList = itemsList.slice(1,index).concat(itemsList.slice(index+1,itemsList.length))
+				itemsList = itemsList.slice(1,index).concat(itemsList.slice(index+1,itemsList.length));
 			}
 		}
 		//console.log(itemsList)
@@ -186,28 +187,9 @@ eurecaServer.exports.pickUpItem = function(itemID)
 
 
 
-setInterval(function(){
-	if(itemsList.length<30){
-		itemX = Math.random() * mapWidth;
-		itemY = Math.random() * mapHeight;
-		elementForDrop = Math.round(Math.random()*2)+1;
-		for (var c in clients){		
-			clients[c].remote.makeItem(itemX, itemY, elementForDrop,itemIdCounter);
-		};
-		itemsList.push({
-			x:itemX,
-			y:itemY,
-			element:elementForDrop,
-			id:itemIdCounter
-		})
-		itemIdCounter++;
-		//console.log(itemsList,itemIdCounter);
-	}
-},5000)
-server.listen(8000);
 
 //obstacles
-var obstaclesPosition = [];
+var obstaclesPositions = [];
 var obstaclesList = [];
 
 function shuffle(a) {
@@ -220,21 +202,64 @@ function shuffle(a) {
     }
 }
 
-for (var i = 0; i < Math.floor(mapWidth/128)-2; i++) {
-    for (var j = 0; j < Math.floor(mapHeight/128)-2; j++) {
-        obstaclesPosition.push({
-            x:i * 128+64,
-            y:j * 128+64,
+for (var i = 0; i < Math.round(mapWidth/200)-1; i++) {
+    for (var j = 0; j < Math.round(mapHeight/200)-1; j++) {
+        obstaclesPositions.push({
+            x:i * 200+150,
+            y:j * 200+150,
+            occupied: false
             
         });
     }
 };
-shuffle(obstaclesPosition)
+shuffle(obstaclesPositions)
 
-for(i=0;i<50;i++){
+for(i=0;i<25;i++){
 	obstaclesList[i]={};
-	obstaclesList[i].x = obstaclesPosition[i].x+128;
-	obstaclesList[i].y = obstaclesPosition[i].y+128;
+	obstaclesList[i].x = obstaclesPositions[i].x;
+	obstaclesList[i].y = obstaclesPositions[i].y;
 	obstaclesList[i].spriteType = i%2;
+	if(Math.floor(Math.random()*4)!=0){
+		obstaclesList[i].spriteType = 'cactus'+Math.floor(Math.random()*2);
+	}
+	else{
+		obstaclesList[i].spriteType = 'stone';
+	}
+	obstaclesPositions[i].occupied = true;
 }
-//console.log(obstaclesPosition)
+console.log(obstaclesPositions)
+
+//item spawn
+setInterval(function(){
+	if(itemsList.length<30){
+		shuffle(obstaclesPositions);
+		var isOccupied = true;
+		var i = 0;
+		var gridPosition;
+		while(isOccupied==true){
+			//console.log(obstaclesPositions,i)
+			if(!obstaclesPositions[i].occupied){
+				isOccupied=false;
+				itemX = obstaclesPositions[i].x;
+				itemY = obstaclesPositions[i].y;
+				obstaclesPositions[i].occupied = true;
+				gridPosition = obstaclesPositions[i];
+			}
+			i++
+		}
+		elementForDrop = Math.round(Math.random()*2)+1;
+		for (var c in clients){		
+			clients[c].remote.makeItem(itemX, itemY, elementForDrop,itemIdCounter);
+		};
+		itemsList.push({
+			x:itemX,
+			y:itemY,
+			element:elementForDrop,
+			id:itemIdCounter,
+			gridPosition:gridPosition
+		})
+		itemIdCounter++;
+		//console.log(itemsList,itemIdCounter);
+	}
+},5000)
+server.listen(8000);

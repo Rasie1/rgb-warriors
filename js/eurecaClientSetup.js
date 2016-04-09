@@ -103,7 +103,7 @@ var EurecaClientSetup = function() {
 	}
 	eurecaClient.exports.createObstacles = function(obstaclesList){
 	    for (var i=0;i<obstaclesList.length;i++) {
-			var v = i%2==0 ? cactuses.create(obstaclesList[i].x,obstaclesList[i].y, 'cactus'+(i%4)/2) : stones.create(obstaclesList[i].x,obstaclesList[i].y, 'stone')
+			var v = obstacles.create(obstaclesList[i].x,obstaclesList[i].y, obstaclesList[i].spriteType)
 			v.body.immovable = true;
 			v.scale.setTo(1, 1);
 	    }

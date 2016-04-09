@@ -7,7 +7,7 @@ var charactersList;
 var explosions;
 
 var cactuses
-var stones
+var obstacles
 var walls
 
 var cursors = {
@@ -163,13 +163,8 @@ function create ()
 	walls.enableBody = true;
 	cactuses = game.add.group();
 	cactuses.enableBody = true;
-	stones = game.add.group();
-	stones.enableBody = true;
-    /*for (var i=0;i<5;i++) {
-		var v = walls.create((Math.random()*19)*100+100,(Math.random()*19)*100+100, 'wall')
-		v.body.immovable = true
-		i%2==0 ? v.scale.setTo(2, Math.random()*5) : v.scale.setTo(Math.random()*5, 2)
-    }*/
+	obstacles = game.add.group();
+	obstacles.enableBody = true;
 
 
     console.log('creating character')
@@ -318,7 +313,6 @@ function update () {
     	if (bullets.children[i].alive && bullets.children[i].lifespan <= 0)
     		bullets.children[i].kill();
     };
-    game.physics.arcade.collide(stones, cactuses,function(a,b){console.log(a,b)});
 }
 
 function bulletHitPlayer (character, bullet) {
