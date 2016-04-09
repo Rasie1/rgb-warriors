@@ -1,11 +1,11 @@
+
 //this function will handle client communication with the server
 var eurecaClientSetup = function() {
 	//create an instance of eureca.io client
 
 	var eurecaClient = new Eureca.Client();
 	
-	eurecaClient.ready(function (proxy) 
-	{		
+	eurecaClient.ready(function (proxy) {		
 		eurecaServer = proxy;
 	});
 	
@@ -17,7 +17,7 @@ var eurecaClientSetup = function() {
 		//create() is moved here to make sure nothing is created before uniq id assignation
 		myId = id;
 		create();
-		eurecaServer.handshake();
+		eurecaServer.handshake(id,0,0); // надо ещё отравку координат при респауне !!!
 		ready = true;
 	}	
 	
@@ -46,17 +46,30 @@ var eurecaClientSetup = function() {
 	
 	eurecaClient.exports.spawnEnemy = function(i, x, y)
 	{
-		
+		console.log("А ПОЛУЧИЛИ: "+x+" - "+y)
 		if (i == myId) return; //this is me
 		
-		var tnk = new Character(i, game, character);
+		var tnk = new Character(i, game,x,y);
 		charactersList[i] = tnk;
+	}
+	eurecaClient.exports.getX = function()
+	{
+		return charactersList[myId].baseSprite.x
+	}
+	eurecaClient.exports.getY = function()
+	{
+		return charactersList[myId].baseSprite.y
+	}
+	eurecaClient.exports.getId = function()
+	{
+		return myId
 	}
 	
 	eurecaClient.exports.updateState = function(id, state)
 	{
 		if (charactersList[id])  {
 			charactersList[id].cursor = state;
+
 			charactersList[id].baseSprite.x = state.x;
 			charactersList[id].baseSprite.y = state.y;
 
