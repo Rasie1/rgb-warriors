@@ -52,9 +52,14 @@ Character = function (index, game) {
 
     this.baseSprite = game.add.sprite(x, y, 'enemy', 'tank1');
     this.headSprite = game.add.sprite(x, y, 'enemy', 'turret');
+    this.auraSprite = game.add.sprite(x, y, 'aura');
 
     this.baseSprite.anchor.set(0.5);
+    this.auraSprite.anchor.set(0.5);
     this.headSprite.anchor.set(0.3, 0.5);
+
+    this.auraSprite.scale.setTo(10, 10);
+    this.recolorAura()
 
     this.baseSprite.id = index;
     console.log("id="+index)
@@ -66,9 +71,12 @@ Character = function (index, game) {
     this.GCounter = 0
     this.BCounter = 0
     var randomElement = Math.round(Math.random()*2)
-    if (randomElement == 1) this.RCounter++
-    else if (randomElement == 2) this.GCounter++
-    else if (randomElement == 3) this.BCounter++
+    if (randomElement == 1) 
+        this.RCounter++
+    else if (randomElement == 2) 
+        this.GCounter++
+    else if (randomElement == 3) 
+        this.BCounter++
 
 
     this.spell0Slot = new Spell()
@@ -160,6 +168,8 @@ Character.prototype.update = function() {
 
     this.headSprite.x = this.baseSprite.x;
     this.headSprite.y = this.baseSprite.y;
+    this.auraSprite.x = this.baseSprite.x;
+    this.auraSprite.y = this.baseSprite.y;
 };
 
 
@@ -193,6 +203,41 @@ Character.prototype.dropItem = function() {
     makeItem(this.baseSprite.x,this.baseSprite.y)
 }
 
+Character.prototype.recolorAura = function() {
+    // var counterMax = 10
+    // var r = counterMax - this.RCounter
+    // var g = counterMax - this.GCounter
+    // var b = counterMax - this.BCounter
+
+    // var newTint = Phaser.Color.toRGBA
+    // this.auraSprite.tint = newTint;
+
+
+    var r = Phaser.Math.clamp(this.RCounter * 16, 0, 255)
+    var g = Phaser.Math.clamp(this.GCounter * 16, 0, 255)
+    var b = Phaser.Math.clamp(this.BCounter * 16, 0, 255)
+
+    var src_A = 1.0
+    var src_R = r
+    var src_G = g
+    var src_B = b
+    var dst_R = 0
+    var dst_G = 0
+    var dst_B = 0
+    var dst_A = 1.0
+    dst_R = (src_R * src_A + dst_R * (255 - src_A));
+    dst_G = (src_G * src_A + dst_G * (255 - src_A));
+    dst_B = (src_B * src_A + dst_B * (255 - src_A));
+    dst_A = Phaser.Math.min((src_A + dst_A) * 255, 255);
+
+    // var r = Phaser.Math.clamp(this.RCounter * 16, 0, 255)
+    // var g = Phaser.Math.clamp(this.GCounter * 16, 0, 255)
+    // var b = Phaser.Math.clamp(this.BCounter * 16, 0, 255)
+    var newTint = Phaser.Color.toRGBA(dst_R, dst_G, dst_B, dst_A)
+    console.log(dst_R, ' ', dst_G, ' ', dst_B, ' ', dst_A)
+    this.auraSprite.tint = newTint;
+}
+
 Character.prototype.pickUpItem = function(itemSprite) {
     console.log("pickUpItem()")
     itemSprite.kill()
@@ -208,4 +253,5 @@ Character.prototype.pickUpItem = function(itemSprite) {
             break
     }
     console.log("R="+this.RCounter+" G="+this.GCounter+" B="+this.BCounter)
+    this.recolorAura()
 }
