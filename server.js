@@ -41,7 +41,8 @@ var eurecaServer = new Eureca.Server({allow:[
 	'getX', 
 	'getY', 
 	'getId', 
-	'kill', 
+	'kill',
+	'respawnPlayer',
 	'updateState',
 	'updateRotation',
 	'updateHP', 
@@ -69,9 +70,22 @@ eurecaServer.onConnect(function (conn) {
 	
 	//register the client
 	clients[conn.id] = {id:conn.id, remote:remote}
-	
+
 	//here we call setId (defined in the client side)
-	remote.setId(conn.id);	
+	shuffle(obstaclesPositions);
+	var isOccupied = true;
+	var i = 0;
+	var x,y;
+	while(isOccupied==true){
+		//console.log(obstaclesPositions,i)
+		if(!obstaclesPositions[i].occupied){
+			isOccupied=false;
+			x = obstaclesPositions[i].x;
+			y = obstaclesPositions[i].y;
+		}
+		i++
+	}
+	remote.setId(conn.id,x,y);	
 
 	if(itemsList.length){
 		for(i=0;i<itemsList.length;i++){	
@@ -81,6 +95,7 @@ eurecaServer.onConnect(function (conn) {
 		}
 	};
 	clients[conn.id].remote.createObstacles(obstaclesList);
+
 });
 
 //detect client disconnection
@@ -145,6 +160,23 @@ eurecaServer.exports.killPlayer = function(id)
 {
 	for (var c in clients)
 		clients[c].remote.kill(id);
+	setTimeout(function(){
+		shuffle(obstaclesPositions);
+		var isOccupied = true;
+		var i = 0;
+		var x,y;
+		while(isOccupied==true){
+			if(!obstaclesPositions[i].occupied){
+				isOccupied=false;
+				x = obstaclesPositions[i].x;
+				y = obstaclesPositions[i].y;
+			}
+			i++
+		}
+		for (var c in clients){
+			clients[c].remote.respawnPlayer(id,x,y)
+		}
+	},3000)
 }
 
 eurecaServer.exports.updateHP = function(id, difHP)
@@ -175,7 +207,8 @@ eurecaServer.exports.pickUpItem = function(itemID)
 		
 		if(typeof itemsList[i] != 'undefined'){
 			if(itemID==itemsList[i].id){
-				itemsList[i].gridPosition.occupied = false;
+				if(typeof itemsList[i].gridPosition !='undefined')
+					itemsList[i].gridPosition.occupied = false;
 				index = itemsList.indexOf(itemsList[i]);
 				itemsList = itemsList.slice(1,index).concat(itemsList.slice(index+1,itemsList.length));
 			}
@@ -202,11 +235,11 @@ function shuffle(a) {
     }
 }
 
-for (var i = 0; i < Math.round(mapWidth/200)-1; i++) {
-    for (var j = 0; j < Math.round(mapHeight/200)-1; j++) {
+for (var i = 0; i < Math.round(mapWidth/200); i++) {
+    for (var j = 0; j < Math.round(mapHeight/200); j++) {
         obstaclesPositions.push({
-            x:i * 200+150,
-            y:j * 200+150,
+            x:i * 200,
+            y:j * 200,
             occupied: false
             
         });

@@ -315,9 +315,6 @@ Character.prototype.fire = function(target) {
         }
 }
 
-function recreate(deadId) {
-    charactersList[deadId].recreate(Math.random()*mapWidth,Math.random()*mapHeight)
-}
 
 Character.prototype.kill = function() {
     this.alive = false;
@@ -330,7 +327,6 @@ Character.prototype.kill = function() {
     this.headSprite.kill();
     this.auraSprite.kill();
     this.dropItem();
-    setTimeout("recreate('"+this.id+"')",3000)
 }
 
 Character.prototype.dropItem = function() {

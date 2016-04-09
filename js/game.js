@@ -1,4 +1,4 @@
-var myId = 0;
+
 
 var land;
 
@@ -167,7 +167,7 @@ function create ()
 
 
     console.log('creating character')
-    player = new Character(myId, game, 0, 0);
+    player = new Character(myId, game, initialSpawnLocationX, initialSpawnLocationY);
     player.HUD = game.add.group();
     player.healthBar = game.add.text(10, 10, "HP: 99999%",
         { font: "32px Arial", fill: "#ffffff", align: "left" });
@@ -295,8 +295,11 @@ function update () {
 				var targetCharacter = charactersList[j].baseSprite;
 				
 				//game.physics.arcade.overlap(curBullets, targetCharacter, bulletHitPlayer, null, this);
-				if (game.physics.arcade.overlap(targetCharacter, curBullets, bulletHitPlayer, null, this)
-					&& charactersList[i].baseSprite.id == player.baseSprite.id)
+				if(
+                    game.physics.arcade.overlap(targetCharacter, curBullets, bulletHitPlayer, null, this) &&
+                    charactersList[i].baseSprite.id == player.baseSprite.id &&
+                    charactersList[j].health>0
+                )
 				{
 					console.log('talk server about collide');
 					eurecaServer.updateHP(targetCharacter.id, -10);
