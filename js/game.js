@@ -92,7 +92,6 @@ window.addEventListener("orientationchange",onScreenChange);
 
 
 function preload () {
-
     game.load.atlas('character', 'assets/tanks.png', 'assets/tanks.json');
     game.load.atlas('enemy', 'assets/enemy-tanks.png', 'assets/tanks.json');
     game.load.image('bullet', 'assets/bullet.png');
@@ -103,15 +102,16 @@ function preload () {
     game.load.image('item2', 'assets/item1.png')
     game.load.image('item3', 'assets/item2.png')
     game.load.image('aura', 'assets/aura.png')    
-    game.load.image('hpBar', 'assets/HPbar.png')
+    game.load.image('hpBar', 'assets/health.png')
 }
 
 function initializeInput ()
 {
-    if (!game.device.desktop) {
-        touchControls = new TouchControls(player)
-        touchControls.init()
-    }
+    // if (!game.device.desktop) {
+    //     touchControls = new TouchControls(player)
+    //     debugMessage(111)
+    //     touchControls.init(game)
+    // }
 }
 
 function handleInput()
@@ -128,8 +128,8 @@ function handleInput()
     cursors.spell2 = game.input.keyboard.addKey(Phaser.Keyboard.THREE)
     cursors.spell3 = game.input.keyboard.addKey(Phaser.Keyboard.FOUR)
 
-    if (!game.device.desktop)
-        this.touchControls.processInput();
+    // if (!game.device.desktop)
+    //     this.touchControls.processInput();
     
 }
 
@@ -177,7 +177,6 @@ function create ()
     }
 
     //baseSprite.bringToTop();
-    //headSprite.bringToTop();
     player.HUD.bringToTop(player.HUD);
 
     if(game.renderType!=2){
@@ -185,6 +184,7 @@ function create ()
 	    game.scale.pageAlignVertically = true;
 	    game.scale.setScreenSize(true);
     } 
+
 
     game.camera.follow(baseSprite);
     game.camera.deadzone = 
@@ -217,6 +217,7 @@ activateItem = function(index, x, y)
 		item.alive = true
 		found = true	
 	}
+
 }
 
 
@@ -242,6 +243,7 @@ function update () {
     if (!ready) 
         return;
     
+    
     player.input.left = cursors.left.isDown;
     player.input.right = cursors.right.isDown;
     player.input.up = cursors.up.isDown;
@@ -258,10 +260,10 @@ function update () {
 
     handleInput()
 
-	player.healthBar.setText("HP: " + player.health + "%");
-	
-	headSprite.rotation = game.physics.arcade.angleToPointer(headSprite);	
-	//baseSprite.rotation = game.physics.arcade.angleToPointer(baseSprite);	
+    player.healthBar.setText("HP: " + player.health + "%");
+    
+    headSprite.rotation = game.physics.arcade.angleToPointer(headSprite);   
+    //baseSprite.rotation = game.physics.arcade.angleToPointer(baseSprite); 
 
     land.tilePosition.x = -game.camera.x;
     land.tilePosition.y = -game.camera.y;
