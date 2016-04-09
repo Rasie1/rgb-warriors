@@ -103,6 +103,7 @@ Character = function (index, game, x, y) {
     this.touchInputChanged = false
 
     this.spell0Slot = new Spell()
+    this.spell1Slot = new HealingSpell()
     this.recolorAura()
 
     this.hpBar = null;
@@ -269,15 +270,20 @@ Character.prototype.update = function() {
     if (this.shouldCastSpell0)
     {
         this.spell0Slot.cast()
+        this.shouldCastSpell0 = false
     }
     if (this.shouldCastSpell1)
     {
+        this.spell1Slot.cast()
+        this.shouldCastSpell1 = false
     }
     if (this.shouldCastSpell2)
     {
+        this.shouldCastSpell2 = false
     }
     if (this.shouldCastSpell3)
     {
+        this.shouldCastSpell3 = false
     }
 
     this.headSprite.x = this.baseSprite.x;
