@@ -1,7 +1,7 @@
 var character;
 var headSprite;
 
-Character = function (index, game) {
+Character = function (index, game, x, y) {
     this.cursor = {
         left:false,
         right:false,
@@ -26,9 +26,8 @@ Character = function (index, game) {
         spell3:false
     }
 
-    var x = 0;
-    var y = 0;
-    var itemCount = 1
+    var x = def(x,0)
+    var y = def(y,0)
 
     this.game = game;
     this.health = 30;
@@ -63,6 +62,7 @@ Character = function (index, game) {
     this.auraSprite.scale.setTo(10, 10);
     this.recolorAura()
 
+    this.id = index;
     this.baseSprite.id = index;
     console.log("id="+index)
     game.physics.enable(this.baseSprite, Phaser.Physics.ARCADE);
@@ -88,8 +88,43 @@ Character = function (index, game) {
 
     this.spell0Slot = new Spell()
     this.recolorAura()
+
+    if (!game.device.desktop) {
+        this.touchControls = new TouchControls(this)
+        this.touchControls.init()
+    }
+
+    this.hpBar = null;
+    if (myId != this.baseSprite.id)
+    {
+        this.hpBar = game.add.sprite(x - 32, y - 32, 'hpBar');
+        this.hpBar.anchor.set(0.5);
+    }
 };
 
+Character.prototype.recreate = function (x,y) {
+
+    this.health = 30;
+    this.SpeedX = playerSpeedX
+    this.SpeedY = playerSpeedY
+    this.baseSprite.reset(x,y)
+    this.headSprite.reset(x,y)
+    
+    this.currentSpeed =0;
+    this.fireRate = 500;
+    this.nextFire = 0;
+    this.alive = true;
+
+    this.RCounter = 0
+    this.GCounter = 0
+    this.BCounter = 0
+    var randomElement = Math.round(Math.random()*2)
+    if (randomElement == 1) this.RCounter++
+    else if (randomElement == 2) this.GCounter++
+    else if (randomElement == 3) this.BCounter++
+
+
+}
 Character.prototype.update = function() {
     
     var inputChanged = (
@@ -123,7 +158,6 @@ Character.prototype.update = function() {
     }
 
     //cursor value is now updated by eurecaClient.exports.updateState method
-    
     
     if (this.cursor.left)
     {
@@ -201,6 +235,12 @@ Character.prototype.update = function() {
     this.headSprite.y = this.baseSprite.y;
     this.auraSprite.x = this.baseSprite.x;
     this.auraSprite.y = this.baseSprite.y;
+
+    if (myId != this.baseSprite.id)
+    {
+        this.hpBar.x = this.baseSprite.x;
+        this.hpBar.y = this.baseSprite.y - 42;    
+    }
 };
 
 
@@ -222,12 +262,18 @@ Character.prototype.fire = function(target) {
         }
 }
 
+function recreate(deadId) {
+    charactersList[deadId].recreate(Math.random()*mapWidth,Math.random()*mapHeight)
+}
 
 Character.prototype.kill = function() {
     this.alive = false;
     this.baseSprite.kill();
+    if (myId != this.baseSprite.id)
+        this.hpBar.kill();
     this.headSprite.kill();
-    this.dropItem()
+    this.dropItem();
+    setTimeout("recreate('"+this.id+"')",3000)
 }
 
 Character.prototype.dropItem = function() {
