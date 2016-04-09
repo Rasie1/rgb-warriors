@@ -47,19 +47,18 @@ else {
 var itemTimer = 0
 var items = []
 
-var positions;
 
 var game = new Phaser.Game(
 	gameWidth, 
 	gameHeight, 
-	Phaser.WEBGL, 
+	!Phaser.Device.Desktop ? Phaser.CANVAS : Phaser.WEBGL, 
 	'phaser-example', 
 	{ preload: preload, create: EurecaClientSetup, update: update, render: render }
 );
 
 
-var onScreenChange = function(){
-	if(game.renderType==2){
+var onScreenChange = function() {
+	if(game.renderType==2) {
 		widthDiff = screenWidth-window.innerWidth;
 		heightDiff = screenHeight-window.innerHeight;
 		screenWidth = window.innerWidth;
