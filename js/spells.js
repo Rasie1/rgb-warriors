@@ -9,13 +9,14 @@ Spell.prototype.cast = function(character) {
 }
 
 Spell.prototype.onCooldown = function(character) {
-    game.time.now
+    return this.currentCooldown < 0;
 }
 
 // Healing Spell
 
 function HealingSpell() {
     Spell.call(this);
+    this.cooldown = 100;
 }
 
 HealingSpell.prototype = Object.create(Spell.prototype);
@@ -25,7 +26,7 @@ HealingSpell.prototype.constructor = HealingSpell
 HealingSpell.prototype.cast = function(character){
     this.currentCooldown = this.cooldown
 
-    character.health = character.health + healingSpellHealingPercentage
+    eurecaServer.updateHP(character.id, healingSpellHealingPercentage);
 };
 
 // Fireball

@@ -288,15 +288,16 @@ Character.prototype.update = function() {
         this.headSprite.body.velocity.y = 0
     }
 
-    if (this.shouldCastSpell0)
+    if (this.shouldCastSpell0) // unknown ???
     {
-        this.spell0Slot.cast(this)
+        this.spell0Slot.cast()
         this.shouldCastSpell0 = false
     }
-    if (this.shouldCastSpell1)
+    if (this.shouldCastSpell1) //healing
     {
-        this.spell1Slot.cast(this)
         this.shouldCastSpell1 = false
+        if (this.spell1Slot.onCooldown())
+            this.spell1Slot.cast(this);
     }
     if (this.shouldCastSpell2)
     {
