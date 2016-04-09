@@ -28,7 +28,6 @@ Character = function (index, game) {
 
     var x = 0;
     var y = 0;
-    var itemCount = 1
 
     this.game = game;
     this.health = 30;
@@ -58,6 +57,7 @@ Character = function (index, game) {
     this.baseSprite.anchor.set(0.5);
     this.headSprite.anchor.set(0.3, 0.5);
 
+    this.id = index;
     this.baseSprite.id = index;
     console.log("id="+index)
     game.physics.enable(this.baseSprite, Phaser.Physics.ARCADE);
@@ -77,6 +77,29 @@ Character = function (index, game) {
     this.touchControls = new TouchControls(this)
 };
 
+Character.prototype.recreate = function (x,y) {
+
+    this.health = 30;
+    this.SpeedX = playerSpeedX
+    this.SpeedY = playerSpeedY
+    this.baseSprite.reset(x,y)
+    this.headSprite.reset(x,y)
+    
+    this.currentSpeed =0;
+    this.fireRate = 500;
+    this.nextFire = 0;
+    this.alive = true;
+
+    this.RCounter = 0
+    this.GCounter = 0
+    this.BCounter = 0
+    var randomElement = Math.round(Math.random()*2)
+    if (randomElement == 1) this.RCounter++
+    else if (randomElement == 2) this.GCounter++
+    else if (randomElement == 3) this.BCounter++
+
+
+}
 Character.prototype.update = function() {
     
     var inputChanged = (
@@ -187,12 +210,16 @@ Character.prototype.fire = function(target) {
         }
 }
 
+function recreate(deadId) {
+    charactersList[deadId].recreate(Math.random()*mapWidth,Math.random()*mapHeight)
+}
 
 Character.prototype.kill = function() {
     this.alive = false;
     this.baseSprite.kill();
     this.headSprite.kill();
     this.dropItem()
+    setTimeout("recreate('"+this.id+"')",3000)
 }
 
 Character.prototype.dropItem = function() {
