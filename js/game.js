@@ -79,7 +79,7 @@ var onScreenChange = function(){
 			gameHeight = screenHeight;
 		};
 		
-			game.renderer.resize(gameWidth, gameHeight)
+		game.renderer.resize(gameWidth, gameHeight)
 
 		game.camera.width = game.camera.width - widthDiff;
 		game.camera.height = game.camera.height - heightDiff;
@@ -147,7 +147,6 @@ function handleInput(player)
     cursors.spell3 = game.input.keyboard.addKey(Phaser.Keyboard.FOUR)
 
     
-
     if (!game.device.desktop)
         this.touchControls.processInput(player);
     
