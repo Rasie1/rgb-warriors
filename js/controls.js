@@ -56,6 +56,12 @@ TouchControls.prototype.init = function create() {
     buttonB.onInputUp.add(function() { this.movementDirectionVectorY = 0 }, this)
     buttonB.onInputDown.add(function() { this.movementDirectionVectorY = 1 }, this)
 
+
+    buttonL.fixedToCamera = true
+    buttonR.fixedToCamera = true
+    buttonT.fixedToCamera = true
+    buttonB.fixedToCamera = true
+
 }
 
 

@@ -14,7 +14,7 @@ var clients = {};
 var Eureca = require('eureca.io');
 
 //create an instance of EurecaServer
-var eurecaServer = new Eureca.Server({allow:['setId', 'spawnEnemy', 'kill', 'updateState',
+var eurecaServer = new Eureca.Server({allow:['setId', 'spawnEnemy', 'getX', 'getY', 'kill', 'updateState',
 											'updateHP', 'createItem', 'activateItem', 'pickUpItem']});
 
 //attach eureca.io to our http server
@@ -57,20 +57,14 @@ eurecaServer.onDisconnect(function (conn) {
 });
 
 
-eurecaServer.exports.handshake = function()
+eurecaServer.exports.handshake = function(id,x,y)
 {
-	for (var c in clients)
-	{
-		var remote = clients[c].remote;
-		for (var cc in clients)
-		{		
-			//send latest known position
-			var x = clients[cc].laststate ? clients[cc].laststate.x : 0;
-			var y = clients[cc].laststate ? clients[cc].laststate.y : 0;
-
-			remote.spawnEnemy(clients[cc].id, x, y);		
-		}
-	}
+	console.log("handshake()")
+	console.log("enemy="+id)
+	var enemy
+	for (var c in clients) if (clients[c].id==id) enemy=clients[c]
+	for (var c in clients) if (clients[c].id!=id) clients[c].remote.spawnEnemy(id,x,y)			// я это
+	for (var c in clients) if (clients[c].id!=id) enemy.remote.spawnEnemy(clients[c].id,1,1)	// починю
 }
 
 

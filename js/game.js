@@ -17,6 +17,7 @@ var cursors = {
     spell2:false,
     spell3:false
 };
+var touchControls
 
 var bullets;
 
@@ -43,6 +44,101 @@ console.log(gameWidth);
 
 var itemTimer = 0
 var items = []
+
+//this function will handle client communication with the server
+var eurecaClientSetup = function() {
+	//create an instance of eureca.io client
+
+	var eurecaClient = new Eureca.Client();
+	
+	eurecaClient.ready(function (proxy) {		
+		eurecaServer = proxy;
+	});
+	
+	
+	//methods defined under "exports" namespace become available in the server side
+	
+	eurecaClient.exports.setId = function(id) 
+	{
+		//create() is moved here to make sure nothing is created before uniq id assignation
+		myId = id;
+		create();
+		eurecaServer.handshake(id,0,0); // надо ещё отравку координат при респауне !!!
+		ready = true;
+	}	
+	
+	eurecaClient.exports.kill = function(id)
+	{	
+		if (charactersList[id]) {
+			charactersList[id].kill();
+			console.log('killing ', id, charactersList[id]);
+		}
+	}	
+
+	eurecaClient.exports.updateHP = function(id, difHP)
+	{
+		if (charactersList[id])
+		{
+			charactersList[id].health += difHP;
+			if (charactersList[id].health <= 0 && id == player.baseSprite.id)
+			{
+				console.log('talk server about killing');
+				eurecaServer.killPlayer(id);
+			}
+		}
+	}
+	
+	eurecaClient.exports.spawnEnemy = function(i, x, y)
+	{
+		
+		if (i == myId) return; //this is me
+		
+		var tnk = new Character(i, game, character,x,y);
+		charactersList[i] = tnk;
+	}
+	eurecaClient.exports.getX = function()
+	{
+		return charactersList[myId].baseSprite.x
+	}
+	eurecaClient.exports.getY = function()
+	{
+		return charactersList[myId].baseSprite.y
+	}
+	
+	eurecaClient.exports.updateState = function(id, state)
+	{
+		if (charactersList[id])  {
+			charactersList[id].cursor = state;
+			charactersList[id].baseSprite.x = state.x;
+			charactersList[id].baseSprite.y = state.y;
+
+			charactersList[id].headSprite.rotation = state.rot;
+			charactersList[id].update();
+		}
+	}
+
+	eurecaClient.exports.createItem = function(x, y, elementForDrop)
+	{
+		var item = game.add.sprite(x,y,'item'+elementForDrop)
+		game.physics.enable(item, Phaser.Physics.ARCADE)
+		item.enableBody = true
+		item.physicsBodyType = Phaser.Physics.ARCADE
+		item.element = elementForDrop
+		items[items.length] = item
+	}
+
+	eurecaClient.exports.activateItem = function(index, x, y)
+	{
+		if (items[index])
+		{
+			var item = items[index]
+			item.x = x
+			item.y = y
+			item.alive = true
+			found = true	
+		}
+	}
+}
 
 var game = new Phaser.Game(
 	gameWidth, 
@@ -99,8 +195,15 @@ function preload () {
     game.load.image('hpBar', 'assets/HPbar.png')
 }
 
-
 function initializeInput ()
+{
+    if (!game.device.desktop) {
+        touchControls = new TouchControls(player)
+        touchControls.init()
+    }
+}
+
+function handleInput()
 {
     cursors.up = game.input.keyboard.addKey(Phaser.Keyboard.UP)
     cursors.down = game.input.keyboard.addKey(Phaser.Keyboard.DOWN)
@@ -113,6 +216,10 @@ function initializeInput ()
     cursors.spell1 = game.input.keyboard.addKey(Phaser.Keyboard.TWO)
     cursors.spell2 = game.input.keyboard.addKey(Phaser.Keyboard.THREE)
     cursors.spell3 = game.input.keyboard.addKey(Phaser.Keyboard.FOUR)
+
+    if (!game.device.desktop)
+        this.touchControls.processInput();
+    
 }
 
 function create () 
@@ -134,7 +241,7 @@ function create ()
     player = new Character(myId, game, character);
     player.healthBar = game.add.text(10, 10, "HP: 99999%", 
         { font: "32px Arial", fill: "#ffffff", align: "left" });
-    player.healthBar.fixedToCamera = true;
+    player.healthBar.fixedToCamera = true
     player.healthBar.cameraOffset.setTo(10, 10);
     charactersList[myId] = player;
     baseSprite = player.baseSprite;
@@ -169,6 +276,8 @@ function create ()
                              gameWidth*cameraDeadzoneWidth, 
                              gameHeight*cameraDeadzoneHeight);
     game.camera.focusOnXY(baseSprite.x, baseSprite.y);
+
+    initializeInput()
 
 }
 
@@ -217,7 +326,7 @@ function update () {
     player.input.spell2 = cursors.spell2.isDown;
     player.input.spell3 = cursors.spell3.isDown;
 
-    initializeInput()
+    handleInput()
 
 	player.healthBar.setText("HP: " + player.health + "%");
 	
