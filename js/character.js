@@ -90,10 +90,11 @@ Character = function (index, game, x, y) {
     this.spell0Slot = new Spell()
     this.recolorAura()
 
-    if (!game.device.desktop) {
-        this.touchControls = new TouchControls(this)
-        this.touchControls.init()
-    }
+
+    // if (!game.device.desktop) {
+    //     this.touchControls = new TouchControls(this)
+    //     this.touchControls.init()
+    // }
 
     this.hpBar = null;
     if (myId != this.baseSprite.id)
@@ -123,7 +124,7 @@ Character.prototype.recreate = function (x,y) {
     if (randomElement == 1) this.RCounter++
     else if (randomElement == 2) this.GCounter++
     else if (randomElement == 3) this.BCounter++
-
+    this.recolorAura()
 
 }
 Character.prototype.update = function() {
@@ -140,7 +141,8 @@ Character.prototype.update = function() {
         this.cursor.spell3 != this.input.spell3
     );
     
-    
+    var isContiniouslyFiring = (this.cursor.fire && this.game.time.now+50 >= this.nextFire);
+
     if (inputChanged)
     {
         //Handle input change here
@@ -157,7 +159,11 @@ Character.prototype.update = function() {
             
         }
     }
-
+    if (isContiniouslyFiring){
+        if (this.baseSprite.id == myId){
+            eurecaServer.handleRotation(this.input);
+        }
+    }
     //cursor value is now updated by eurecaClient.exports.updateState method
     
     if (this.cursor.left)
@@ -274,6 +280,7 @@ Character.prototype.kill = function() {
     if (myId != this.baseSprite.id)
         this.hpBar.kill();
     this.headSprite.kill();
+    this.auraSprite.kill();
     this.dropItem();
     setTimeout("recreate('"+this.id+"')",3000)
 }
@@ -283,7 +290,7 @@ Character.prototype.dropItem = function() {
 }
 
 Character.prototype.recolorAura = function() {
-    var total = this.BCounter + this.GCounter + this.BCounter
+    var total = this.RCounter + this.GCounter + this.BCounter
     var r = Phaser.Math.clamp(255 * this.RCounter / total, 
                               0, 255)
     var g = Phaser.Math.clamp(255 * this.GCounter / total, 
