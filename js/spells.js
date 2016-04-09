@@ -13,17 +13,14 @@ Spell.prototype.cast = function(character) {
 
 
 
-function HealingSpell(character) {
-    Spell.call(this, character);
-    this.character = character
+function HealingSpell() {
+    Spell.call(this);
 }
 
 HealingSpell.prototype = Object.create(Spell.prototype);
 
 HealingSpell.prototype.constructor = HealingSpell
 
-HealingSpell.prototype.cast = function(){
-    console.log("Casting healing spell")
-
-    this.character.health = this.character.health + healingSpellHealingPercentage
+HealingSpell.prototype.cast = function(character){
+    character.health = character.health + healingSpellHealingPercentage
 };

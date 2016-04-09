@@ -269,12 +269,12 @@ Character.prototype.update = function() {
 
     if (this.shouldCastSpell0)
     {
-        this.spell0Slot.cast()
+        this.spell0Slot.cast(this)
         this.shouldCastSpell0 = false
     }
     if (this.shouldCastSpell1)
     {
-        this.spell1Slot.cast()
+        this.spell1Slot.cast(this)
         this.shouldCastSpell1 = false
     }
     if (this.shouldCastSpell2)
