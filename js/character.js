@@ -331,10 +331,10 @@ Character.prototype.pickUpItem = function(itemSprite) {
             this.BCounter++
             break
     }
-    var Counter = this.RCounter+this.GCounter+this.BCounter
-    if (Counter<=20) {
-        this.SpeedX = playerSpeedX-Counter*10
-        this.SpeedY = playerSpeedY-Counter*10
+    var counter = this.RCounter+this.GCounter+this.BCounter
+    if (counter <= 20) {
+        this.SpeedX = playerSpeedX - counter*10
+        this.SpeedY = playerSpeedY - counter*10
     }
     console.log("R="+this.RCounter+" G="+this.GCounter+" B="+this.BCounter)
     this.recolorAura()

@@ -46,7 +46,7 @@ var items = []
 var game = new Phaser.Game(
 	gameWidth, 
 	gameHeight, 
-	Phaser.WEBGL, 
+	Phaser.CANVAS, 
 	'phaser-example', 
 	{ preload: preload, create: EurecaClientSetup, update: update, render: render }
 );
