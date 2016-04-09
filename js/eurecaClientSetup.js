@@ -1,5 +1,3 @@
-
-//this function will handle client communication with the server
 var eurecaClientSetup = function() {
 	//create an instance of eureca.io client
 
@@ -34,8 +32,6 @@ var eurecaClientSetup = function() {
 		if (charactersList[id])
 		{
 			charactersList[id].health += difHP;
-			if (charactersList[id].hpBar != null)
-				charactersList[id].hpBar.scale.setTo(charactersList[id].health / 30, 1);
 			if (charactersList[id].health <= 0 && id == player.baseSprite.id)
 			{
 				console.log('talk server about killing');
@@ -77,7 +73,13 @@ var eurecaClientSetup = function() {
 			charactersList[id].update();
 		}
 	}
-
+	eurecaClient.exports.updateRotation = function(id, state)
+	{
+		if (charactersList[id])  {
+			charactersList[id].cursor = state;
+			charactersList[id].update();
+		}
+	}
 	eurecaClient.exports.createItem = function(x, y, elementForDrop)
 	{
 		var item = game.add.sprite(x,y,'item'+elementForDrop)

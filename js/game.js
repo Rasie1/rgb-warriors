@@ -39,9 +39,6 @@ else {
 	var gameHeight = screenHeight;
 };
 
-
-console.log(gameWidth);
-
 var itemTimer = 0
 var items = []
 
@@ -55,35 +52,43 @@ var game = new Phaser.Game(
 
 
 var onScreenChange = function(){
-	console.log('changed');
-	screenWidth = window.innerWidth;
-	screenHeight = window.innerHeight;
-	/*if(screenWidth>maxGameWidth){
-		gameWidth = maxGameWidth;
-	}
-	else{
-		gameWidth = screenWidth;
-	};
-	if(screenHeight>maxGameHeight){
-		gameHeight = maxGameHeight;
-	}
-	else{
-		gameHeight = screenHeight;
-	};
-	game.scale.maxWidth = gameWidth;
-	game.scale.maxHeight = gameHeight;*/
-	game.scale.setScreenSize();
-	land.width = gameWidth;
-	land.height = gameHeight;
+	if(game.renderType==2){
+		widthDiff = screenWidth-window.innerWidth;
+		heightDiff = screenHeight-window.innerHeight;
+		screenWidth = window.innerWidth;
+		screenHeight = window.innerHeight;
+		if(screenWidth>maxGameWidth){
+			gameWidth = maxGameWidth;
+		}
+		else{
+			gameWidth = screenWidth;
+		};
+		if(screenHeight>maxGameHeight){
+			gameHeight = maxGameHeight;
+		}
+		else{
+			gameHeight = screenHeight;
+		};
+		
+			game.renderer.resize(gameWidth,gameHeight)
 
-	game.camera.deadzone.x = (gameWidth-gameWidth*cameraDeadzoneWidth)/2;
-	game.camera.deadzone.y = (gameHeight-gameHeight*cameraDeadzoneHeight)/2;
-	game.camera.deadzone.width = gameWidth*cameraDeadzoneWidth;
-	game.camera.deadzone.height = gameHeight*cameraDeadzoneHeight;
-    console.log(player)
-	game.camera.focusOnXY(player.x, player.y);
+		game.camera.width = game.camera.width- widthDiff;
+		game.camera.height = game.camera.height- heightDiff;
+		land.width = gameWidth;
+		land.height = gameHeight;
+
+		game.camera.deadzone.x = (gameWidth-gameWidth*cameraDeadzoneWidth)/2;
+		game.camera.deadzone.y = (gameHeight-gameHeight*cameraDeadzoneHeight)/2;
+		game.camera.deadzone.width = gameWidth*cameraDeadzoneWidth;
+		game.camera.deadzone.height = gameHeight*cameraDeadzoneHeight;
+		game.camera.focusOnXY(baseSprite.x, baseSprite.y);
+	}
+	else{
+		console.log(gameWidth,gameHeight);
+	}
 }
-// window.addEventListener("resize",onScreenChange);
+window.addEventListener("resize",onScreenChange);
+window.addEventListener("orientationchange",onScreenChange);
 
 
 function preload () {
@@ -143,12 +148,15 @@ function create ()
     
     charactersList = {};
 
-    
+    console.log('creating character')
     player = new Character(myId, game,0,0);
+    player.HUD = game.add.group();
     player.healthBar = game.add.text(10, 10, "HP: 99999%", 
         { font: "32px Arial", fill: "#ffffff", align: "left" });
     player.healthBar.fixedToCamera = true
     player.healthBar.cameraOffset.setTo(10, 10);
+    player.HUD.add(player.healthBar);
+
     charactersList[myId] = player;
     baseSprite = player.baseSprite;
     headSprite = player.headSprite;
@@ -168,12 +176,15 @@ function create ()
         explosionAnimation.animations.add('kaboom');
     }
 
-    baseSprite.bringToTop();
-    headSprite.bringToTop();
+    //baseSprite.bringToTop();
+    //headSprite.bringToTop();
+    player.HUD.bringToTop(player.HUD);
 
-    game.scale.pageAlignHorizontally = true;
-    game.scale.pageAlignVertically = true;
-    game.scale.setScreenSize(true); 
+    //if(game.renderType!=2){
+	    game.scale.pageAlignHorizontally = true;
+	    game.scale.pageAlignVertically = true;
+	    game.scale.setScreenSize(true);
+    //} 
 
     game.camera.follow(baseSprite);
     game.camera.deadzone = 
