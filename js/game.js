@@ -15,10 +15,6 @@ var cursors = {
     right:false,
     up:false,
     down:false,
-    w:false,
-    a:false,
-    s:false,
-    d:false,
     fire:false,
     spell0:false,
     spell1:false,
@@ -54,50 +50,54 @@ var items = []
 var game = new Phaser.Game(
 	gameWidth, 
 	gameHeight, 
-	Phaser.CANVAS, 
+	Phaser.WEBGL, 
 	'phaser-example', 
 	{ preload: preload, create: EurecaClientSetup, update: update, render: render }
 );
 
 
 var onScreenChange = function(){
-	if (game.renderType == 2) {
+	if(game.renderType==2){
 		widthDiff = screenWidth-window.innerWidth;
 		heightDiff = screenHeight-window.innerHeight;
 		screenWidth = window.innerWidth;
 		screenHeight = window.innerHeight;
-		if (screenWidth > maxGameWidth) {
+		if(screenWidth>maxGameWidth){
 			gameWidth = maxGameWidth;
 		}
-		else {
+		else{
 			gameWidth = screenWidth;
 		};
-		if (screenHeight > maxGameHeight) {
+		if(screenHeight>maxGameHeight){
 			gameHeight = maxGameHeight;
 		}
-		else {
+		else{
 			gameHeight = screenHeight;
 		};
 		
+<<<<<<< HEAD
 		game.renderer.resize(gameWidth, gameHeight)
+=======
+			game.renderer.resize(gameWidth,gameHeight)
+>>>>>>> 241844cc8641cd8978ecd6f65d42d3c3f31aa8a5
 
-		game.camera.width = game.camera.width - widthDiff;
-		game.camera.height = game.camera.height - heightDiff;
+		game.camera.width = game.camera.width- widthDiff;
+		game.camera.height = game.camera.height- heightDiff;
 		land.width = gameWidth;
 		land.height = gameHeight;
 
-		game.camera.deadzone.x = (gameWidth - gameWidth * cameraDeadzoneWidth) / 2;
-		game.camera.deadzone.y = (gameHeight - gameHeight * cameraDeadzoneHeight) / 2;
-		game.camera.deadzone.width = gameWidth * cameraDeadzoneWidth;
-		game.camera.deadzone.height = gameHeight * cameraDeadzoneHeight;
+		game.camera.deadzone.x = (gameWidth-gameWidth*cameraDeadzoneWidth)/2;
+		game.camera.deadzone.y = (gameHeight-gameHeight*cameraDeadzoneHeight)/2;
+		game.camera.deadzone.width = gameWidth*cameraDeadzoneWidth;
+		game.camera.deadzone.height = gameHeight*cameraDeadzoneHeight;
 		game.camera.focusOnXY(baseSprite.x, baseSprite.y);
 	}
 	else{
-		console.log(gameWidth, gameHeight);
+		console.log(gameWidth,gameHeight);
 	}
 }
-window.addEventListener("resize", onScreenChange);
-window.addEventListener("orientationchange", onScreenChange);
+window.addEventListener("resize",onScreenChange);
+window.addEventListener("orientationchange",onScreenChange);
 
 
 function preload () {
@@ -134,11 +134,6 @@ function handleInput(player)
     cursors.left = game.input.keyboard.addKey(Phaser.Keyboard.LEFT)
     cursors.right = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT)
 
-    cursors.w = game.input.keyboard.addKey(Phaser.Keyboard.W)
-    cursors.a = game.input.keyboard.addKey(Phaser.Keyboard.A)
-    cursors.s = game.input.keyboard.addKey(Phaser.Keyboard.S)
-    cursors.d = game.input.keyboard.addKey(Phaser.Keyboard.D)
-
     cursors.fire = game.input.keyboard.addKey(Phaser.Mouse.LEFT_BUTTON)
     
     cursors.spell0 = game.input.keyboard.addKey(Phaser.Keyboard.ONE)
@@ -146,7 +141,6 @@ function handleInput(player)
     cursors.spell2 = game.input.keyboard.addKey(Phaser.Keyboard.THREE)
     cursors.spell3 = game.input.keyboard.addKey(Phaser.Keyboard.FOUR)
 
-    
     if (!game.device.desktop)
         this.touchControls.processInput(player);
     
@@ -158,7 +152,7 @@ function create ()
                          mapY, 
                          mapWidth, 
                          mapHeight);
-    game.stage.disableVisibilityChange = true;
+    game.stage.disableVisibilityChange  = true;
     
     //  Our tiled scrolling background
     land = game.add.tileSprite(0, 0, gameWidth, gameHeight, 'earth');
@@ -178,16 +172,8 @@ function create ()
 		v.body.immovable = true
 		i%2==0 ? v.scale.setTo(2, Math.random()*5) : v.scale.setTo(Math.random()*5, 2)
     }*/
-    for (var i = 0 ; i < 50; i++) {
-		var v = i % 2 == 0 ? cactuses.create((Math.random() * 19) * 100 + 100,
-                                             (Math.random() * 19) * 100 + 100, 
-                                             'cactus' + (i % 4) / 2) 
-                           : stones.create((Math.random() * 20) * 100,
-                                           (Math.random() * 20) * 100, 
-                                           'stone')
-		v.body.immovable = true;
-		v.scale.setTo(1, 1);
-    }
+
+
     console.log('creating character')
     player = new Character(myId, game, 0, 0);
     player.HUD = game.add.group();
@@ -219,7 +205,7 @@ function create ()
     //baseSprite.bringToTop();
     player.HUD.bringToTop(player.HUD);
 
-    if (game.renderType != 2) {
+    if(game.renderType!=2){
 	    game.scale.pageAlignHorizontally = true;
 	    game.scale.pageAlignVertically = true;
 	    game.scale.setScreenSize(true);
@@ -228,10 +214,10 @@ function create ()
 
     game.camera.follow(baseSprite);
     game.camera.deadzone = 
-        new Phaser.Rectangle((gameWidth - gameWidth * cameraDeadzoneWidth) / 2, 
-                             (gameHeight - gameHeight * cameraDeadzoneHeight) / 2, 
-                             gameWidth * cameraDeadzoneWidth, 
-                             gameHeight * cameraDeadzoneHeight);
+        new Phaser.Rectangle((gameWidth - gameWidth * cameraDeadzoneWidth)/2, 
+                             (gameHeight-gameHeight*cameraDeadzoneHeight)/2, 
+                             gameWidth*cameraDeadzoneWidth, 
+                             gameHeight*cameraDeadzoneHeight);
     game.camera.focusOnXY(baseSprite.x, baseSprite.y);
 
     initializeInput()
@@ -286,11 +272,6 @@ function update () {
     player.input.up = cursors.up.isDown;
     player.input.down = cursors.down.isDown;
 
-    player.input.w = cursors.w.isDown;
-    player.input.a = cursors.a.isDown;
-    player.input.s = cursors.s.isDown;
-    player.input.d = cursors.d.isDown;
-
     player.input.fire = game.input.activePointer.isDown;
     player.input.tx = game.input.x + game.camera.x;
     player.input.ty = game.input.y + game.camera.y;
@@ -338,7 +319,8 @@ function update () {
     for (i = 0; i < bullets.children.length; i++) {
     	if (bullets.children[i].alive && bullets.children[i].lifespan <= 0)
     		bullets.children[i].kill();
-    }
+    };
+    game.physics.arcade.collide(stones, cactuses,function(a,b){console.log(a,b)});
 }
 
 function bulletHitPlayer (character, bullet) {
