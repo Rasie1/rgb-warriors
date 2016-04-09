@@ -218,7 +218,7 @@ Character.prototype.kill = function() {
     this.alive = false;
     this.baseSprite.kill();
     this.headSprite.kill();
-    this.dropItem()
+    this.dropItem();
     setTimeout("recreate('"+this.id+"')",3000)
 }
 
