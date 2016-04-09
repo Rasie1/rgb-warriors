@@ -192,7 +192,9 @@ function update () {
                                         null, 
                                         this)
 	if (itemTimer == 60) {
-		makeItem(Math.random() * mapHeight, Math.random() * mapWidth)
+		makeItem(Math.random() * mapHeight, Math.random() * mapWidth);
+		if (player.health < 30)
+			eurecaServer.updateHP(myId, +1);
 		itemTimer = 0
 	}
 	itemTimer++
