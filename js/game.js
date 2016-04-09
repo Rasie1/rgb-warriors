@@ -92,7 +92,6 @@ window.addEventListener("orientationchange",onScreenChange);
 
 
 function preload () {
-
     game.load.atlas('character', 'assets/tanks.png', 'assets/tanks.json');
     game.load.atlas('enemy', 'assets/enemy-tanks.png', 'assets/tanks.json');
     game.load.image('bullet', 'assets/bullet.png');
@@ -110,6 +109,7 @@ function initializeInput ()
 {
     if (!game.device.desktop) {
         touchControls = new TouchControls(player)
+        // debugMessage(player.id)
         touchControls.init()
     }
 }
@@ -177,7 +177,6 @@ function create ()
     }
 
     //baseSprite.bringToTop();
-    //headSprite.bringToTop();
     player.HUD.bringToTop(player.HUD);
 
     //if(game.renderType!=2){

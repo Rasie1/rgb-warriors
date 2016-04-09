@@ -5,10 +5,11 @@ TouchControls = function(character)
     this.movementDirectionVectorX = 0
     this.movementDirectionVectorY = 0
 
-    this.offsetX = 200
-    this.offsetY = 200
-    this.segmentSize = 256 // joystick will be third as big
-
+    this.margin = 50
+    this.segmentSize = 256
+    this.offsetX = this.margin
+    this.offsetY = window.innerHeight - this.segmentSize * 2 - this.margin
+    debugMessage(window.innerHeight)
 };
 
 TouchControls.prototype.init = function create() {
