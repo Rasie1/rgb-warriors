@@ -12,3 +12,6 @@ var playerSpeedY = 300;
 var maxGameWidth = 3000; 
 var maxGameHeight = 3000;
 
+function def(arg,def) {
+	return (typeof(arg)==='undefined') ? def : arg
+}

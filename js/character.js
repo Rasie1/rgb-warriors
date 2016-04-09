@@ -1,7 +1,7 @@
 var character;
 var headSprite;
 
-Character = function (index, game) {
+Character = function (index, game, x, y) {
     this.cursor = {
         left:false,
         right:false,
@@ -26,8 +26,8 @@ Character = function (index, game) {
         spell3:false
     }
 
-    var x = 0;
-    var y = 0;
+    var x = def(x,0)
+    var y = def(y,0)
 
     this.game = game;
     this.health = 30;
@@ -139,7 +139,6 @@ Character.prototype.update = function() {
     }
 
     //cursor value is now updated by eurecaClient.exports.updateState method
-    
     
     if (this.cursor.left)
     {

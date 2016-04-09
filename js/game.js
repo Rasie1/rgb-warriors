@@ -61,7 +61,7 @@ var eurecaClientSetup = function() {
 		//create() is moved here to make sure nothing is created before uniq id assignation
 		myId = id;
 		create();
-		eurecaServer.handshake();
+		eurecaServer.handshake(id,0,0); // надо ещё отравку координат при респауне !!!
 		ready = true;
 	}	
 	
@@ -91,8 +91,16 @@ var eurecaClientSetup = function() {
 		
 		if (i == myId) return; //this is me
 		
-		var tnk = new Character(i, game, character);
+		var tnk = new Character(i, game, character,x,y);
 		charactersList[i] = tnk;
+	}
+	eurecaClient.exports.getX = function()
+	{
+		return charactersList[myId].baseSprite.x
+	}
+	eurecaClient.exports.getY = function()
+	{
+		return charactersList[myId].baseSprite.y
 	}
 	
 	eurecaClient.exports.updateState = function(id, state)
