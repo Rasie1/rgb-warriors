@@ -19,7 +19,9 @@ var cursors = {
     spell0:false,
     spell1:false,
     spell2:false,
-    spell3:false
+    spell3:false,
+    spell4:false,
+    spell5:false
 };
 
 var touchControls;
@@ -137,6 +139,8 @@ function handleInput(player)
     cursors.spell1 = game.input.keyboard.addKey(Phaser.Keyboard.TWO)
     cursors.spell2 = game.input.keyboard.addKey(Phaser.Keyboard.THREE)
     cursors.spell3 = game.input.keyboard.addKey(Phaser.Keyboard.FOUR)
+    cursors.spell4 = game.input.keyboard.addKey(Phaser.Keyboard.FIVE)
+    cursors.spell5 = game.input.keyboard.addKey(Phaser.Keyboard.SIX)
 
     if (!game.device.desktop)
         this.touchControls.processInput(player);
@@ -259,7 +263,12 @@ function update () {
     if (!ready) 
         return;
     
+    player.spell0Slot.currentCooldown--;
     player.spell1Slot.currentCooldown--;
+    player.spell2Slot.currentCooldown--;
+    player.spell3Slot.currentCooldown--;
+    player.spell4Slot.currentCooldown--;
+    player.spell5Slot.currentCooldown--;
     
     player.input.left = cursors.left.isDown;
     player.input.right = cursors.right.isDown;
@@ -274,6 +283,8 @@ function update () {
     player.input.spell1 = cursors.spell1.isDown;
     player.input.spell2 = cursors.spell2.isDown;
     player.input.spell3 = cursors.spell3.isDown;
+    player.input.spell4 = cursors.spell4.isDown;
+    player.input.spell5 = cursors.spell5.isDown;
 
     handleInput(player)
 

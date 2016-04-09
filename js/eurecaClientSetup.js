@@ -43,6 +43,14 @@ var EurecaClientSetup = function() {
 			}
 		}
 	}
+
+	eurecaClient.exports.castRemoteAttack = function(id, target)
+	{
+		if (charactersList[id])
+		{
+			charactersList[id].fire(target);
+		}
+	}
 	
 	eurecaClient.exports.spawnEnemy = function(i, x, y, r, g, b)
 	{

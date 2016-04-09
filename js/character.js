@@ -15,7 +15,9 @@ Character = function (index, game, x, y, r, g, b) {
         spell0:false,
         spell1:false,
         spell2:false,
-        spell3:false
+        spell3:false,
+        spell4:false,
+        spell5:false
     }
 
     this.input = {
@@ -31,7 +33,9 @@ Character = function (index, game, x, y, r, g, b) {
         spell0:false,
         spell1:false,
         spell2:false,
-        spell3:false
+        spell3:false,
+        spell4:false,
+        spell5:false
     }
 
     /*var x = def(x,0)
@@ -110,7 +114,7 @@ Character = function (index, game, x, y, r, g, b) {
     this.shouldCastSpell5 = false
     this.touchInputChanged = false
 
-    this.spell0Slot = new Spell()
+    this.spell0Slot = new Fireball()
     this.spell1Slot = new HealingSpell()
     this.spell2Slot = new Leap()
     this.spell3Slot = new Spike()
@@ -174,7 +178,9 @@ Character.prototype.update = function() {
         this.cursor.spell0 != this.input.spell0 ||
         this.cursor.spell1 != this.input.spell1 ||
         this.cursor.spell2 != this.input.spell2 ||
-        this.cursor.spell3 != this.input.spell3
+        this.cursor.spell3 != this.input.spell3 ||
+        this.cursor.spell4 != this.input.spell4 ||
+        this.cursor.spell5 != this.input.spell5
 
     );
     
@@ -287,32 +293,43 @@ Character.prototype.update = function() {
         this.headSprite.body.velocity.y = 0
     }
 
-    if (this.shouldCastSpell0) // unknown ???
+    if (this.shouldCastSpell0) // fireball
     {
-        this.spell0Slot.cast()
         this.shouldCastSpell0 = false
+        if (this.spell0Slot.onCooldown())
+            this.spell0Slot.cast(this);
     }
     if (this.shouldCastSpell1) //healing
     {
         this.shouldCastSpell1 = false
+        console.log(this.spell1Slot.currentCooldown);
         if (this.spell1Slot.onCooldown())
             this.spell1Slot.cast(this);
     }
-    if (this.shouldCastSpell2)
+    if (this.shouldCastSpell2) //leap
     {
         this.shouldCastSpell2 = false
+        if (this.spell2Slot.onCooldown())
+            this.spell2Slot.cast(this);
     }
-    if (this.shouldCastSpell3)
+    if (this.shouldCastSpell3) //spike
     {
         this.shouldCastSpell3 = false
+        if (this.spell3Slot.onCooldown())
+            this.spell3Slot.cast(this);
     }
-    if (this.shouldCastSpell4)
+    if (this.shouldCastSpell4) //cold sphere
     {
         this.shouldCastSpell4 = false
+        if (this.spell4Slot.onCooldown())
+            this.spell4Slot.cast(this);
     }
-    if (this.shouldCastSpell5)
+    if (this.shouldCastSpell5) //poison
     {
         this.shouldCastSpell5 = false
+        console.log(this.spell5Slot.currentCooldown);
+        if (this.spell5Slot.onCooldown())
+            this.spell5Slot.cast(this);
     }
 
     this.headSprite.x = this.baseSprite.x;
@@ -343,9 +360,6 @@ Character.prototype.fire = function(target) {
             //console.log(bullet);
             bullet.lifespan = 5000;
             bullet.reset(this.headSprite.x, this.headSprite.y);
-
-            bullet.magicType = 'fireball';
-            console.log('bullet type', bullet.magicType);
 
             bullet.rotation = this.game.physics.arcade.moveToObject(bullet, target, 500);
         }
