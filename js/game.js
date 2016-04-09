@@ -258,6 +258,7 @@ function update () {
     if (!ready) 
         return;
     
+    player.spell1Slot.currentCooldown--;
     
     player.input.left = cursors.left.isDown;
     player.input.right = cursors.right.isDown;
