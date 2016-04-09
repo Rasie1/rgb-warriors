@@ -93,7 +93,6 @@ var eurecaClientSetup = function() {
 	}
 }
 
-
 Tank = function (index, game) {
 	this.cursor = {
 		left:false,
@@ -152,6 +151,7 @@ Tank = function (index, game) {
     this.tank.body.bounce.setTo(0, 0);
 
     this.spell0Slot = new Spell()
+    this.touchControls = new TouchControls(this)
 };
 
 Tank.prototype.update = function() {
