@@ -1,4 +1,4 @@
-var eurecaClientSetup = function() {
+var EurecaClientSetup = function() {
 	//create an instance of eureca.io client
 
 	var eurecaClient = new Eureca.Client();
@@ -82,25 +82,20 @@ var eurecaClientSetup = function() {
 			charactersList[id].update();
 		}
 	}
-	eurecaClient.exports.createItem = function(x, y, elementForDrop)
-	{
-		var item = game.add.sprite(x,y,'item'+elementForDrop)
-		game.physics.enable(item, Phaser.Physics.ARCADE)
-		item.enableBody = true
-		item.physicsBodyType = Phaser.Physics.ARCADE
-		item.element = elementForDrop
-		items[items.length] = item
-	}
-
-	eurecaClient.exports.activateItem = function(index, x, y)
-	{
-		if (items[index])
-		{
-			var item = items[index]
-			item.x = x
-			item.y = y
-			item.alive = true
-			found = true	
+	eurecaClient.exports.makeItem = function(x,y,elementForDrop) {
+		var found = false;
+		console.log('making item');
+		for (var i in items){ 
+			if (!items[i].alive && items[i].element == elementForDrop){
+				//console.log('activated');
+				activateItem(i, x, y);
+			}
 		}
+
+		if (!found && items.length < 30){
+			//console.log('created');
+			createItem(x, y, elementForDrop);
+		}
+
 	}
 }

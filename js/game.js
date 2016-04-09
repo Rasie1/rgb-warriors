@@ -21,7 +21,8 @@ var cursors = {
     spell2:false,
     spell3:false
 };
-var touchControls
+
+var touchControls;
 
 var bullets;
 
@@ -49,9 +50,9 @@ var items = []
 var game = new Phaser.Game(
 	gameWidth, 
 	gameHeight, 
-	Phaser.CANVAS, 
+	Phaser.WEBGL, 
 	'phaser-example', 
-	{ preload: preload, create: eurecaClientSetup, update: update, render: render }
+	{ preload: preload, create: EurecaClientSetup, update: update, render: render }
 );
 
 
@@ -96,7 +97,6 @@ window.addEventListener("orientationchange",onScreenChange);
 
 
 function preload () {
-
     game.load.atlas('character', 'assets/tanks.png', 'assets/tanks.json');
     game.load.atlas('enemy', 'assets/enemy-tanks.png', 'assets/tanks.json');
     game.load.image('bullet', 'assets/bullet.png');
@@ -119,11 +119,11 @@ function initializeInput ()
 {
     if (!game.device.desktop) {
         touchControls = new TouchControls(player)
-        touchControls.init()
+        touchControls.init(game)
     }
 }
 
-function handleInput()
+function handleInput(player)
 {
     cursors.up = game.input.keyboard.addKey(Phaser.Keyboard.UP)
     cursors.down = game.input.keyboard.addKey(Phaser.Keyboard.DOWN)
@@ -138,7 +138,7 @@ function handleInput()
     cursors.spell3 = game.input.keyboard.addKey(Phaser.Keyboard.FOUR)
 
     if (!game.device.desktop)
-        this.touchControls.processInput();
+        this.touchControls.processInput(player);
     
 }
 
@@ -174,7 +174,7 @@ function create ()
 		v.scale.setTo(1, 1);
     }
     console.log('creating character')
-    player = new Character(myId, game,0,0);
+    player = new Character(myId, game, 0, 0);
     player.HUD = game.add.group();
     player.healthBar = game.add.text(10, 10, "HP: 99999%",
         { font: "32px Arial", fill: "#ffffff", align: "left" });
@@ -202,14 +202,14 @@ function create ()
     }
 
     //baseSprite.bringToTop();
-    //headSprite.bringToTop();
     player.HUD.bringToTop(player.HUD);
 
-    //if(game.renderType!=2){
+    if(game.renderType!=2){
 	    game.scale.pageAlignHorizontally = true;
 	    game.scale.pageAlignVertically = true;
 	    game.scale.setScreenSize(true);
-    //} 
+    } 
+
 
     game.camera.follow(baseSprite);
     game.camera.deadzone = 
@@ -220,31 +220,40 @@ function create ()
     game.camera.focusOnXY(baseSprite.x, baseSprite.y);
 
     initializeInput()
+}
+createItem = function(x, y, elementForDrop)
+{
+	var item = game.add.sprite(x,y,'item'+elementForDrop)
+	game.physics.enable(item, Phaser.Physics.ARCADE)
+	item.enableBody = true
+	item.physicsBodyType = Phaser.Physics.ARCADE
+	item.element = elementForDrop
+	items[items.length] = item
+}
+
+activateItem = function(index, x, y)
+{
+	if (items[index])
+	{
+		var item = items[index]
+		item.x = x
+		item.y = y
+		item.alive = true
+		found = true	
+	}
 
 }
 
-function makeItem(x,y) {
-	var found = false
-	var elementForDrop = Math.round(Math.random()*2)+1
-	for (var i in items) 
-		if (!items[i].alive && items[i].element == elementForDrop) 
-			eurecaServer.activateItem(i, x, y);
-
-	if (!found && items.length < 10) 
-		eurecaServer.createItem(x, y, elementForDrop);
-
-}
 
 function update () {
-	for (var j in charactersList) {
-		for (var i in items) 
+	for (var j in charactersList)
+		for (var i in items)
             game.physics.arcade.overlap(items[i], charactersList[j].baseSprite, 
                                         function(a){charactersList[j].pickUpItem(items[i])}, 
                                         null, 
                                         this)
-    }
 	if (itemTimer == 60) {
-		makeItem(Math.random() * mapHeight, Math.random() * mapWidth);
+		//makeItem(Math.random() * mapHeight, Math.random() * mapWidth);
 		if (player.health < 30 && player.alive)
 			eurecaServer.updateHP(myId, +1);
 		itemTimer = 0
@@ -254,6 +263,7 @@ function update () {
     //do not update if client not ready
     if (!ready) 
         return;
+    
     
     player.input.left = cursors.left.isDown;
     player.input.right = cursors.right.isDown;
@@ -269,12 +279,12 @@ function update () {
     player.input.spell2 = cursors.spell2.isDown;
     player.input.spell3 = cursors.spell3.isDown;
 
-    handleInput()
+    handleInput(player)
 
-	player.healthBar.setText("HP: " + player.health + "%");
-	
-	headSprite.rotation = game.physics.arcade.angleToPointer(headSprite);	
-	//baseSprite.rotation = game.physics.arcade.angleToPointer(baseSprite);	
+    player.healthBar.setText("HP: " + player.health + "%");
+    
+    headSprite.rotation = game.physics.arcade.angleToPointer(headSprite);   
+    //baseSprite.rotation = game.physics.arcade.angleToPointer(baseSprite); 
 
     land.tilePosition.x = -game.camera.x;
     land.tilePosition.y = -game.camera.y;
@@ -305,7 +315,7 @@ function update () {
 		}
     };
     for (i = 0; i < bullets.children.length; i++) {
-    	if(bullets.children[i].alive && bullets.children[i].lifespan <= 0)
+    	if (bullets.children[i].alive && bullets.children[i].lifespan <= 0)
     		bullets.children[i].kill();
     }
 }

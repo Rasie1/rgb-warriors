@@ -1,17 +1,19 @@
 TouchControls = function(character)
 {
     this.character = character
+    this.game = game
 
     this.movementDirectionVectorX = 0
     this.movementDirectionVectorY = 0
 
-    this.offsetX = 200
-    this.offsetY = 200
-    this.segmentSize = 256 // joystick will be third as big
-
+    this.margin = 50
+    this.segmentSize = 256
+    this.offsetX = this.margin
+    this.offsetY = 1000 - this.segmentSize * 2 - this.margin
 };
 
-TouchControls.prototype.init = function create() {
+TouchControls.prototype.init = function create(game) {
+    debugMessage(222)
     buttonR = game.add.button(this.offsetX + this.segmentSize, 
                               this.offsetY + this.segmentSize,
                               'button-circle', 
@@ -68,13 +70,13 @@ TouchControls.prototype.init = function create() {
 TouchControls.prototype.actionOnClick = function() {
 }
 
-TouchControls.prototype.processInput = function() {
+TouchControls.prototype.processInput = function(character) {
     if (this.movementDirectionVectorX == 1)
-        this.character.shouldMoveRight = true
+        character.shouldMoveRight = true
     if (this.movementDirectionVectorX == -1)
-        this.character.shouldMoveLeft = true
+        character.shouldMoveLeft = true
     if (this.movementDirectionVectorY == 1)
-        this.character.shouldMoveBottom = true
+        character.shouldMoveBottom = true
     if (this.movementDirectionVectorY == -1)
-        this.character.shouldMoveTop = true
+        character.shouldMoveTop = true
 }

@@ -103,7 +103,10 @@ Character = function (index, game, x, y) {
     {
         this.hpBar = game.add.sprite(x - 32, y - 32, 'hpBar');
         this.hpBar.anchor.set(0.5);
-    }
+    };
+
+    //continious firing
+    this.mouseAlreadyUpdated = false;
 };
 
 Character.prototype.recreate = function (x,y) {
@@ -150,8 +153,7 @@ Character.prototype.update = function() {
         this.cursor.spell3 != this.input.spell3
     );
     
-    var isContiniouslyFiring = (this.cursor.fire && this.game.time.now+50 >= this.nextFire);
-
+    var isContiniouslyFiring = (this.cursor.fire && this.game.time.now+50 >= this.nextFire && !this.mouseAlreadyUpdated);
     if (inputChanged)
     {
         //Handle input change here
@@ -170,6 +172,7 @@ Character.prototype.update = function() {
     }
     if (isContiniouslyFiring){
         if (this.baseSprite.id == myId){
+            this.mouseAlreadyUpdated = true;
             eurecaServer.handleRotation(this.input);
         }
     }
@@ -272,6 +275,7 @@ Character.prototype.fire = function(target) {
         //console.log(this.bullets.countDead());
         if (this.game.time.now > this.nextFire && this.bullets.countDead() > 0)
         {
+            this.mouseAlreadyUpdated = false;
             this.nextFire = this.game.time.now + this.fireRate;
             var bullet = this.bullets.getFirstDead();
             //console.log(bullet);
@@ -304,7 +308,7 @@ Character.prototype.kill = function() {
 }
 
 Character.prototype.dropItem = function() {
-    makeItem(this.baseSprite.x,this.baseSprite.y)
+    eurecaServer.dropItem(this.baseSprite.x,this.baseSprite.y)
 }
 
 Character.prototype.recolorAura = function() {
