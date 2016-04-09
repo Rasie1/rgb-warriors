@@ -14,7 +14,3 @@ var maxGameHeight = 3000;
 
 var maxHealth = 30
 var basicDamage = 10
-
-function def(arg,def) {
-	return (typeof(arg)==='undefined') ? def : arg
-}

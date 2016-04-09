@@ -11,3 +11,7 @@ function initDebugMessage(game) {
 function debugMessage(s) {
     debugMessageSprite.setText(s);
 }
+
+function def(arg,def) {
+    return (typeof(arg)==='undefined') ? def : arg
+}

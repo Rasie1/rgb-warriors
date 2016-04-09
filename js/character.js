@@ -83,11 +83,12 @@ Character = function (index, game, x, y) {
     else if (randomElement == 3) 
         this.BCounter++
 
-
+    // input section
     this.shouldMoveRight = false
     this.shouldMoveLeft = false
     this.shouldMoveTop = false
     this.shouldMoveBottom = false
+    this.touchInputChanged = false
 
     this.spell0Slot = new Spell()
     this.recolorAura()
@@ -145,12 +146,13 @@ Character.prototype.update = function() {
         this.cursor.spell1 != this.input.spell1 ||
         this.cursor.spell2 != this.input.spell2 ||
         this.cursor.spell3 != this.input.spell3
+
     );
     
     var isContiniouslyFiring = (this.cursor.fire && 
                                 this.game.time.now+50 >= this.nextFire && 
                                 !this.mouseAlreadyUpdated);
-    if (inputChanged)
+    if (inputChanged || this.touchInputChanged)
     {
         //Handle input change here
         //send new values to the server     
@@ -163,6 +165,8 @@ Character.prototype.update = function() {
             
             
             eurecaServer.handleKeys(this.input,this.baseSprite.x,this.baseSprite.y);
+
+            this.touchInputChanged = false
             
         }
     }
