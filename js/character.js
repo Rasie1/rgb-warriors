@@ -140,7 +140,8 @@ Character.prototype.update = function() {
         this.cursor.spell3 != this.input.spell3
     );
     
-    
+    var isContiniouslyFiring = (this.cursor.fire && this.game.time.now+50 >= this.nextFire);
+
     if (inputChanged)
     {
         //Handle input change here
@@ -157,7 +158,11 @@ Character.prototype.update = function() {
             
         }
     }
-
+    if (isContiniouslyFiring){
+        if (this.baseSprite.id == myId){
+            eurecaServer.handleRotation(this.input);
+        }
+    }
     //cursor value is now updated by eurecaClient.exports.updateState method
     
     if (this.cursor.left)
