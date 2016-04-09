@@ -17,6 +17,7 @@ var cursors = {
     spell2:false,
     spell3:false
 };
+var touchControls
 
 var bullets;
 
@@ -185,8 +186,15 @@ function preload () {
     
 }
 
-
 function initializeInput ()
+{
+    if (!game.device.desktop) {
+        touchControls = new TouchControls(player)
+        touchControls.init()
+    }
+}
+
+function handleInput()
 {
     cursors.up = game.input.keyboard.addKey(Phaser.Keyboard.UP)
     cursors.down = game.input.keyboard.addKey(Phaser.Keyboard.DOWN)
@@ -199,6 +207,10 @@ function initializeInput ()
     cursors.spell1 = game.input.keyboard.addKey(Phaser.Keyboard.TWO)
     cursors.spell2 = game.input.keyboard.addKey(Phaser.Keyboard.THREE)
     cursors.spell3 = game.input.keyboard.addKey(Phaser.Keyboard.FOUR)
+
+    if (!game.device.desktop)
+        this.touchControls.processInput();
+    
 }
 
 function create () 
@@ -220,7 +232,7 @@ function create ()
     player = new Character(myId, game, character);
     player.healthBar = game.add.text(10, 10, "HP: 99999%", 
         { font: "32px Arial", fill: "#ffffff", align: "left" });
-    player.healthBar.fixedToCamera = true;
+    player.healthBar.fixedToCamera = true
     player.healthBar.cameraOffset.setTo(10, 10);
     charactersList[myId] = player;
     baseSprite = player.baseSprite;
@@ -255,6 +267,8 @@ function create ()
                              gameWidth*cameraDeadzoneWidth, 
                              gameHeight*cameraDeadzoneHeight);
     game.camera.focusOnXY(baseSprite.x, baseSprite.y);
+
+    initializeInput()
 
 }
 
@@ -301,7 +315,7 @@ function update () {
     player.input.spell2 = cursors.spell2.isDown;
     player.input.spell3 = cursors.spell3.isDown;
 
-    initializeInput()
+    handleInput()
 
 	player.healthBar.setText("HP: " + player.health + "%");
 	

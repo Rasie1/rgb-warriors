@@ -80,10 +80,6 @@ Character = function (index, game) {
 
     this.spell0Slot = new Spell()
 
-    if (!game.device.desktop) {
-        this.touchControls = new TouchControls(this)
-        this.touchControls.init()
-    }
 };
 
 Character.prototype.update = function() {
@@ -100,8 +96,6 @@ Character.prototype.update = function() {
         this.cursor.spell3 != this.input.spell3
     );
     
-    if (!game.device.desktop)
-        this.touchControls.processInput();
     
     if (inputChanged)
     {
