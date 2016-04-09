@@ -14,7 +14,8 @@ var clients = {};
 var Eureca = require('eureca.io');
 
 //create an instance of EurecaServer
-var eurecaServer = new Eureca.Server({allow:['setId', 'spawnEnemy', 'kill', 'updateState', 'updateHP']});
+var eurecaServer = new Eureca.Server({allow:['setId', 'spawnEnemy', 'kill', 'updateState',
+											'updateHP', 'createItem', 'activateItem']});
 
 //attach eureca.io to our http server
 eurecaServer.attach(server);
@@ -100,4 +101,22 @@ eurecaServer.exports.updateHP = function(id, difHP)
 		clients[c].remote.updateHP(id, difHP);
 }
 
+eurecaServer.exports.createItem = function(x, y, elementForDrop)
+{
+	for (var c in clients)
+		clients[c].remote.createItem(x, y, elementForDrop);
+}
+
+eurecaServer.exports.activateItem = function(index, x, y)
+{
+	for (var c in clients)
+		clients[c].remote.activateItem(index, x, y);
+}
+/*
+eurecaServer.exports.pickUpItem = function(itemSprite)
+{
+	for (var c in clients)
+		clients[c].remote.pickUpItem(itemSprite);
+}
+*/
 server.listen(8000);

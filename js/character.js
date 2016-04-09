@@ -190,6 +190,7 @@ Character.prototype.kill = function() {
     this.alive = false;
     this.baseSprite.kill();
     this.headSprite.kill();
+    this.dropItem()
 }
 
 Character.prototype.dropItem = function() {

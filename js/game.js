@@ -106,6 +106,25 @@ var eurecaClientSetup = function() {
 			charactersList[id].update();
 		}
 	}
+
+	eurecaClient.exports.createItem = function(x, y, elementForDrop)
+	{
+		var item = game.add.sprite(x,y,'item'+elementForDrop)
+		game.physics.enable(item, Phaser.Physics.ARCADE)
+		item.enableBody = true
+		item.physicsBodyType = Phaser.Physics.ARCADE
+		item.element = elementForDrop
+		items[items.length] = item
+	}
+
+	eurecaClient.exports.activateItem = function(index, x, y)
+	{
+		var item = items[index]
+		item.x = x
+		item.y = y
+		item.alive = true
+		found = true
+	}
 }
 
 var game = new Phaser.Game(
@@ -239,22 +258,10 @@ function makeItem(x,y) {
 	var elementForDrop = Math.round(Math.random()*2)+1
 	for (var i in items) 
 		if (!items[i].alive && items[i].element == elementForDrop) 
-		{
-			var item = items[i]
-			item.x = x
-			item.y = y
-			item.alive = true
-			found = true
-		}
+			eurecaServer.activateItem(i, x, y);
+
 	if (!found && items.length < 10) 
-	{
-		var item = game.add.sprite(x,y,'item'+elementForDrop)
-		game.physics.enable(item, Phaser.Physics.ARCADE)
-		item.enableBody = true
-		item.physicsBodyType = Phaser.Physics.ARCADE
-		item.element = elementForDrop
-		items[items.length] = item
-	}
+		eurecaServer.createItem(x, y, elementForDrop);
 
 }
 
@@ -262,7 +269,7 @@ function update () {
 	for (var j in charactersList)
 		for (var i in items) 
             game.physics.arcade.overlap(items[i], charactersList[j].baseSprite, 
-                                        function(a){charactersList[j].pickUpItem(a)}, 
+                                        function(a){charactersList[j].pickUpItem(i)}, 
                                         null, 
                                         this)
 	if (itemTimer == 60) {
@@ -332,7 +339,6 @@ function update () {
 
 function bulletHitPlayer (character, bullet) {
     bullet.kill();
-    //charactersList[character.id].dropItem()
 }
 
 function render () {}
