@@ -111,7 +111,7 @@ var eurecaClientSetup = function() {
 var game = new Phaser.Game(
 	gameWidth, 
 	gameHeight, 
-	Phaser.WEBGL, 
+	Phaser.CANVAS, 
 	'phaser-example', 
 	{ preload: preload, create: eurecaClientSetup, update: update, render: render }
 );
@@ -153,8 +153,8 @@ function preload () {
 
     game.load.atlas('character', 'assets/tanks.png', 'assets/tanks.json');
     game.load.atlas('enemy', 'assets/enemy-tanks.png', 'assets/tanks.json');
-
     game.load.image('bullet', 'assets/bullet.png');
+    game.load.image('button-circle', 'assets/button_circle.png');
     game.load.image('earth', 'assets/scorched_earth.png');
     game.load.spritesheet('kaboom', 'assets/explosion.png', 64, 64, 23);
     game.load.image('item1', 'assets/item0.png')
@@ -181,7 +181,6 @@ function initializeInput ()
 
 function create () 
 {
-    //  Resize our game world to be a 2000 x 2000 square
     game.world.setBounds(mapX, 
                          mapY, 
                          mapWidth, 
