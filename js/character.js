@@ -235,11 +235,12 @@ Character.prototype.dropItem = function() {
 }
 
 Character.prototype.recolorAura = function() {
-    var r = Phaser.Math.clamp(255 - this.GCounter * 8 - this.BCounter * 8, 
+    var total = this.BCounter + this.GCounter + this.BCounter
+    var r = Phaser.Math.clamp(255 * this.RCounter / total, 
                               0, 255)
-    var g = Phaser.Math.clamp(255 - this.RCounter * 8 - this.BCounter * 8, 
+    var g = Phaser.Math.clamp(255 * this.GCounter / total, 
                               0, 255)
-    var b = Phaser.Math.clamp(255 - this.RCounter * 8 - this.GCounter * 8, 
+    var b = Phaser.Math.clamp(255 * this.BCounter / total, 
                               0, 255)
     var a = Phaser.Math.clamp((this.RCounter + this.GCounter + this.BCounter) / 32, 
                               0, 1)
