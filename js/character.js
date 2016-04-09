@@ -96,6 +96,10 @@ Character = function (index, game, x, y) {
     this.shouldMoveLeft = false
     this.shouldMoveTop = false
     this.shouldMoveBottom = false
+    this.shouldCastSpell0 = false
+    this.shouldCastSpell1 = false
+    this.shouldCastSpell2 = false
+    this.shouldCastSpell3 = false
     this.touchInputChanged = false
 
     this.spell0Slot = new Spell()
@@ -215,21 +219,20 @@ Character.prototype.update = function() {
 
     if (this.cursor.spell0)
     {
-        this.spell0Slot.cast()
+        this.shouldCastSpell0 = true
     }
-    if (this.cursor.spell0)
+    if (this.cursor.spell1)
     {
-
+        this.shouldCastSpell1 = true
     }
-    if (this.cursor.spell0)
+    if (this.cursor.spell2)
     {
-
+        this.shouldCastSpell2 = true
     }
-    if (this.cursor.spell0)
+    if (this.cursor.spell3)
     {
-
+        this.shouldCastSpell3 = true
     }
-
 
     // commit movement
     if (this.shouldMoveLeft) {
@@ -261,6 +264,20 @@ Character.prototype.update = function() {
     {
         this.baseSprite.body.velocity.y = 0
         this.headSprite.body.velocity.y = 0
+    }
+
+    if (this.shouldCastSpell0)
+    {
+        this.spell0Slot.cast()
+    }
+    if (this.shouldCastSpell1)
+    {
+    }
+    if (this.shouldCastSpell2)
+    {
+    }
+    if (this.shouldCastSpell3)
+    {
     }
 
     this.headSprite.x = this.baseSprite.x;

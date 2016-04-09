@@ -67,14 +67,78 @@ TouchControls.prototype.init = function create(game) {
     buttonT.fixedToCamera = true
     buttonB.fixedToCamera = true
 
+
+    // spell buttons
+
+
+    this.segmentSize = this.segmentSize / 2
+
+    buttonS0 = game.add.button(window.innerWidth - this.segmentSize - this.margin, 
+                               this.offsetY,
+                              'button-circle', 
+                              this.spell0buttonAction, 
+                              this, 
+                              0, 0, 0);
+    buttonS0.scale.x = 1
+    buttonS0.scale.y = 1
+    buttonS1 = game.add.button(window.innerWidth - this.segmentSize - this.margin, 
+                               this.offsetY + this.segmentSize,
+                              'button-circle', 
+                              this.spell1buttonAction, 
+                              this, 
+                              0, 0, 0);
+    buttonS1.scale.x = 1
+    buttonS1.scale.y = 1
+    buttonS2 = game.add.button(window.innerWidth - this.segmentSize - this.margin, 
+                               this.offsetY + this.segmentSize + this.segmentSize,
+                              'button-circle', 
+                              this.spell2buttonAction, 
+                              this, 
+                              0, 0, 0);
+    buttonS2.scale.x = 1
+    buttonS2.scale.y = 1
+    buttonS3 = game.add.button(window.innerWidth - this.segmentSize - this.margin, 
+                               this.offsetY + this.segmentSize + this.segmentSize + this.segmentSize,
+                              'button-circle', 
+                              this.spell3buttonAction, 
+                              this, 
+                              0, 0, 0);
+    buttonS3.scale.x = 1
+    buttonS3.scale.y = 1
+
+
+    buttonS0.fixedToCamera = true
+    buttonS1.fixedToCamera = true
+    buttonS2.fixedToCamera = true
+    buttonS3.fixedToCamera = true
+
 }
 
 
 TouchControls.prototype.actionOnClick = function() {
+
+}
+
+TouchControls.prototype.spell0buttonAction = function() {
+    // switch firemode
+
+    debugMessage(0)
+}
+
+TouchControls.prototype.spell1buttonAction = function() {
+    debugMessage(1)   
+}
+
+TouchControls.prototype.spell2buttonAction = function() {
+    debugMessage(2)
+}
+
+TouchControls.prototype.spell3buttonAction = function() {
+    debugMessage(3)
 }
 
 TouchControls.prototype.processInput = function(character) {
-    
+
     if (this.movementDirectionVectorX == 1)
         character.shouldMoveRight = true
     if (this.movementDirectionVectorX == -1)

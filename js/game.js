@@ -77,7 +77,7 @@ var onScreenChange = function(){
 			gameHeight = screenHeight;
 		};
 		
-			game.renderer.resize(gameWidth,gameHeight)
+		game.renderer.resize(gameWidth, gameHeight)
 
 		game.camera.width = game.camera.width- widthDiff;
 		game.camera.height = game.camera.height- heightDiff;
