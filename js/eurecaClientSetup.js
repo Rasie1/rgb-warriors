@@ -49,7 +49,7 @@ var eurecaClientSetup = function() {
 		
 		if (i == myId) return; //this is me
 		
-		var tnk = new Character(i, game, character);
+		var tnk = new Character(i, game,x,y);
 		charactersList[i] = tnk;
 	}
 	
