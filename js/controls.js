@@ -1,5 +1,6 @@
 TouchControls = function(character)
 {
+
     this.character = character
 
     this.movementDirectionVectorX = 0
@@ -8,11 +9,11 @@ TouchControls = function(character)
     this.margin = 50
     this.segmentSize = 256
     this.offsetX = this.margin
-    this.offsetY = window.innerHeight - this.segmentSize * 2 - this.margin
-    debugMessage(window.innerHeight)
+    this.offsetY = 1000 - this.segmentSize * 2 - this.margin
 };
 
-TouchControls.prototype.init = function create() {
+TouchControls.prototype.init = function create(game) {
+    debugMessage(character.id)
     buttonR = game.add.button(this.offsetX + this.segmentSize, 
                               this.offsetY + this.segmentSize,
                               'button-circle', 

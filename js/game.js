@@ -107,11 +107,11 @@ function preload () {
 
 function initializeInput ()
 {
-    if (!game.device.desktop) {
-        touchControls = new TouchControls(player)
-        // debugMessage(player.id)
-        touchControls.init()
-    }
+    // if (!game.device.desktop) {
+    //     touchControls = new TouchControls(player)
+    //     debugMessage(111)
+    //     touchControls.init(game)
+    // }
 }
 
 function handleInput()
@@ -128,8 +128,8 @@ function handleInput()
     cursors.spell2 = game.input.keyboard.addKey(Phaser.Keyboard.THREE)
     cursors.spell3 = game.input.keyboard.addKey(Phaser.Keyboard.FOUR)
 
-    if (!game.device.desktop)
-        this.touchControls.processInput();
+    // if (!game.device.desktop)
+    //     this.touchControls.processInput();
     
 }
 
@@ -180,9 +180,9 @@ function create ()
     player.HUD.bringToTop(player.HUD);
 
     //if(game.renderType!=2){
-	    game.scale.pageAlignHorizontally = true;
-	    game.scale.pageAlignVertically = true;
-	    game.scale.setScreenSize(true);
+        game.scale.pageAlignHorizontally = true;
+        game.scale.pageAlignVertically = true;
+        game.scale.setScreenSize(true);
     //} 
 
     game.camera.follow(baseSprite);
@@ -198,35 +198,37 @@ function create ()
 }
 
 function makeItem(x,y) {
-	var found = false
-	var elementForDrop = Math.round(Math.random()*2)+1
-	for (var i in items) 
-		if (!items[i].alive && items[i].element == elementForDrop) 
-			eurecaServer.activateItem(i, x, y);
+    var found = false
+    var elementForDrop = Math.round(Math.random()*2)+1
+    for (var i in items) 
+        if (!items[i].alive && items[i].element == elementForDrop) 
+            eurecaServer.activateItem(i, x, y);
 
-	if (!found && items.length < 10) 
-		eurecaServer.createItem(x, y, elementForDrop);
+    if (!found && items.length < 10) 
+        eurecaServer.createItem(x, y, elementForDrop);
 
 }
 
 function update () {
-	for (var j in charactersList)
-		for (var i in items) 
+    for (var j in charactersList)
+        for (var i in items) 
             game.physics.arcade.overlap(items[i], charactersList[j].baseSprite, 
                                         function(a){charactersList[j].pickUpItem(items[i])}, 
                                         null, 
                                         this)
-	if (itemTimer == 60) {
-		makeItem(Math.random() * mapHeight, Math.random() * mapWidth);
-		if (player.health < 30 && player.alive)
-			eurecaServer.updateHP(myId, +1);
-		itemTimer = 0
-	}
-	itemTimer++
+    if (itemTimer == 60) {
+        makeItem(Math.random() * mapHeight, Math.random() * mapWidth);
+        if (player.health < 30 && player.alive)
+            eurecaServer.updateHP(myId, +1);
+        itemTimer = 0
+    }
+    itemTimer++
+
     
     //do not update if client not ready
     if (!ready) 
         return;
+    
     
     player.input.left = cursors.left.isDown;
     player.input.right = cursors.right.isDown;
@@ -244,10 +246,10 @@ function update () {
 
     handleInput()
 
-	player.healthBar.setText("HP: " + player.health + "%");
-	
-	headSprite.rotation = game.physics.arcade.angleToPointer(headSprite);	
-	//baseSprite.rotation = game.physics.arcade.angleToPointer(baseSprite);	
+    player.healthBar.setText("HP: " + player.health + "%");
+    
+    headSprite.rotation = game.physics.arcade.angleToPointer(headSprite);   
+    //baseSprite.rotation = game.physics.arcade.angleToPointer(baseSprite); 
 
     land.tilePosition.x = -game.camera.x;
     land.tilePosition.y = -game.camera.y;
