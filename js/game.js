@@ -15,6 +15,10 @@ var cursors = {
     right:false,
     up:false,
     down:false,
+    w:false,
+    a:false,
+    s:false,
+    d:false,
     fire:false,
     spell0:false,
     spell1:false,
@@ -130,12 +134,19 @@ function handleInput(player)
     cursors.left = game.input.keyboard.addKey(Phaser.Keyboard.LEFT)
     cursors.right = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT)
 
+    cursors.w = game.input.keyboard.addKey(Phaser.Keyboard.W)
+    cursors.a = game.input.keyboard.addKey(Phaser.Keyboard.A)
+    cursors.s = game.input.keyboard.addKey(Phaser.Keyboard.S)
+    cursors.d = game.input.keyboard.addKey(Phaser.Keyboard.D)
+
     cursors.fire = game.input.keyboard.addKey(Phaser.Mouse.LEFT_BUTTON)
     
     cursors.spell0 = game.input.keyboard.addKey(Phaser.Keyboard.ONE)
     cursors.spell1 = game.input.keyboard.addKey(Phaser.Keyboard.TWO)
     cursors.spell2 = game.input.keyboard.addKey(Phaser.Keyboard.THREE)
     cursors.spell3 = game.input.keyboard.addKey(Phaser.Keyboard.FOUR)
+
+    
 
     if (!game.device.desktop)
         this.touchControls.processInput(player);
@@ -168,8 +179,13 @@ function create ()
 		v.body.immovable = true
 		i%2==0 ? v.scale.setTo(2, Math.random()*5) : v.scale.setTo(Math.random()*5, 2)
     }*/
-    for (var i=0;i<50;i++) {
-		var v = i%2==0 ? cactuses.create((Math.random()*19)*100+100,(Math.random()*19)*100+100, 'cactus'+(i%4)/2) : stones.create((Math.random()*20)*100,(Math.random()*20)*100, 'stone')
+    for (var i = 0 ; i < 50; i++) {
+		var v = i % 2 == 0 ? cactuses.create((Math.random() * 19) * 100 + 100,
+                                             (Math.random() * 19) * 100 + 100, 
+                                             'cactus' + (i % 4) / 2) 
+                           : stones.create((Math.random() * 20) * 100,
+                                           (Math.random() * 20) * 100, 
+                                           'stone')
 		v.body.immovable = true;
 		v.scale.setTo(1, 1);
     }
@@ -204,7 +220,7 @@ function create ()
     //baseSprite.bringToTop();
     player.HUD.bringToTop(player.HUD);
 
-    if(game.renderType!=2){
+    if (game.renderType != 2) {
 	    game.scale.pageAlignHorizontally = true;
 	    game.scale.pageAlignVertically = true;
 	    game.scale.setScreenSize(true);
@@ -213,10 +229,10 @@ function create ()
 
     game.camera.follow(baseSprite);
     game.camera.deadzone = 
-        new Phaser.Rectangle((gameWidth - gameWidth * cameraDeadzoneWidth)/2, 
-                             (gameHeight-gameHeight*cameraDeadzoneHeight)/2, 
-                             gameWidth*cameraDeadzoneWidth, 
-                             gameHeight*cameraDeadzoneHeight);
+        new Phaser.Rectangle((gameWidth - gameWidth * cameraDeadzoneWidth) / 2, 
+                             (gameHeight - gameHeight * cameraDeadzoneHeight) / 2, 
+                             gameWidth * cameraDeadzoneWidth, 
+                             gameHeight * cameraDeadzoneHeight);
     game.camera.focusOnXY(baseSprite.x, baseSprite.y);
 
     initializeInput()
@@ -269,6 +285,11 @@ function update () {
     player.input.right = cursors.right.isDown;
     player.input.up = cursors.up.isDown;
     player.input.down = cursors.down.isDown;
+
+    player.input.w = cursors.w.isDown;
+    player.input.a = cursors.a.isDown;
+    player.input.s = cursors.s.isDown;
+    player.input.d = cursors.d.isDown;
 
     player.input.fire = game.input.activePointer.isDown;
     player.input.tx = game.input.x + game.camera.x;

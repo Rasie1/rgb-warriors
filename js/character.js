@@ -7,6 +7,10 @@ Character = function (index, game, x, y) {
         right:false,
         up:false,
         down:false,
+        w:false,
+        a:false,
+        s:false,
+        d:false,
         fire:false,
         spell0:false,
         spell1:false,
@@ -19,6 +23,10 @@ Character = function (index, game, x, y) {
         right:false,
         up:false,
         down:false,
+        w:false,
+        a:false,
+        s:false,
+        d:false,
         fire:false,
         spell0:false,
         spell1:false,
@@ -141,6 +149,10 @@ Character.prototype.update = function() {
         this.cursor.right  != this.input.right ||
         this.cursor.up     != this.input.up ||
         this.cursor.down   != this.input.down ||
+        this.cursor.w      != this.input.w ||
+        this.cursor.a      != this.input.a ||
+        this.cursor.s      != this.input.s ||
+        this.cursor.d      != this.input.d ||
         this.cursor.fire   != this.input.fire ||
         this.cursor.spell0 != this.input.spell0 ||
         this.cursor.spell1 != this.input.spell1 ||
@@ -178,20 +190,20 @@ Character.prototype.update = function() {
     }
     //cursor value is now updated by eurecaClient.exports.updateState method
     
-    if (this.cursor.left)
+    if (this.cursor.left || this.cursor.a)
     {
         this.shouldMoveLeft = true
     }
-    else if (this.cursor.right)
+    else if (this.cursor.right || this.cursor.d)
     {
         this.shouldMoveRight = true
     }
 
-    if (this.cursor.down)
+    if (this.cursor.down || this.cursor.s)
     {
         this.shouldMoveBottom = true
     }
-    else if (this.cursor.up)
+    else if (this.cursor.up  || this.cursor.w)
     {
         this.shouldMoveTop = true
     }

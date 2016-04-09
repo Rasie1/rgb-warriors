@@ -74,6 +74,7 @@ TouchControls.prototype.actionOnClick = function() {
 }
 
 TouchControls.prototype.processInput = function(character) {
+    
     if (this.movementDirectionVectorX == 1)
         character.shouldMoveRight = true
     if (this.movementDirectionVectorX == -1)
