@@ -275,7 +275,7 @@ function update () {
 
     handleInput(player)
 
-    player.healthBar.setText("HP: " + player.health + "%");
+    player.healthBar.setText("HP: " + player.health);
     
     headSprite.rotation = game.physics.arcade.angleToPointer(headSprite);   
     //baseSprite.rotation = game.physics.arcade.angleToPointer(baseSprite); 
