@@ -14,7 +14,7 @@ Spell.prototype.onCooldown = function(character) {
 
 // Healing Spell
 
-function HealingSpell() {
+function HealingSpell() {	
     Spell.call(this);
     this.cooldown = 100;
 }
@@ -51,9 +51,10 @@ Fireball.prototype.cast = function(character){
 
 function Leap() {
     Spell.call(this);
+    this.cooldown = 50;
 }
 
-Leap.prototype = Object.create(Leap.prototype);
+Leap.prototype = Object.create(Spell.prototype);
 
 Leap.prototype.constructor = Leap
 
@@ -66,9 +67,10 @@ Leap.prototype.cast = function(character){
 
 function Spike() {
     Spell.call(this);
+    this.cooldown = 50;
 }
 
-Spike.prototype = Object.create(Spike.prototype);
+Spike.prototype = Object.create(Spell.prototype);
 
 Spike.prototype.constructor = Spike
 
@@ -81,28 +83,35 @@ Spike.prototype.cast = function(character){
 
 function ColdSphere() {
     Spell.call(this);
+    this.cooldown = 50;
 }
 
-ColdSphere.prototype = Object.create(ColdSphere.prototype);
+ColdSphere.prototype = Object.create(Spell.prototype);
 
 ColdSphere.prototype.constructor = ColdSphere
 
 ColdSphere.prototype.cast = function(character){
     this.currentCooldown = this.cooldown
 
+    eurecaServer.castRemoteAttack(character.id, {x: character.cursor.tx,
+    											 y: character.cursor.ty});
 };
 
 // Poison
 
 function Poison() {
     Spell.call(this);
+    this.cooldown = 50;
 }
 
-Poison.prototype = Object.create(Poison.prototype);
+Poison.prototype = Object.create(Spell.prototype);
 
 Poison.prototype.constructor = Poison
 
 Poison.prototype.cast = function(character){
     this.currentCooldown = this.cooldown
+
+    eurecaServer.castRemoteAttack(character.id, {x: character.cursor.tx,
+    											 y: character.cursor.ty});
 };
 
