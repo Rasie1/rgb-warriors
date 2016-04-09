@@ -74,7 +74,11 @@ Character = function (index, game) {
 
 
     this.spell0Slot = new Spell()
-    this.touchControls = new TouchControls(this)
+
+    if (!game.device.desktop) {
+        this.touchControls = new TouchControls(this)
+        this.touchControls.init()
+    }
 };
 
 Character.prototype.recreate = function (x,y) {
@@ -114,6 +118,8 @@ Character.prototype.update = function() {
         this.cursor.spell3 != this.input.spell3
     );
     
+    if (!game.device.desktop)
+        this.touchControls.processInput();
     
     if (inputChanged)
     {
