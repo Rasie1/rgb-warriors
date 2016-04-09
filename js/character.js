@@ -110,7 +110,7 @@ Character = function (index, game, x, y, r, g, b) {
     this.shouldCastSpell5 = false
     this.touchInputChanged = false
 
-    this.spell0Slot = new Spell()
+    this.spell0Slot = new Fireball()
     this.spell1Slot = new HealingSpell()
     this.spell2Slot = new Leap()
     this.spell3Slot = new Spike()
@@ -288,10 +288,11 @@ Character.prototype.update = function() {
         this.headSprite.body.velocity.y = 0
     }
 
-    if (this.shouldCastSpell0) // unknown ???
+    if (this.shouldCastSpell0) // fireball
     {
-        this.spell0Slot.cast()
         this.shouldCastSpell0 = false
+        if (this.spell0Slot.onCooldown())
+            this.spell0Slot.cast(this);
     }
     if (this.shouldCastSpell1) //healing
     {
@@ -343,9 +344,6 @@ Character.prototype.fire = function(target) {
             //console.log(bullet);
             bullet.lifespan = 5000;
             bullet.reset(this.headSprite.x, this.headSprite.y);
-
-            bullet.magicType = 'fireball';
-            console.log('bullet type', bullet.magicType);
 
             bullet.rotation = this.game.physics.arcade.moveToObject(bullet, target, 500);
         }

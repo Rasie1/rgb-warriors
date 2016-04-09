@@ -9,7 +9,7 @@ Spell.prototype.cast = function(character) {
 }
 
 Spell.prototype.onCooldown = function(character) {
-    return this.currentCooldown < 0;
+    return this.currentCooldown <= 0;
 }
 
 // Healing Spell
@@ -33,6 +33,7 @@ HealingSpell.prototype.cast = function(character){
 
 function Fireball() {
     Spell.call(this);
+    this.cooldown = 50;
 }
 
 Fireball.prototype = Object.create(Spell.prototype);
@@ -42,6 +43,8 @@ Fireball.prototype.constructor = Fireball
 Fireball.prototype.cast = function(character){
     this.currentCooldown = this.cooldown
 
+    eurecaServer.castRemoteAttack(character.id, {x: character.cursor.tx,
+    											 y: character.cursor.ty});
 };
 
 // Leap

@@ -48,7 +48,8 @@ var eurecaServer = new Eureca.Server({allow:[
 	'makeItem', 
 	'dropItem',
 	'pickUpItem',
-	'createObstacles'
+	'createObstacles',
+	'castRemoteAttack'
 ]
 });
 
@@ -187,6 +188,12 @@ eurecaServer.exports.pickUpItem = function(itemID)
 		}
 		//console.log(itemsList)
 	}
+}
+
+eurecaServer.exports.castRemoteAttack = function(id, target)
+{
+	for (var c in clients)
+		clients[c].remote.castRemoteAttack(id, target);
 }
 
 
