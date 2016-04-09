@@ -54,6 +54,8 @@ Character = function (index, game, x, y) {
     this.baseSprite = game.add.sprite(x, y, 'enemy', 'tank1');
     this.headSprite = game.add.sprite(x, y, 'enemy', 'turret');
     this.auraSprite = game.add.sprite(x, y, 'aura');
+    this.deadSprite = game.add.sprite(x, y, 'dead');
+    this.deadSprite.kill()
 
     this.baseSprite.anchor.set(0.5);
     this.auraSprite.anchor.set(0.5);
@@ -105,6 +107,7 @@ Character = function (index, game, x, y) {
 };
 
 Character.prototype.recreate = function (x,y) {
+    this.deadSprite.kill()
 
     this.health = 30;
     this.SpeedX = playerSpeedX
@@ -125,8 +128,14 @@ Character.prototype.recreate = function (x,y) {
     else if (randomElement == 2) this.GCounter++
     else if (randomElement == 3) this.BCounter++
     this.recolorAura()
-
+    this.hpBar = null;
+    if (myId != this.baseSprite.id)
+    {
+        this.hpBar = game.add.sprite(x - 32, y - 32, 'hpBar');
+        this.hpBar.anchor.set(0.5);
+    }
 }
+
 Character.prototype.update = function() {
     
     var inputChanged = (
@@ -244,14 +253,17 @@ Character.prototype.update = function() {
     this.auraSprite.x = this.baseSprite.x;
     this.auraSprite.y = this.baseSprite.y;
 
-    if (myId != this.baseSprite.id)
+    if (this.hpBar != null)
     {
         this.hpBar.x = this.baseSprite.x;
         this.hpBar.y = this.baseSprite.y - 42;    
     }
 
     game.physics.arcade.collide(this.baseSprite, cactuses);
+    game.physics.arcade.collide(this.baseSprite, stones);
     game.physics.arcade.collide(this.bullets, cactuses, function(a){a.kill()},null,this);
+    game.physics.arcade.collide(this.baseSprite, walls);
+    game.physics.arcade.collide(this.bullets, walls, function(a){a.kill()},null,this);
 };
 
 
@@ -280,8 +292,11 @@ function recreate(deadId) {
 Character.prototype.kill = function() {
     this.alive = false;
     this.baseSprite.kill();
-    if (myId != this.baseSprite.id)
+    if (this.hpBar != null) {
         this.hpBar.kill();
+        this.hpBar = null;
+    }
+    this.deadSprite.reset(this.headSprite.x-32,this.headSprite.y-32)
     this.headSprite.kill();
     this.auraSprite.kill();
     this.dropItem();
@@ -324,7 +339,7 @@ Character.prototype.pickUpItem = function(itemSprite) {
     var Counter = this.RCounter+this.GCounter+this.BCounter
     if (Counter<=20) {
         this.SpeedX = playerSpeedX-Counter*10
-        this.SpeedX = playerSpeedY-Counter*10
+        this.SpeedY = playerSpeedY-Counter*10
     }
     console.log("R="+this.RCounter+" G="+this.GCounter+" B="+this.BCounter)
     this.recolorAura()
