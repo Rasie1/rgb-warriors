@@ -66,6 +66,7 @@ Character = function (index, game, x, y) {
     this.baseSprite.id = index;
     console.log("id="+index)
     game.physics.enable(this.baseSprite, Phaser.Physics.ARCADE);
+    game.physics.enable(this.headSprite, Phaser.Physics.ARCADE);
     this.baseSprite.body.immovable = false;
     this.baseSprite.body.collideWorldBounds = true;
     this.baseSprite.body.bounce.setTo(0, 0);
@@ -202,33 +203,34 @@ Character.prototype.update = function() {
 
     // commit movement
     if (this.shouldMoveLeft) {
-        this.baseSprite.body.velocity.x = -this.SpeedX
+        this.headSprite.body.velocity.x = this.baseSprite.body.velocity.x = -this.SpeedX
         baseSprite.rotation = -3.14
         this.shouldMoveLeft   = false
     }
     else if (this.shouldMoveRight) {
-        this.baseSprite.body.velocity.x = this.SpeedX
+        this.headSprite.body.velocity.x = this.baseSprite.body.velocity.x = this.SpeedX
         baseSprite.rotation = 0
         this.shouldMoveRight  = false
     }
     else
     {
-        this.baseSprite.body.velocity.x = 0
+        this.headSprite.body.velocity.x = this.baseSprite.body.velocity.x = 0
     }
 
     if (this.shouldMoveTop) {
-        this.baseSprite.body.velocity.y = -this.SpeedY;
+        this.headSprite.body.velocity.y = this.baseSprite.body.velocity.y = -this.SpeedY
         baseSprite.rotation = baseSprite.rotation==-3.14 ? -3*3.14/4 : baseSprite.rotation==0 ? -3.14/4 : -3.14/2
         this.shouldMoveTop    = false
     }
     else if (this.shouldMoveBottom) {
-        this.baseSprite.body.velocity.y = this.SpeedY;
+        this.headSprite.body.velocity.y = this.baseSprite.body.velocity.y = this.SpeedY
         baseSprite.rotation = baseSprite.rotation==-3.14 ? 3*3.14/4 : baseSprite.rotation==0 ? 3.14/4 : 3.14/2
         this.shouldMoveBottom = false
     }
     else
     {
         this.baseSprite.body.velocity.y = 0
+        this.headSprite.body.velocity.y = 0
     }
 
     this.headSprite.x = this.baseSprite.x;
