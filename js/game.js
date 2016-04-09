@@ -17,6 +17,7 @@ var cursors = {
     spell2:false,
     spell3:false
 };
+var touchControls
 
 var bullets;
 
@@ -43,75 +44,11 @@ console.log(gameWidth);
 
 var itemTimer = 0
 var items = []
-//this function will handle client communication with the server
-var eurecaClientSetup = function() {
-	//create an instance of eureca.io client
-
-	var eurecaClient = new Eureca.Client();
-	
-	eurecaClient.ready(function (proxy) {		
-		eurecaServer = proxy;
-	});
-	
-	
-	//methods defined under "exports" namespace become available in the server side
-	
-	eurecaClient.exports.setId = function(id) 
-	{
-		//create() is moved here to make sure nothing is created before uniq id assignation
-		myId = id;
-		create();
-		eurecaServer.handshake();
-		ready = true;
-	}	
-	
-	eurecaClient.exports.kill = function(id)
-	{	
-		if (charactersList[id]) {
-			charactersList[id].kill();
-			console.log('killing ', id, charactersList[id]);
-		}
-	}	
-
-	eurecaClient.exports.updateHP = function(id, difHP)
-	{
-		if (charactersList[id])
-		{
-			charactersList[id].health += difHP;
-			if (charactersList[id].health <= 0 && id == character.id)
-			{
-				console.log('talk server about killing');
-				eurecaServer.killPlayer(id);
-			}
-		}
-	}
-	
-	eurecaClient.exports.spawnEnemy = function(i, x, y)
-	{
-		
-		if (i == myId) return; //this is me
-		
-		var tnk = new Character(i, game, character);
-		charactersList[i] = tnk;
-	}
-	
-	eurecaClient.exports.updateState = function(id, state)
-	{
-		if (charactersList[id])  {
-			charactersList[id].cursor = state;
-			charactersList[id].baseSprite.x = state.x;
-			charactersList[id].baseSprite.y = state.y;
-
-			charactersList[id].headSprite.rotation = state.rot;
-			charactersList[id].update();
-		}
-	}
-}
 
 var game = new Phaser.Game(
 	gameWidth, 
 	gameHeight, 
-	Phaser.WEBGL, 
+	Phaser.CANVAS, 
 	'phaser-example', 
 	{ preload: preload, create: eurecaClientSetup, update: update, render: render }
 );
@@ -153,8 +90,8 @@ function preload () {
 
     game.load.atlas('character', 'assets/tanks.png', 'assets/tanks.json');
     game.load.atlas('enemy', 'assets/enemy-tanks.png', 'assets/tanks.json');
-
     game.load.image('bullet', 'assets/bullet.png');
+    game.load.image('button-circle', 'assets/button_circle.png');
     game.load.image('earth', 'assets/scorched_earth.png');
     game.load.spritesheet('kaboom', 'assets/explosion.png', 64, 64, 23);
     game.load.image('item1', 'assets/item0.png')
@@ -164,8 +101,15 @@ function preload () {
     
 }
 
-
 function initializeInput ()
+{
+    if (!game.device.desktop) {
+        touchControls = new TouchControls(player)
+        touchControls.init()
+    }
+}
+
+function handleInput()
 {
     cursors.up = game.input.keyboard.addKey(Phaser.Keyboard.UP)
     cursors.down = game.input.keyboard.addKey(Phaser.Keyboard.DOWN)
@@ -178,35 +122,41 @@ function initializeInput ()
     cursors.spell1 = game.input.keyboard.addKey(Phaser.Keyboard.TWO)
     cursors.spell2 = game.input.keyboard.addKey(Phaser.Keyboard.THREE)
     cursors.spell3 = game.input.keyboard.addKey(Phaser.Keyboard.FOUR)
+
+    if (!game.device.desktop)
+        this.touchControls.processInput();
+    
 }
 
 function create () 
 {
-    //  Resize our game world to be a 2000 x 2000 square
     game.world.setBounds(mapX, 
                          mapY, 
                          mapWidth, 
                          mapHeight);
-	game.stage.disableVisibilityChange  = true;
-	
+    game.stage.disableVisibilityChange  = true;
+    
     //  Our tiled scrolling background
     land = game.add.tileSprite(0, 0, gameWidth, gameHeight, 'earth');
 
     land.fixedToCamera = true;
     
     charactersList = {};
-	
-	player = new Character(myId, game, character);
-	player.healthBar = game.add.text(10, 10, "HP: 99999%", 
-    	{ font: "32px Arial", fill: "#ffffff", align: "left" });
-    player.healthBar.fixedToCamera = true;
+
+    
+    player = new Character(myId, game, character);
+    player.healthBar = game.add.text(10, 10, "HP: 99999%", 
+        { font: "32px Arial", fill: "#ffffff", align: "left" });
+    player.healthBar.fixedToCamera = true
     player.healthBar.cameraOffset.setTo(10, 10);
-	charactersList[myId] = player;
-	baseSprite = player.baseSprite;
-	headSprite = player.headSprite;
-	baseSprite.x=0;
-	baseSprite.y=0;
-	bullets = player.bullets;
+    charactersList[myId] = player;
+    baseSprite = player.baseSprite;
+    headSprite = player.headSprite;
+    baseSprite.x = 0;
+    baseSprite.y = 0;
+    bullets = player.bullets;
+
+    initDebugMessage(game);
 
     //  Explosion pool
     explosions = game.add.group();
@@ -233,26 +183,19 @@ function create ()
                              gameHeight*cameraDeadzoneHeight);
     game.camera.focusOnXY(baseSprite.x, baseSprite.y);
 
+    initializeInput()
+
 }
 
 function makeItem(x,y) {
-	var faund = false
+	var found = false
 	var elementForDrop = Math.round(Math.random()*2)+1
-	for (var i in items) if (!items[i].alive && items[i].element==elementForDrop) {
-		var item = items[i]
-		item.x = x
-		item.y = y
-		item.alive = true
-		found = true
-	}
-	if (!faund) {
-		var item = game.add.sprite(x,y,'item'+elementForDrop)
-		game.physics.enable(item, Phaser.Physics.ARCADE)
-		item.enableBody = true
-		item.physicsBodyType = Phaser.Physics.ARCADE
-		item.element = elementForDrop
-		items[items.length] = item
-	}
+	for (var i in items) 
+		if (!items[i].alive && items[i].element == elementForDrop) 
+			eurecaServer.activateItem(i, x, y);
+
+	if (!found && items.length < 10) 
+		eurecaServer.createItem(x, y, elementForDrop);
 
 }
 
@@ -260,11 +203,13 @@ function update () {
 	for (var j in charactersList)
 		for (var i in items) 
             game.physics.arcade.overlap(items[i], charactersList[j].baseSprite, 
-                                        function(a){charactersList[j].pickUpItem(a)}, 
+                                        function(a){charactersList[j].pickUpItem(items[i])}, 
                                         null, 
                                         this)
 	if (itemTimer == 60) {
-		makeItem(Math.random() * mapHeight, Math.random() * mapWidth)
+		makeItem(Math.random() * mapHeight, Math.random() * mapWidth);
+		if (player.health < 30)
+			eurecaServer.updateHP(myId, +1);
 		itemTimer = 0
 	}
 	itemTimer++
@@ -287,12 +232,12 @@ function update () {
     player.input.spell2 = cursors.spell2.isDown;
     player.input.spell3 = cursors.spell3.isDown;
 
-    initializeInput()
+    handleInput()
 
 	player.healthBar.setText("HP: " + player.health + "%");
 	
 	headSprite.rotation = game.physics.arcade.angleToPointer(headSprite);	
-	baseSprite.rotation = game.physics.arcade.angleToPointer(baseSprite);	
+	//baseSprite.rotation = game.physics.arcade.angleToPointer(baseSprite);	
 
     land.tilePosition.x = -game.camera.x;
     land.tilePosition.y = -game.camera.y;
@@ -308,9 +253,9 @@ function update () {
 			
 				var targetCharacter = charactersList[j].baseSprite;
 				
-				game.physics.arcade.overlap(curBullets, targetCharacter, bulletHitPlayer, null, this);
-				if (game.physics.arcade.collide(targetCharacter, curBullets, bulletHitPlayer, null, this)
-					&& charactersList[i].baseSprite.id == myId)
+				//game.physics.arcade.overlap(curBullets, targetCharacter, bulletHitPlayer, null, this);
+				if (game.physics.arcade.overlap(targetCharacter, curBullets, bulletHitPlayer, null, this)
+					&& charactersList[i].baseSprite.id == player.baseSprite.id)
 				{
 					console.log('talk server about collide');
 					eurecaServer.updateHP(targetCharacter.id, -10);
@@ -330,7 +275,6 @@ function update () {
 
 function bulletHitPlayer (character, bullet) {
     bullet.kill();
-    charactersList[character.id].dropItem()
 }
 
 function render () {}

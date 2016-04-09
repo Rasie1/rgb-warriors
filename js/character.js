@@ -32,6 +32,8 @@ Character = function (index, game) {
 
     this.game = game;
     this.health = 30;
+    this.SpeedX = playerSpeedX
+    this.SpeedY = playerSpeedY
 
     this.bullets = game.add.group();
     this.bullets.enableBody = true;
@@ -79,8 +81,13 @@ Character = function (index, game) {
         this.BCounter++
 
 
+    this.shouldMoveRight = false
+    this.shouldMoveLeft = false
+    this.shouldMoveTop = false
+    this.shouldMoveBottom = false
+
     this.spell0Slot = new Spell()
-    this.touchControls = new TouchControls(this)
+
 };
 
 Character.prototype.update = function() {
@@ -120,29 +127,21 @@ Character.prototype.update = function() {
     
     if (this.cursor.left)
     {
-        this.baseSprite.body.velocity.x = -playerSpeedX;
+        this.shouldMoveLeft = true
     }
     else if (this.cursor.right)
     {
-        this.baseSprite.body.velocity.x = playerSpeedX;
+        this.shouldMoveRight = true
     }
-    else
-    {
-        this.baseSprite.body.velocity.x = 0;
-    };
 
     if (this.cursor.down)
     {
-        this.baseSprite.body.velocity.y = playerSpeedY;
+        this.shouldMoveBottom = true
     }
     else if (this.cursor.up)
     {
-        this.baseSprite.body.velocity.y = -playerSpeedY;
+        this.shouldMoveTop = true
     }
-    else
-    {
-        this.baseSprite.body.velocity.y = 0;
-    };
 
     if (this.cursor.fire)
     {   
@@ -164,6 +163,38 @@ Character.prototype.update = function() {
     if (this.cursor.spell0)
     {
 
+    }
+
+
+    // commit movement
+    if (this.shouldMoveLeft) {
+        this.baseSprite.body.velocity.x = -this.SpeedX
+        baseSprite.rotation = -3.14
+        this.shouldMoveLeft   = false
+    }
+    else if (this.shouldMoveRight) {
+        this.baseSprite.body.velocity.x = this.SpeedX
+        baseSprite.rotation = 0
+        this.shouldMoveRight  = false
+    }
+    else
+    {
+        this.baseSprite.body.velocity.x = 0
+    }
+
+    if (this.shouldMoveTop) {
+        this.baseSprite.body.velocity.y = -this.SpeedY;
+        baseSprite.rotation = baseSprite.rotation==-3.14 ? -3*3.14/4 : baseSprite.rotation==0 ? -3.14/4 : -3.14/2
+        this.shouldMoveTop    = false
+    }
+    else if (this.shouldMoveBottom) {
+        this.baseSprite.body.velocity.y = this.SpeedY;
+        baseSprite.rotation = baseSprite.rotation==-3.14 ? 3*3.14/4 : baseSprite.rotation==0 ? 3.14/4 : 3.14/2
+        this.shouldMoveBottom = false
+    }
+    else
+    {
+        this.baseSprite.body.velocity.y = 0
     }
 
     this.headSprite.x = this.baseSprite.x;
@@ -196,10 +227,10 @@ Character.prototype.kill = function() {
     this.alive = false;
     this.baseSprite.kill();
     this.headSprite.kill();
+    this.dropItem()
 }
 
 Character.prototype.dropItem = function() {
-    console.log("dropItem()")
     makeItem(this.baseSprite.x,this.baseSprite.y)
 }
 
@@ -239,7 +270,6 @@ Character.prototype.recolorAura = function() {
 }
 
 Character.prototype.pickUpItem = function(itemSprite) {
-    console.log("pickUpItem()")
     itemSprite.kill()
     switch (itemSprite.element) {
         case 1:
@@ -251,6 +281,11 @@ Character.prototype.pickUpItem = function(itemSprite) {
         case 3:
             this.BCounter++
             break
+    }
+    var Counter = this.RCounter+this.GCounter+this.BCounter
+    if (Counter<=20) {
+        this.SpeedX = playerSpeedX-Counter*10
+        this.SpeedX = playerSpeedY-Counter*10
     }
     console.log("R="+this.RCounter+" G="+this.GCounter+" B="+this.BCounter)
     this.recolorAura()
