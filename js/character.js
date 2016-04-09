@@ -87,7 +87,7 @@ Character = function (index, game) {
     this.shouldMoveBottom = false
 
     this.spell0Slot = new Spell()
-
+    this.recolorAura()
 };
 
 Character.prototype.update = function() {
@@ -235,38 +235,18 @@ Character.prototype.dropItem = function() {
 }
 
 Character.prototype.recolorAura = function() {
-    // var counterMax = 10
-    // var r = counterMax - this.RCounter
-    // var g = counterMax - this.GCounter
-    // var b = counterMax - this.BCounter
+    var r = Phaser.Math.clamp(255 - this.GCounter * 8 - this.BCounter * 8, 
+                              0, 255)
+    var g = Phaser.Math.clamp(255 - this.RCounter * 8 - this.BCounter * 8, 
+                              0, 255)
+    var b = Phaser.Math.clamp(255 - this.RCounter * 8 - this.GCounter * 8, 
+                              0, 255)
+    var a = Phaser.Math.clamp((this.RCounter + this.GCounter + this.BCounter) / 32, 
+                              0, 1)
 
-    // var newTint = Phaser.Color.toRGBA
-    // this.auraSprite.tint = newTint;
-
-
-    var r = Phaser.Math.clamp(this.RCounter * 16, 0, 255)
-    var g = Phaser.Math.clamp(this.GCounter * 16, 0, 255)
-    var b = Phaser.Math.clamp(this.BCounter * 16, 0, 255)
-
-    var src_A = 1.0
-    var src_R = r
-    var src_G = g
-    var src_B = b
-    var dst_R = 0
-    var dst_G = 0
-    var dst_B = 0
-    var dst_A = 1.0
-    dst_R = (src_R * src_A + dst_R * (255 - src_A));
-    dst_G = (src_G * src_A + dst_G * (255 - src_A));
-    dst_B = (src_B * src_A + dst_B * (255 - src_A));
-    dst_A = Phaser.Math.min((src_A + dst_A) * 255, 255);
-
-    // var r = Phaser.Math.clamp(this.RCounter * 16, 0, 255)
-    // var g = Phaser.Math.clamp(this.GCounter * 16, 0, 255)
-    // var b = Phaser.Math.clamp(this.BCounter * 16, 0, 255)
-    var newTint = Phaser.Color.toRGBA(dst_R, dst_G, dst_B, dst_A)
-    console.log(dst_R, ' ', dst_G, ' ', dst_B, ' ', dst_A)
+    var newTint = Phaser.Color.getColor(r, g, b)
     this.auraSprite.tint = newTint;
+    this.auraSprite.alpha = a
 }
 
 Character.prototype.pickUpItem = function(itemSprite) {
