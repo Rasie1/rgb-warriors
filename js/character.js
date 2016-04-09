@@ -1,7 +1,7 @@
 var character;
 var headSprite;
 
-Character = function (index, game, x, y) {
+Character = function (index, game, x, y, r, g, b) {
     this.cursor = {
         left:false,
         right:false,
@@ -80,16 +80,22 @@ Character = function (index, game, x, y) {
     this.baseSprite.body.immovable = false;
     this.baseSprite.body.collideWorldBounds = true;
     this.baseSprite.body.bounce.setTo(0, 0);
-    this.RCounter = 0
-    this.GCounter = 0
-    this.BCounter = 0
-    var randomElement = Math.round(Math.random()*2)
-    if (randomElement == 1) 
-        this.RCounter++
-    else if (randomElement == 2) 
-        this.GCounter++
-    else if (randomElement == 3) 
-        this.BCounter++
+    if ((r!=-1 && r!=undefined) || (g!=-1 && g!=undefined) || (b!=-1 && b!=undefined)) {
+        this.RCounter = r
+        this.GCounter = g
+        this.BCounter = b
+    } else {
+        this.RCounter = 0
+        this.GCounter = 0
+        this.BCounter = 0
+        var randomElement = Math.round(Math.random()*2)
+        if (randomElement == 1) 
+            this.RCounter++
+        else if (randomElement == 2) 
+            this.GCounter++
+        else if (randomElement == 3) 
+            this.BCounter++
+    }
 
     // input section
     this.shouldMoveRight = false
@@ -180,7 +186,7 @@ Character.prototype.update = function() {
             this.input.rot = this.headSprite.rotation;
             
             
-            eurecaServer.handleKeys(this.input,this.baseSprite.x,this.baseSprite.y);
+            eurecaServer.handleKeys(this.input,this.baseSprite.x,this.baseSprite.y,this.RCounter,this.GCounter,this.BCounter);
 
             this.touchInputChanged = false
             

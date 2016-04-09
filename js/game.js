@@ -167,7 +167,7 @@ function create ()
 
 
     console.log('creating character')
-    player = new Character(myId, game, 0, 0);
+    player = new Character(myId, game, 0, 0, -1, -1, -1); // -1 чтобы можно было отлечить потрачено было или не задано
     player.HUD = game.add.group();
     player.healthBar = game.add.text(10, 10, "HP: 99999%",
         { font: "32px Arial", fill: "#ffffff", align: "left" });
