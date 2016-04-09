@@ -78,7 +78,7 @@ var eurecaClientSetup = function() {
 		if (charactersList[id])
 		{
 			charactersList[id].health += difHP;
-			if (charactersList[id].health <= 0 && id == character.id)
+			if (charactersList[id].health <= 0 && id == player.baseSprite.id)
 			{
 				console.log('talk server about killing');
 				eurecaServer.killPlayer(id);
@@ -104,6 +104,28 @@ var eurecaClientSetup = function() {
 
 			charactersList[id].headSprite.rotation = state.rot;
 			charactersList[id].update();
+		}
+	}
+
+	eurecaClient.exports.createItem = function(x, y, elementForDrop)
+	{
+		var item = game.add.sprite(x,y,'item'+elementForDrop)
+		game.physics.enable(item, Phaser.Physics.ARCADE)
+		item.enableBody = true
+		item.physicsBodyType = Phaser.Physics.ARCADE
+		item.element = elementForDrop
+		items[items.length] = item
+	}
+
+	eurecaClient.exports.activateItem = function(index, x, y)
+	{
+		if (items[index])
+		{
+			var item = items[index]
+			item.x = x
+			item.y = y
+			item.alive = true
+			found = true	
 		}
 	}
 }
@@ -239,21 +261,12 @@ function create ()
 function makeItem(x,y) {
 	var found = false
 	var elementForDrop = Math.round(Math.random()*2)+1
-	for (var i in items) if (!items[i].alive && items[i].element==elementForDrop) {
-		var item = items[i]
-		item.x = x
-		item.y = y
-		item.alive = true
-		found = true
-	}
-	if (!found) {
-		var item = game.add.sprite(x,y,'item'+elementForDrop)
-		game.physics.enable(item, Phaser.Physics.ARCADE)
-		item.enableBody = true
-		item.physicsBodyType = Phaser.Physics.ARCADE
-		item.element = elementForDrop
-		items[items.length] = item
-	}
+	for (var i in items) 
+		if (!items[i].alive && items[i].element == elementForDrop) 
+			eurecaServer.activateItem(i, x, y);
+
+	if (!found && items.length < 10) 
+		eurecaServer.createItem(x, y, elementForDrop);
 
 }
 
@@ -261,7 +274,7 @@ function update () {
 	for (var j in charactersList)
 		for (var i in items) 
             game.physics.arcade.overlap(items[i], charactersList[j].baseSprite, 
-                                        function(a){charactersList[j].pickUpItem(a)}, 
+                                        function(a){charactersList[j].pickUpItem(items[i])}, 
                                         null, 
                                         this)
 	if (itemTimer == 60) {
@@ -309,9 +322,9 @@ function update () {
 			
 				var targetCharacter = charactersList[j].baseSprite;
 				
-				game.physics.arcade.overlap(curBullets, targetCharacter, bulletHitPlayer, null, this);
-				if (game.physics.arcade.collide(targetCharacter, curBullets, bulletHitPlayer, null, this)
-					&& charactersList[i].baseSprite.id == myId)
+				//game.physics.arcade.overlap(curBullets, targetCharacter, bulletHitPlayer, null, this);
+				if (game.physics.arcade.overlap(targetCharacter, curBullets, bulletHitPlayer, null, this)
+					&& charactersList[i].baseSprite.id == player.baseSprite.id)
 				{
 					console.log('talk server about collide');
 					eurecaServer.updateHP(targetCharacter.id, -10);
@@ -331,7 +344,6 @@ function update () {
 
 function bulletHitPlayer (character, bullet) {
     bullet.kill();
-    charactersList[character.id].dropItem()
 }
 
 function render () {}

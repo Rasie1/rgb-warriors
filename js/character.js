@@ -32,6 +32,8 @@ Character = function (index, game) {
 
     this.game = game;
     this.health = 30;
+    this.SpeedX = playerSpeedX
+    this.SpeedY = playerSpeedY
 
     this.bullets = game.add.group();
     this.bullets.enableBody = true;
@@ -118,12 +120,12 @@ Character.prototype.update = function() {
     
     if (this.cursor.left)
     {
-        this.baseSprite.body.velocity.x = -playerSpeedX;
+        this.baseSprite.body.velocity.x = -this.SpeedX;
         baseSprite.rotation = -3.14
     }
     else if (this.cursor.right)
     {
-        this.baseSprite.body.velocity.x = playerSpeedX;
+        this.baseSprite.body.velocity.x = this.SpeedX;
         baseSprite.rotation = 0
     }
     else
@@ -133,12 +135,12 @@ Character.prototype.update = function() {
 
     if (this.cursor.down)
     {
-        this.baseSprite.body.velocity.y = playerSpeedY;
+        this.baseSprite.body.velocity.y = this.SpeedY;
         baseSprite.rotation = baseSprite.rotation==-3.14 ? 3*3.14/4 : baseSprite.rotation==0 ? 3.14/4 : 3.14/2
     }
     else if (this.cursor.up)
     {
-        this.baseSprite.body.velocity.y = -playerSpeedY;
+        this.baseSprite.body.velocity.y = -this.SpeedY;
         baseSprite.rotation = baseSprite.rotation==-3.14 ? -3*3.14/4 : baseSprite.rotation==0 ? -3.14/4 : -3.14/2
     }
     else
@@ -196,6 +198,7 @@ Character.prototype.kill = function() {
     this.alive = false;
     this.baseSprite.kill();
     this.headSprite.kill();
+    this.dropItem()
 }
 
 Character.prototype.dropItem = function() {
@@ -214,6 +217,11 @@ Character.prototype.pickUpItem = function(itemSprite) {
         case 3:
             this.BCounter++
             break
+    }
+    var Counter = this.RCounter+this.GCounter+this.BCounter
+    if (Counter<=20) {
+        this.SpeedX = playerSpeedX-Counter*10
+        this.SpeedX = playerSpeedY-Counter*10
     }
     console.log("R="+this.RCounter+" G="+this.GCounter+" B="+this.BCounter)
 }
