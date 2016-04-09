@@ -8,9 +8,17 @@ var player;
 var tanksList;
 var explosions;
 
-
-
-var cursors;
+var cursors = {
+    left:false,
+    right:false,
+    up:false,
+    down:false,
+    fire:false,
+    spell0:false,
+    spell1:false,
+    spell2:false,
+    spell3:false
+};
 
 var bullets;
 
@@ -38,6 +46,7 @@ console.log(gameWidth);
 //this function will handle client communication with the server
 var eurecaClientSetup = function() {
 	//create an instance of eureca.io client
+
 	var eurecaClient = new Eureca.Client();
 	
 	eurecaClient.ready(function (proxy) {		
@@ -63,13 +72,25 @@ var eurecaClientSetup = function() {
 			console.log('killing ', id, tanksList[id]);
 		}
 	}	
+
+	eurecaClient.exports.updateHP = function(id, difHP)
+	{
+		if (tanksList[id])
+		{
+			tanksList[id].health += difHP;
+			if (tanksList[id].health <= 0 && id == tank.id)
+			{
+				console.log('talk server about killing');
+				eurecaServer.killPlayer(id);
+			}
+		}
+	}
 	
 	eurecaClient.exports.spawnEnemy = function(i, x, y)
 	{
 		
 		if (i == myId) return; //this is me
 		
-		console.log('SPAWN');
 		var tnk = new Tank(i, game, tank);
 		tanksList[i] = tnk;
 	}
@@ -80,6 +101,7 @@ var eurecaClientSetup = function() {
 			tanksList[id].cursor = state;
 			tanksList[id].tank.x = state.x;
 			tanksList[id].tank.y = state.y;
+
 			tanksList[id].turret.rotation = state.rot;
 			tanksList[id].update();
 		}
@@ -93,7 +115,11 @@ Tank = function (index, game) {
 		right:false,
 		up:false,
 		down:false,
-		fire:false		
+		fire:false,
+        spell0:false,
+        spell1:false,
+        spell2:false,
+        spell3:false
 	}
 
 	this.input = {
@@ -101,7 +127,11 @@ Tank = function (index, game) {
 		right:false,
 		up:false,
 		down:false,
-		fire:false
+		fire:false,
+        spell0:false,
+        spell1:false,
+        spell2:false,
+        spell3:false
 	}
 
     var x = 0;
@@ -109,16 +139,18 @@ Tank = function (index, game) {
 
     this.game = game;
     this.health = 30;
+
     this.bullets = game.add.group();
     this.bullets.enableBody = true;
     this.bullets.physicsBodyType = Phaser.Physics.ARCADE;
     this.bullets.createMultiple(20, 'bullet', 0, false);
     this.bullets.setAll('anchor.x', 0.5);
     this.bullets.setAll('anchor.y', 0.5);
+
     //this.bullets.setAll('outOfBoundsKill', true);
     //this.bullets.setAll('lifespan',5000);
     this.bullets.setAll('checkWorldBounds', true);	
-	
+
 	
 	this.currentSpeed =0;
     this.fireRate = 500;
@@ -137,8 +169,7 @@ Tank = function (index, game) {
     this.tank.body.collideWorldBounds = true;
     this.tank.body.bounce.setTo(0, 0);
 
-
-
+    this.spell0Slot = new Spell()
 };
 
 Tank.prototype.update = function() {
@@ -148,7 +179,11 @@ Tank.prototype.update = function() {
 		this.cursor.right != this.input.right ||
 		this.cursor.up != this.input.up ||
 		this.cursor.down != this.input.down ||
-		this.cursor.fire != this.input.fire
+		this.cursor.fire != this.input.fire ||
+        this.cursor.spell0 != this.input.spell0 ||
+        this.cursor.spell1 != this.input.spell1 ||
+        this.cursor.spell2 != this.input.spell2 ||
+        this.cursor.spell3 != this.input.spell3
 	);
 	
 	
@@ -180,7 +215,8 @@ Tank.prototype.update = function() {
     {
         this.tank.body.velocity.x = playerSpeedX;
     }
-    else{
+    else
+    {
     	this.tank.body.velocity.x = 0;
     };
 
@@ -192,17 +228,32 @@ Tank.prototype.update = function() {
     {
         this.tank.body.velocity.y = -playerSpeedY;
     }
-    else{
+    else
+    {
     	this.tank.body.velocity.y = 0;
     };
+
     if (this.cursor.fire)
     {	
 		this.fire({x:this.cursor.tx, y:this.cursor.ty});
     }
-	
-	
-	
-	
+
+    if (this.cursor.spell0)
+    {
+         this.spell0Slot.cast()
+    }
+    if (this.cursor.spell0)
+    {
+
+    }
+    if (this.cursor.spell0)
+    {
+
+    }
+    if (this.cursor.spell0)
+    {
+
+    }
 
     this.turret.x = this.tank.x;
     this.turret.y = this.tank.y;
@@ -220,6 +271,10 @@ Tank.prototype.fire = function(target) {
             //console.log(bullet);
             bullet.lifespan = 5000;
             bullet.reset(this.turret.x, this.turret.y);
+
+            bullet.magicType = 'fireball';
+            console.log('bullet type', bullet.magicType);
+
 			bullet.rotation = this.game.physics.arcade.moveToObject(bullet, target, 500);
         }
 }
@@ -231,19 +286,37 @@ Tank.prototype.kill = function() {
 	this.turret.kill();
 }
 
-var game = new Phaser.Game(gameWidth, gameHeight, Phaser.AUTO, 'phaser-example', { preload: preload, create: eurecaClientSetup, update: update, render: render });
+var game = new Phaser.Game(
+	gameWidth, 
+	gameHeight, 
+	Phaser.WEBGL, 
+	'phaser-example', 
+	{ preload: preload, create: eurecaClientSetup, update: update, render: render }
+);
+
 
 var onScreenChange = function(){
 	console.log('changed');
 	screenWidth = window.innerWidth;
 	screenHeight = window.innerHeight;
-	game.canvas.style.width = screenWidth+'px';
-	game.canvas.style.height = screenHeight+'px';
-	document.documentElement.style.maxWidth = 0;
-	document.documentElement.style.maxHeight = 0;
-
+	/*if(screenWidth>maxGameWidth){
+		gameWidth = maxGameWidth;
+	}
+	else{
+		gameWidth = screenWidth;
+	};
+	if(screenHeight>maxGameHeight){
+		gameHeight = maxGameHeight;
+	}
+	else{
+		gameHeight = screenHeight;
+	};
+	game.scale.maxWidth = gameWidth;
+	game.scale.maxHeight = gameHeight;*/
+	game.scale.setScreenSize();
 	land.width = gameWidth;
 	land.height = gameHeight;
+
 	game.camera.deadzone.x = (gameWidth-gameWidth*cameraDeadzoneWidth)/2;
 	game.camera.deadzone.y = (gameHeight-gameHeight*cameraDeadzoneHeight)/2;
 	game.camera.deadzone.width = gameWidth*cameraDeadzoneWidth;
@@ -252,10 +325,12 @@ var onScreenChange = function(){
 }
 window.addEventListener("resize",onScreenChange);
 
+
 function preload () {
 
     game.load.atlas('tank', 'assets/tanks.png', 'assets/tanks.json');
     game.load.atlas('enemy', 'assets/enemy-tanks.png', 'assets/tanks.json');
+
     game.load.image('bullet', 'assets/bullet.png');
     game.load.image('earth', 'assets/scorched_earth.png');
     game.load.spritesheet('kaboom', 'assets/explosion.png', 64, 64, 23);
@@ -263,9 +338,23 @@ function preload () {
 }
 
 
+function initializeInput ()
+{
+    cursors.up = game.input.keyboard.addKey(Phaser.Keyboard.UP)
+    cursors.down = game.input.keyboard.addKey(Phaser.Keyboard.DOWN)
+    cursors.left = game.input.keyboard.addKey(Phaser.Keyboard.LEFT)
+    cursors.right = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT)
 
-function create () {
+    cursors.fire = game.input.keyboard.addKey(Phaser.Mouse.LEFT_BUTTON)
+    
+    cursors.spell0 = game.input.keyboard.addKey(Phaser.Keyboard.ONE)
+    cursors.spell1 = game.input.keyboard.addKey(Phaser.Keyboard.TWO)
+    cursors.spell2 = game.input.keyboard.addKey(Phaser.Keyboard.THREE)
+    cursors.spell3 = game.input.keyboard.addKey(Phaser.Keyboard.FOUR)
+}
 
+function create () 
+{
     //  Resize our game world to be a 2000 x 2000 square
     game.world.setBounds(mapX, 
                          mapY, 
@@ -275,11 +364,16 @@ function create () {
 	
     //  Our tiled scrolling background
     land = game.add.tileSprite(0, 0, gameWidth, gameHeight, 'earth');
+
     land.fixedToCamera = true;
     
     tanksList = {};
 	
 	player = new Tank(myId, game, tank);
+	player.healthBar = game.add.text(10, 10, "HP: 99999%", 
+    	{ font: "32px Arial", fill: "#ffffff", align: "left" });
+    player.healthBar.fixedToCamera = true;
+    player.healthBar.cameraOffset.setTo(10, 10);
 	tanksList[myId] = player;
 	tank = player.tank;
 	turret = player.turret;
@@ -300,42 +394,42 @@ function create () {
     tank.bringToTop();
     turret.bringToTop();
 
-    //game.scale.pageAlignHorizontally = true;
-    //game.scale.pageAlignVertically = true;
+    game.scale.pageAlignHorizontally = true;
+    game.scale.pageAlignVertically = true;
     game.scale.setScreenSize(true); 
+
     game.camera.follow(tank);
- 	game.canvas.style.width = screenWidth+'px';
-	game.canvas.style.height = screenHeight+'px';
     game.camera.deadzone = new Phaser.Rectangle((gameWidth-gameWidth*cameraDeadzoneWidth)/2, (gameHeight-gameHeight*cameraDeadzoneHeight)/2, gameWidth*cameraDeadzoneWidth, gameHeight*cameraDeadzoneHeight);
     game.camera.focusOnXY(tank.x, tank.y);
 
-    cursors = game.input.keyboard.createCursorKeys();
-	
-	
+    initializeInput()
 }
 
-
 function update () {
-	//do not update if client not ready
-	if (!ready) return;
-	
-	player.input.left = cursors.left.isDown;
-	player.input.right = cursors.right.isDown;
-	player.input.up = cursors.up.isDown;
-	player.input.down = cursors.down.isDown;
-	player.input.fire = game.input.activePointer.isDown;
-	player.input.tx = game.input.x+ game.camera.x;
-	player.input.ty = game.input.y+ game.camera.y;
-	
-	
+    //do not update if client not ready
+    if (!ready) return;
+    
+    player.input.left = cursors.left.isDown;
+    player.input.right = cursors.right.isDown;
+    player.input.up = cursors.up.isDown;
+    player.input.down = cursors.down.isDown;
+
+    player.input.fire = game.input.activePointer.isDown;
+    player.input.tx = game.input.x + game.camera.x;
+    player.input.ty = game.input.y + game.camera.y;
+
+    player.input.spell0 = cursors.spell0.isDown;
+    player.input.spell1 = cursors.spell1.isDown;
+    player.input.spell2 = cursors.spell2.isDown;
+    player.input.spell3 = cursors.spell3.isDown;
+
+	player.healthBar.setText("HP: " + player.health + "%");
 	
 	turret.rotation = game.physics.arcade.angleToPointer(turret);	
 	tank.rotation = game.physics.arcade.angleToPointer(tank);	
+
     land.tilePosition.x = -game.camera.x;
     land.tilePosition.y = -game.camera.y;
-
-    	
-	
     for (var i in tanksList)
     {
 		if (!tanksList[i]) continue;
@@ -350,6 +444,12 @@ function update () {
 				var targetTank = tanksList[j].tank;
 				
 				game.physics.arcade.overlap(curBullets, targetTank, bulletHitPlayer, null, this);
+				if (game.physics.arcade.collide(targetTank, curBullets, bulletHitPlayer, null, this)
+					&& tanksList[i].tank.id == myId)
+				{
+					console.log('talk server about collide');
+					eurecaServer.updateHP(targetTank.id, -10);
+				}
 			}
 			if (tanksList[j].alive)
 			{
@@ -369,5 +469,4 @@ function bulletHitPlayer (tank, bullet) {
     bullet.kill();
 }
 
-function render () {
-}
+function render () {}

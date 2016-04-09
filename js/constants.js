@@ -9,5 +9,5 @@ var cameraDeadzoneHeight = 0.25;
 var playerSpeedX = 300;
 var playerSpeedY = 300;
 
-var maxGameWidth = 1280;
-var maxGameHeight = 720;
+var maxGameWidth = 3000; 
+var maxGameHeight = 3000;
