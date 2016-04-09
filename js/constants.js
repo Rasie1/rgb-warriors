@@ -1,6 +1,10 @@
+var myId = 0;
+var initialSpawnLocationX = 0;
+var initialSpawnLocationY = 0;
+
 var mapX   = 0;
 var mapWidth  =  2000;
-var mapY    = 0;
+var mapY    = 0; 
 var mapHeight =  2000;
 
 var cameraDeadzoneWidth = 0.25;

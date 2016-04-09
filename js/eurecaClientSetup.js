@@ -10,10 +10,12 @@ var EurecaClientSetup = function() {
 	
 	//methods defined under "exports" namespace become available in the server side
 	
-	eurecaClient.exports.setId = function(id) 
+	eurecaClient.exports.setId = function(id,x,y) 
 	{
 		//create() is moved here to make sure nothing is created before uniq id assignation
 		myId = id;
+		initialSpawnLocationX = x;
+		initialSpawnLocationY = y;
 		create();
 		eurecaServer.handshake(id,0,0); // надо ещё отравку координат при респауне !!!
 		ready = true;
@@ -57,6 +59,9 @@ var EurecaClientSetup = function() {
 		
 		var tnk = new Character(i,game,x,y,r,g,b);
 		charactersList[i] = tnk;
+	}
+	eurecaClient.exports.respawnPlayer = function(id,x,y){
+		charactersList[id].recreate(x,y)
 	}
 	eurecaClient.exports.getX = function()
 	{

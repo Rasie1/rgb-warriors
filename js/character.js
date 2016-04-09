@@ -135,7 +135,6 @@ Character = function (index, game, x, y, r, g, b) {
 };
 
 Character.prototype.recreate = function (x,y) {
-    this.deadSprite.kill()
 
     this.health = 30;
     this.SpeedX = playerSpeedX
@@ -346,6 +345,7 @@ Character.prototype.update = function() {
 
     game.physics.arcade.collide(this.baseSprite, obstacles);
     game.physics.arcade.collide(this.bullets, obstacles, function(a){a.kill()},null,this);
+    for (var c in charactersList) game.physics.arcade.collide(charactersList[c].baseSprite, this.baseSprite/* урон от столкновения: , function(){eurecaServer.updateHP(this.id,-1)},null,this*/);
 };
 
 
@@ -365,9 +365,6 @@ Character.prototype.fire = function(target) {
         }
 }
 
-function recreate(deadId) {
-    charactersList[deadId].recreate(Math.random()*mapWidth,Math.random()*mapHeight)
-}
 
 Character.prototype.kill = function() {
     this.alive = false;
@@ -376,11 +373,11 @@ Character.prototype.kill = function() {
         this.hpBar.kill();
         this.hpBar = null;
     }
-    this.deadSprite.reset(this.headSprite.x-32,this.headSprite.y-32)
+    this.deadSprite.reset(this.headSprite.x-32,this.headSprite.y-32);
+    this.deadSprite.lifespan = 3000;
     this.headSprite.kill();
     this.auraSprite.kill();
     this.dropItem();
-    setTimeout("recreate('"+this.id+"')",3000)
 }
 
 Character.prototype.dropItem = function() {
