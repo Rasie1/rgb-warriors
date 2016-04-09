@@ -14,7 +14,7 @@ var clients = {};
 var Eureca = require('eureca.io');
 
 //create an instance of EurecaServer
-var eurecaServer = new Eureca.Server({allow:['setId', 'spawnEnemy', 'getX', 'getY', 'kill', 'updateState',
+var eurecaServer = new Eureca.Server({allow:['setId', 'spawnEnemy', 'getX', 'getY', 'getId', 'kill', 'updateState',
 											'updateHP', 'createItem', 'activateItem', 'pickUpItem']});
 
 //attach eureca.io to our http server
@@ -64,12 +64,16 @@ eurecaServer.exports.handshake = function(id,x,y)
 	var enemy
 	for (var c in clients) if (clients[c].id==id) enemy=clients[c]
 	for (var c in clients) if (clients[c].id!=id) clients[c].remote.spawnEnemy(id,x,y)			// я это
-	for (var c in clients) if (clients[c].id!=id) enemy.remote.spawnEnemy(clients[c].id,1,1)	// починю
+	for (var c in clients) if (clients[c].id!=id) {
+		console.log("ОТПРАВИЛИ: "+clients[c].lastX+" - "+clients[c].lastY)
+		enemy.remote.spawnEnemy(clients[c].id,clients[c].lastX,clients[c].lastY)	// починю
+		console.log("clients[c].alreadyId="+clients[c].id+" getId="+clients[c].remote.getId()) // аще непонятно почему
+	}
 }
 
 
 //be exposed to client side
-eurecaServer.exports.handleKeys = function (keys) {
+eurecaServer.exports.handleKeys = function (keys,x,y) {
 	var conn = this.connection;
 	var updatedClient = clients[conn.id];
 	
@@ -77,11 +81,13 @@ eurecaServer.exports.handleKeys = function (keys) {
 	{
 		var remote = clients[c].remote;
 		remote.updateState(updatedClient.id, keys);
-		
 		//keep last known state so we can send it to new connected clients
 		clients[c].laststate = keys;
+		console.log("handleKeys laststate.x="+clients[c].laststate.x)
+		clients[c].lastX = x
+		clients[c].lastY = y
 	}
-}
+}	
 
 eurecaServer.exports.killPlayer = function(id)
 {

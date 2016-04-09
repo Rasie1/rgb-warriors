@@ -26,8 +26,8 @@ Character = function (index, game, x, y) {
         spell3:false
     }
 
-    var x = def(x,0)
-    var y = def(y,0)
+    /*var x = def(x,0)
+    var y = def(y,0)*/
 
     this.game = game;
     this.health = 30;
@@ -132,7 +132,7 @@ Character.prototype.update = function() {
             this.input.rot = this.headSprite.rotation;
             
             
-            eurecaServer.handleKeys(this.input);
+            eurecaServer.handleKeys(this.input,this.baseSprite.x,this.baseSprite.y);
             
         }
     }

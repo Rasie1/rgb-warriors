@@ -90,10 +90,10 @@ var eurecaClientSetup = function() {
 	
 	eurecaClient.exports.spawnEnemy = function(i, x, y)
 	{
-		
+		console.log("А ПОЛУЧИЛИ: "+x+" - "+y)
 		if (i == myId) return; //this is me
 		
-		var tnk = new Character(i, game, character,x,y);
+		var tnk = new Character(i, game,x,y);
 		charactersList[i] = tnk;
 	}
 	eurecaClient.exports.getX = function()
@@ -103,6 +103,10 @@ var eurecaClientSetup = function() {
 	eurecaClient.exports.getY = function()
 	{
 		return charactersList[myId].baseSprite.y
+	}
+	eurecaClient.exports.getId = function()
+	{
+		return myId
 	}
 	
 	eurecaClient.exports.updateState = function(id, state)
@@ -238,7 +242,7 @@ function create ()
     charactersList = {};
 
     
-    player = new Character(myId, game, character);
+    player = new Character(myId, game,0,0);
     player.healthBar = game.add.text(10, 10, "HP: 99999%", 
         { font: "32px Arial", fill: "#ffffff", align: "left" });
     player.healthBar.fixedToCamera = true
@@ -246,8 +250,8 @@ function create ()
     charactersList[myId] = player;
     baseSprite = player.baseSprite;
     headSprite = player.headSprite;
-    baseSprite.x = 0;
-    baseSprite.y = 0;
+    baseSprite.x = player.baseSprite.x;
+    baseSprite.y = player.baseSprite.y;
     bullets = player.bullets;
 
     initDebugMessage(game);
@@ -302,7 +306,7 @@ function update () {
                                         this)
 	if (itemTimer == 60) {
 		makeItem(Math.random() * mapHeight, Math.random() * mapWidth);
-		if (player.health < 30)
+		if (player.health < 30 && player.alive)
 			eurecaServer.updateHP(myId, +1);
 		itemTimer = 0
 	}
