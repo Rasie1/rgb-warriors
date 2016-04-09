@@ -237,14 +237,17 @@ function create ()
 function makeItem(x,y) {
 	var found = false
 	var elementForDrop = Math.round(Math.random()*2)+1
-	for (var i in items) if (!items[i].alive && items[i].element==elementForDrop) {
-		var item = items[i]
-		item.x = x
-		item.y = y
-		item.alive = true
-		found = true
-	}
-	if (!found) {
+	for (var i in items) 
+		if (!items[i].alive && items[i].element == elementForDrop) 
+		{
+			var item = items[i]
+			item.x = x
+			item.y = y
+			item.alive = true
+			found = true
+		}
+	if (!found && items.length < 10) 
+	{
 		var item = game.add.sprite(x,y,'item'+elementForDrop)
 		game.physics.enable(item, Phaser.Physics.ARCADE)
 		item.enableBody = true
@@ -309,7 +312,7 @@ function update () {
 				
 				game.physics.arcade.overlap(curBullets, targetCharacter, bulletHitPlayer, null, this);
 				if (game.physics.arcade.collide(targetCharacter, curBullets, bulletHitPlayer, null, this)
-					&& charactersList[i].baseSprite.id == myId)
+					&& charactersList[i].baseSprite.id == player.baseSprite.id)
 				{
 					console.log('talk server about collide');
 					eurecaServer.updateHP(targetCharacter.id, -10);
@@ -329,7 +332,7 @@ function update () {
 
 function bulletHitPlayer (character, bullet) {
     bullet.kill();
-    charactersList[character.id].dropItem()
+    //charactersList[character.id].dropItem()
 }
 
 function render () {}
