@@ -6,6 +6,10 @@ var player;
 var charactersList;
 var explosions;
 
+var cactuses
+var stones
+var walls
+
 var cursors = {
     left:false,
     right:false,
@@ -97,13 +101,18 @@ function preload () {
     game.load.atlas('enemy', 'assets/enemy-tanks.png', 'assets/tanks.json');
     game.load.image('bullet', 'assets/bullet.png');
     game.load.image('button-circle', 'assets/button_circle.png');
-    game.load.image('earth', 'assets/scorched_earth.png');
+    game.load.image('earth', 'assets/light_sand.png');
     game.load.spritesheet('kaboom', 'assets/explosion.png', 64, 64, 23);
     game.load.image('item1', 'assets/item0.png')
     game.load.image('item2', 'assets/item1.png')
     game.load.image('item3', 'assets/item2.png')
-    game.load.image('aura', 'assets/aura.png')    
+    game.load.image('aura', 'assets/aura.png')
     game.load.image('hpBar', 'assets/health.png')
+    game.load.image('cactus0', 'assets/cactus0.png')
+    game.load.image('cactus1', 'assets/cactus1.png')
+    game.load.image('stone', 'assets/stone.png')
+    game.load.image('dead', 'assets/dead.png')
+    game.load.image('wall', 'assets/wall.png')
 }
 
 function initializeInput ()
@@ -148,10 +157,26 @@ function create ()
     
     charactersList = {};
 
+	walls = game.add.group();
+	walls.enableBody = true;
+	cactuses = game.add.group();
+	cactuses.enableBody = true;
+	stones = game.add.group();
+	stones.enableBody = true;
+    /*for (var i=0;i<5;i++) {
+		var v = walls.create((Math.random()*19)*100+100,(Math.random()*19)*100+100, 'wall')
+		v.body.immovable = true
+		i%2==0 ? v.scale.setTo(2, Math.random()*5) : v.scale.setTo(Math.random()*5, 2)
+    }*/
+    for (var i=0;i<50;i++) {
+		var v = i%2==0 ? cactuses.create((Math.random()*19)*100+100,(Math.random()*19)*100+100, 'cactus'+(i%4)/2) : stones.create((Math.random()*20)*100,(Math.random()*20)*100, 'stone')
+		v.body.immovable = true;
+		v.scale.setTo(1, 1);
+    }
     console.log('creating character')
     player = new Character(myId, game, 0, 0);
     player.HUD = game.add.group();
-    player.healthBar = game.add.text(10, 10, "HP: 99999%", 
+    player.healthBar = game.add.text(10, 10, "HP: 99999%",
         { font: "32px Arial", fill: "#ffffff", align: "left" });
     player.healthBar.fixedToCamera = true
     player.healthBar.cameraOffset.setTo(10, 10);
@@ -222,14 +247,11 @@ activateItem = function(index, x, y)
 
 function update () {
 	for (var j in charactersList)
-		for (var i in items) 
-            game.physics.arcade.overlap(
-            	items[i],
-            	charactersList[j].baseSprite, 
-                function(a){charactersList[j].pickUpItem(items[i])}, 
-                null, 
-                this
-            )
+		for (var i in items)
+            game.physics.arcade.overlap(items[i], charactersList[j].baseSprite, 
+                                        function(a){charactersList[j].pickUpItem(items[i])}, 
+                                        null, 
+                                        this)
 	if (itemTimer == 60) {
 		//makeItem(Math.random() * mapHeight, Math.random() * mapWidth);
 		if (player.health < 30 && player.alive)

@@ -89,14 +89,13 @@ eurecaServer.onDisconnect(function (conn) {
 
 eurecaServer.exports.handshake = function(id,x,y)
 {
-	var enemy=clients[id];
-	for (var c in clients){
-		if (c!=id){
-			clients[c].remote.spawnEnemy(id,x,y);
+	var enemy=clients[id]
+	for (var c in clients)
+		if (c!=id) {
+			clients[c].remote.spawnEnemy(id,x,y)
 			enemy.remote.spawnEnemy(c,clients[c].lastX,clients[c].lastY)
 		}
-	}
-
+	
 }
 
 
