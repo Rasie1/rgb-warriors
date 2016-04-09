@@ -281,7 +281,7 @@ Character.prototype.dropItem = function() {
 }
 
 Character.prototype.recolorAura = function() {
-    var total = this.BCounter + this.GCounter + this.BCounter
+    var total = this.RCounter + this.GCounter + this.BCounter
     var r = Phaser.Math.clamp(255 * this.RCounter / total, 
                               0, 255)
     var g = Phaser.Math.clamp(255 * this.GCounter / total, 
