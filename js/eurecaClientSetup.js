@@ -82,20 +82,23 @@ var EurecaClientSetup = function() {
 			charactersList[id].update();
 		}
 	}
-	eurecaClient.exports.makeItem = function(x,y,elementForDrop) {
+	eurecaClient.exports.makeItem = function(x,y,elementForDrop,itemID) {
 		var found = false;
 		console.log('making item');
 		for (var i in items){ 
 			if (!items[i].alive && items[i].element == elementForDrop){
 				//console.log('activated');
-				activateItem(i, x, y);
+				activateItem(i, x, y,itemID);
 			}
 		}
 
 		if (!found && items.length < 30){
 			//console.log('created');
-			createItem(x, y, elementForDrop);
+			createItem(x, y, elementForDrop,itemID);
 		}
 
+	}
+	eurecaClient.exports.spawnAllItems = function(itemsList){
+		console.log(itemsList)
 	}
 }
