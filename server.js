@@ -14,8 +14,20 @@ var clients = {};
 var Eureca = require('eureca.io');
 
 //create an instance of EurecaServer
-var eurecaServer = new Eureca.Server({allow:['setId', 'spawnEnemy', 'getX', 'getY', 'getId', 'kill', 'updateState',
-											'updateHP', 'createItem', 'activateItem', 'pickUpItem']});
+var eurecaServer = new Eureca.Server({allow:[
+	'setId', 
+	'spawnEnemy', 
+	'getX', 
+	'getY', 
+	'getId', 
+	'kill', 
+	'updateState',
+	'updateRotation',
+	'updateHP', 
+	'createItem', 
+	'activateItem', 
+	'pickUpItem']
+});
 
 //attach eureca.io to our http server
 eurecaServer.attach(server);
@@ -83,7 +95,19 @@ eurecaServer.exports.handleKeys = function (keys,x,y) {
 		clients[c].lastY = y
 	}
 }	
-
+eurecaServer.exports.handleRotation = function (keys) {
+	var conn = this.connection;
+	var updatedClient = clients[conn.id];
+	
+	for (var c in clients)
+	{
+		var remote = clients[c].remote;
+		remote.updateRotation(updatedClient.id, keys);
+		
+		//keep last known state so we can send it to new connected clients
+		clients[c].laststate = keys;
+	}
+}
 eurecaServer.exports.killPlayer = function(id)
 {
 	for (var c in clients)
