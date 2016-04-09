@@ -47,7 +47,8 @@ var eurecaServer = new Eureca.Server({allow:[
 	'updateHP', 
 	'makeItem', 
 	'dropItem',
-	'pickUpItem'
+	'pickUpItem',
+	'createObstacles'
 ]
 });
 
@@ -73,12 +74,13 @@ eurecaServer.onConnect(function (conn) {
 	remote.setId(conn.id);	
 
 	if(itemsList.length){
-		for(i=0;i<itemsList.length;i++){			
+		for(i=0;i<itemsList.length;i++){	
 			if(typeof itemsList[i] != 'undefined'){
 				clients[conn.id].remote.makeItem(itemsList[i].x, itemsList[i].y, itemsList[i].element,itemsList[i].id);
 			}
 		}
-	}
+	};
+	clients[conn.id].remote.createObstacles(obstaclesList);
 });
 
 //detect client disconnection
@@ -173,10 +175,11 @@ eurecaServer.exports.pickUpItem = function(itemID)
 		
 		if(typeof itemsList[i] != 'undefined'){
 			if(itemID==itemsList[i].id){
-				delete itemsList[i]
+				index = itemsList.indexOf(itemsList[i]);
+				itemsList = itemsList.slice(1,index).concat(itemsList.slice(index+1,itemsList.length))
 			}
 		}
-
+		//console.log(itemsList)
 	}
 }
 
@@ -184,20 +187,30 @@ eurecaServer.exports.pickUpItem = function(itemID)
 
 
 setInterval(function(){
-	itemX = Math.random() * mapWidth;
-	itemY = Math.random() * mapHeight;
-	elementForDrop = Math.round(Math.random()*2)+1;
-	for (var c in clients){		
-		clients[c].remote.makeItem(itemX, itemY, elementForDrop,itemIdCounter);
-	};
-	itemsList.push({
-		x:itemX,
-		y:itemY,
-		element:elementForDrop,
-		id:itemIdCounter
-	})
-	itemIdCounter++;
-	//console.log(itemsList,itemIdCounter);
+	if(itemsList.length<30){
+		itemX = Math.random() * mapWidth;
+		itemY = Math.random() * mapHeight;
+		elementForDrop = Math.round(Math.random()*2)+1;
+		for (var c in clients){		
+			clients[c].remote.makeItem(itemX, itemY, elementForDrop,itemIdCounter);
+		};
+		itemsList.push({
+			x:itemX,
+			y:itemY,
+			element:elementForDrop,
+			id:itemIdCounter
+		})
+		itemIdCounter++;
+		//console.log(itemsList,itemIdCounter);
+	}
 },5000)
 server.listen(8000);
 
+//obstacles
+var obstaclesList = [];
+for(i=0;i<50;i++){
+	obstaclesList[i]={};
+	obstaclesList[i].x = (Math.random()*(mapWidth/100-1))*100+100;
+	obstaclesList[i].y = (Math.random()*(mapHeight/100-1))*100+100;
+	obstaclesList[i].spriteType = i%2;
+}
