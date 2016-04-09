@@ -90,10 +90,11 @@ Character = function (index, game, x, y) {
     this.spell0Slot = new Spell()
     this.recolorAura()
 
-    if (!game.device.desktop) {
-        this.touchControls = new TouchControls(this)
-        this.touchControls.init()
-    }
+
+    // if (!game.device.desktop) {
+    //     this.touchControls = new TouchControls(this)
+    //     this.touchControls.init()
+    // }
 
     this.hpBar = null;
     if (myId != this.baseSprite.id)
