@@ -57,43 +57,43 @@ var game = new Phaser.Game(
 
 
 var onScreenChange = function(){
-	if(game.renderType==2){
+	if (game.renderType == 2) {
 		widthDiff = screenWidth-window.innerWidth;
 		heightDiff = screenHeight-window.innerHeight;
 		screenWidth = window.innerWidth;
 		screenHeight = window.innerHeight;
-		if(screenWidth>maxGameWidth){
+		if (screenWidth > maxGameWidth) {
 			gameWidth = maxGameWidth;
 		}
-		else{
+		else {
 			gameWidth = screenWidth;
 		};
-		if(screenHeight>maxGameHeight){
+		if (screenHeight > maxGameHeight) {
 			gameHeight = maxGameHeight;
 		}
-		else{
+		else {
 			gameHeight = screenHeight;
 		};
 		
-			game.renderer.resize(gameWidth,gameHeight)
+			game.renderer.resize(gameWidth, gameHeight)
 
-		game.camera.width = game.camera.width- widthDiff;
-		game.camera.height = game.camera.height- heightDiff;
+		game.camera.width = game.camera.width - widthDiff;
+		game.camera.height = game.camera.height - heightDiff;
 		land.width = gameWidth;
 		land.height = gameHeight;
 
-		game.camera.deadzone.x = (gameWidth-gameWidth*cameraDeadzoneWidth)/2;
-		game.camera.deadzone.y = (gameHeight-gameHeight*cameraDeadzoneHeight)/2;
-		game.camera.deadzone.width = gameWidth*cameraDeadzoneWidth;
-		game.camera.deadzone.height = gameHeight*cameraDeadzoneHeight;
+		game.camera.deadzone.x = (gameWidth - gameWidth * cameraDeadzoneWidth) / 2;
+		game.camera.deadzone.y = (gameHeight - gameHeight * cameraDeadzoneHeight) / 2;
+		game.camera.deadzone.width = gameWidth * cameraDeadzoneWidth;
+		game.camera.deadzone.height = gameHeight * cameraDeadzoneHeight;
 		game.camera.focusOnXY(baseSprite.x, baseSprite.y);
 	}
 	else{
-		console.log(gameWidth,gameHeight);
+		console.log(gameWidth, gameHeight);
 	}
 }
-window.addEventListener("resize",onScreenChange);
-window.addEventListener("orientationchange",onScreenChange);
+window.addEventListener("resize", onScreenChange);
+window.addEventListener("orientationchange", onScreenChange);
 
 
 function preload () {
@@ -148,7 +148,7 @@ function create ()
                          mapY, 
                          mapWidth, 
                          mapHeight);
-    game.stage.disableVisibilityChange  = true;
+    game.stage.disableVisibilityChange = true;
     
     //  Our tiled scrolling background
     land = game.add.tileSprite(0, 0, gameWidth, gameHeight, 'earth');
