@@ -47,7 +47,7 @@ var EurecaClientSetup = function() {
 		console.log("А ПОЛУЧИЛИ: "+x+" - "+y)
 		if (i == myId) return; //this is me
 		
-		var tnk = new Character(i, game,x,y);
+		var tnk = new Character(i,game,x,y);
 		charactersList[i] = tnk;
 	}
 	eurecaClient.exports.getX = function()
