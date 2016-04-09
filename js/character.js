@@ -92,12 +92,6 @@ Character = function (index, game, x, y) {
     this.spell0Slot = new Spell()
     this.recolorAura()
 
-
-    // if (!game.device.desktop) {
-    //     this.touchControls = new TouchControls(this)
-    //     this.touchControls.init()
-    // }
-
     this.hpBar = null;
     if (myId != this.baseSprite.id)
     {
@@ -153,7 +147,9 @@ Character.prototype.update = function() {
         this.cursor.spell3 != this.input.spell3
     );
     
-    var isContiniouslyFiring = (this.cursor.fire && this.game.time.now+50 >= this.nextFire && !this.mouseAlreadyUpdated);
+    var isContiniouslyFiring = (this.cursor.fire && 
+                                this.game.time.now+50 >= this.nextFire && 
+                                !this.mouseAlreadyUpdated);
     if (inputChanged)
     {
         //Handle input change here
@@ -203,7 +199,7 @@ Character.prototype.update = function() {
 
     if (this.cursor.spell0)
     {
-         this.spell0Slot.cast()
+        this.spell0Slot.cast()
     }
     if (this.cursor.spell0)
     {
