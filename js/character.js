@@ -125,8 +125,14 @@ Character.prototype.recreate = function (x,y) {
     else if (randomElement == 2) this.GCounter++
     else if (randomElement == 3) this.BCounter++
     this.recolorAura()
-
+    this.hpBar = null;
+    if (myId != this.baseSprite.id)
+    {
+        this.hpBar = game.add.sprite(x - 32, y - 32, 'hpBar');
+        this.hpBar.anchor.set(0.5);
+    }
 }
+
 Character.prototype.update = function() {
     
     var inputChanged = (
@@ -244,7 +250,7 @@ Character.prototype.update = function() {
     this.auraSprite.x = this.baseSprite.x;
     this.auraSprite.y = this.baseSprite.y;
 
-    if (myId != this.baseSprite.id)
+    if (this.hpBar != null)
     {
         this.hpBar.x = this.baseSprite.x;
         this.hpBar.y = this.baseSprite.y - 42;    
@@ -277,8 +283,11 @@ function recreate(deadId) {
 Character.prototype.kill = function() {
     this.alive = false;
     this.baseSprite.kill();
-    if (myId != this.baseSprite.id)
+    if (this.hpBar != null)
+    {
         this.hpBar.kill();
+        this.hpBar = null;
+    }
     this.headSprite.kill();
     this.auraSprite.kill();
     this.dropItem();
