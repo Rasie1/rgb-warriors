@@ -254,15 +254,27 @@ shuffle(obstaclesPositions)
 
 for(i=0;i<25;i++){
 	obstaclesList[i]={};
-	obstaclesList[i].x = obstaclesPositions[i].x;
-	obstaclesList[i].y = obstaclesPositions[i].y;
-	obstaclesList[i].spriteType = i%2;
+	var possibleOffsetX=0;
+	var possibleOffsetY=0;
 	if(Math.floor(Math.random()*4)!=0){
-		obstaclesList[i].spriteType = 'cactus'+Math.floor(Math.random()*2);
+		var spriteKind = Math.floor(Math.random()*2);
+		if(spriteKind==0){
+			possibleOffsetX=200-67;
+			possibleOffsetY=200-127;
+		}
+		else{
+			possibleOffsetX=200-66;
+			possibleOffsetY=200-67;
+		}
+		obstaclesList[i].spriteType = 'cactus'+spriteKind;
 	}
 	else{
+		possibleOffsetX=200-143;
+		possibleOffsetY=200-128;
 		obstaclesList[i].spriteType = 'stone';
 	}
+	obstaclesList[i].x = obstaclesPositions[i].x+Math.round(Math.random()*possibleOffsetX);
+	obstaclesList[i].y = obstaclesPositions[i].y+Math.round(Math.random()*possibleOffsetY);
 	obstaclesPositions[i].occupied = true;
 }
 console.log(obstaclesPositions)
