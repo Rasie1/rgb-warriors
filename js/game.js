@@ -119,11 +119,14 @@ var eurecaClientSetup = function() {
 
 	eurecaClient.exports.activateItem = function(index, x, y)
 	{
-		var item = items[index]
-		item.x = x
-		item.y = y
-		item.alive = true
-		found = true
+		if (items[index])
+		{
+			var item = items[index]
+			item.x = x
+			item.y = y
+			item.alive = true
+			found = true	
+		}
 	}
 }
 
@@ -269,7 +272,7 @@ function update () {
 	for (var j in charactersList)
 		for (var i in items) 
             game.physics.arcade.overlap(items[i], charactersList[j].baseSprite, 
-                                        function(a){charactersList[j].pickUpItem(i)}, 
+                                        function(a){charactersList[j].pickUpItem(items[i])}, 
                                         null, 
                                         this)
 	if (itemTimer == 60) {

@@ -15,7 +15,7 @@ var Eureca = require('eureca.io');
 
 //create an instance of EurecaServer
 var eurecaServer = new Eureca.Server({allow:['setId', 'spawnEnemy', 'kill', 'updateState',
-											'updateHP', 'createItem', 'activateItem']});
+											'updateHP', 'createItem', 'activateItem', 'pickUpItem']});
 
 //attach eureca.io to our http server
 eurecaServer.attach(server);
