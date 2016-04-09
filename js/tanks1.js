@@ -40,11 +40,6 @@ else{
 	var gameHeight = screenHeight;
 };
 
-
-console.log(gameWidth);
-
-var itemTimer = 0
-var items = []
 //this function will handle client communication with the server
 var eurecaClientSetup = function() {
 	//create an instance of eureca.io client
@@ -110,6 +105,7 @@ var eurecaClientSetup = function() {
 	}
 }
 
+
 Tank = function (index, game) {
 	this.cursor = {
 		left:false,
@@ -137,7 +133,6 @@ Tank = function (index, game) {
 
     var x = 0;
     var y = 0;
-    var itemCount = 1
 
     this.game = game;
     this.health = 30;
@@ -148,11 +143,8 @@ Tank = function (index, game) {
     this.bullets.createMultiple(20, 'bullet', 0, false);
     this.bullets.setAll('anchor.x', 0.5);
     this.bullets.setAll('anchor.y', 0.5);
-
-    //this.bullets.setAll('outOfBoundsKill', true);
-    //this.bullets.setAll('lifespan',5000);
-    this.bullets.setAll('checkWorldBounds', true);	
-
+    this.bullets.setAll('outOfBoundsKill', true);
+    this.bullets.setAll('checkWorldBounds', true);
 	
 	this.currentSpeed =0;
     this.fireRate = 500;
@@ -166,22 +158,12 @@ Tank = function (index, game) {
     this.turret.anchor.set(0.3, 0.5);
 
     this.tank.id = index;
-    console.log("id="+index)
     game.physics.enable(this.tank, Phaser.Physics.ARCADE);
     this.tank.body.immovable = false;
     this.tank.body.collideWorldBounds = true;
     this.tank.body.bounce.setTo(0, 0);
-    this.RCounter = 0
-    this.GCounter = 0
-    this.BCounter = 0
-    var randomElement = Math.round(Math.random()*2)
-	if (randomElement==1) this.RCounter++
-	else if (randomElement==2) this.GCounter++
-	else if (randomElement==3) this.BCounter++
-
 
     this.spell0Slot = new Spell()
-    this.touchControls = new TouchControls(this)
 };
 
 Tank.prototype.update = function() {
@@ -221,11 +203,11 @@ Tank.prototype.update = function() {
 	
     if (this.cursor.left)
     {
-        this.tank.body.velocity.x = -playerSpeedX;
+        this.tank.body.velocity.x = -150;
     }
     else if (this.cursor.right)
     {
-        this.tank.body.velocity.x = playerSpeedX;
+        this.tank.body.velocity.x = 150;
     }
     else
     {
@@ -234,11 +216,11 @@ Tank.prototype.update = function() {
 
     if (this.cursor.down)
     {
-        this.tank.body.velocity.y = playerSpeedY;
+        this.tank.body.velocity.y = 150;
     }
     else if (this.cursor.up)
     {
-        this.tank.body.velocity.y = -playerSpeedY;
+        this.tank.body.velocity.y = -150;
     }
     else
     {
@@ -274,14 +256,10 @@ Tank.prototype.update = function() {
 
 Tank.prototype.fire = function(target) {
 		if (!this.alive) return;
-		//console.log(this.bullets.countDead());
         if (this.game.time.now > this.nextFire && this.bullets.countDead() > 0)
         {
-
             this.nextFire = this.game.time.now + this.fireRate;
             var bullet = this.bullets.getFirstDead();
-            //console.log(bullet);
-            bullet.lifespan = 5000;
             bullet.reset(this.turret.x, this.turret.y);
 
             bullet.magicType = 'fireball';
@@ -298,42 +276,33 @@ Tank.prototype.kill = function() {
 	this.turret.kill();
 }
 
-var game = new Phaser.Game(
-	gameWidth, 
-	gameHeight, 
-	Phaser.WEBGL, 
-	'phaser-example', 
-	{ preload: preload, create: eurecaClientSetup, update: update, render: render }
-);
-
+var game = new Phaser.Game(screenWidth, screenHeight, Phaser.CANVAS, 'phaser-example', { preload: preload, create: eurecaClientSetup, update: update, render: render });
 
 var onScreenChange = function(){
 	console.log('changed');
 	screenWidth = window.innerWidth;
 	screenHeight = window.innerHeight;
-	/*if(screenWidth>maxGameWidth){
-		gameWidth = maxGameWidth;
-	}
-	else{
-		gameWidth = screenWidth;
-	};
-	if(screenHeight>maxGameHeight){
-		gameHeight = maxGameHeight;
-	}
-	else{
-		gameHeight = screenHeight;
-	};
-	game.scale.maxWidth = gameWidth;
-	game.scale.maxHeight = gameHeight;*/
-	game.scale.setScreenSize();
+	game.canvas.style.width = screenWidth+'px';
+	game.canvas.style.height = screenHeight+'px';
+	document.documentElement.style.maxWidth = 0;
+	document.documentElement.style.maxHeight = 0;
+
 	land.width = gameWidth;
 	land.height = gameHeight;
-
 	game.camera.deadzone.x = (gameWidth-gameWidth*cameraDeadzoneWidth)/2;
 	game.camera.deadzone.y = (gameHeight-gameHeight*cameraDeadzoneHeight)/2;
 	game.camera.deadzone.width = gameWidth*cameraDeadzoneWidth;
 	game.camera.deadzone.height = gameHeight*cameraDeadzoneHeight;
 	game.camera.focusOnXY(tank.x, tank.y);
+}
+window.addEventListener("resize",onScreenChange);
+
+var onScreenChange = function(){
+	screenWidth = window.innerWidth;
+	screenHeight = window.innerHeight;
+	game.renderer.resize(screenWidth, screenHeight);
+	land.width = screenWidth;
+	land.height = screenHeight;
 }
 window.addEventListener("resize",onScreenChange);
 
@@ -346,9 +315,6 @@ function preload () {
     game.load.image('bullet', 'assets/bullet.png');
     game.load.image('earth', 'assets/scorched_earth.png');
     game.load.spritesheet('kaboom', 'assets/explosion.png', 64, 64, 23);
-    game.load.image('item1', 'assets/item0.png')
-    game.load.image('item2', 'assets/item1.png')
-    game.load.image('item3', 'assets/item2.png')
     
 }
 
@@ -377,9 +343,8 @@ function create ()
                          mapHeight);
 	game.stage.disableVisibilityChange  = true;
 	
-    //  Our tiled scrolling background
+    //  Our tiled scrolling background 
     land = game.add.tileSprite(0, 0, gameWidth, gameHeight, 'earth');
-
     land.fixedToCamera = true;
     
     tanksList = {};
@@ -409,66 +374,20 @@ function create ()
     tank.bringToTop();
     turret.bringToTop();
 
-    game.scale.pageAlignHorizontally = true;
-    game.scale.pageAlignVertically = true;
-    game.scale.setScreenSize(true); 
 
+    //game.scale.pageAlignHorizontally = true;
+    //game.scale.pageAlignVertically = true;
+    game.scale.setScreenSize(true); 
     game.camera.follow(tank);
+ 	game.canvas.style.width = screenWidth+'px';
+	game.canvas.style.height = screenHeight+'px';
     game.camera.deadzone = new Phaser.Rectangle((gameWidth-gameWidth*cameraDeadzoneWidth)/2, (gameHeight-gameHeight*cameraDeadzoneHeight)/2, gameWidth*cameraDeadzoneWidth, gameHeight*cameraDeadzoneHeight);
     game.camera.focusOnXY(tank.x, tank.y);
 
-}
-
-Tank.prototype.dropItem = function() {
-	console.log("dropItem()")
-	makeItem(this.tank.x,this.tank.y)
-}
-function makeItem(x,y) {
-	var faund = false
-	var elementForDrop = Math.round(Math.random()*2)+1
-	for (var i in items) if (!items[i].alive && items[i].element==elementForDrop) {
-		var item = items[i]
-		item.x = x
-		item.y = y
-		item.alive = true
-		found = true
-	}
-	if (!faund) {
-		var item = game.add.sprite(x,y,'item'+elementForDrop)
-		game.physics.enable(item, Phaser.Physics.ARCADE)
-		item.enableBody = true
-		item.physicsBodyType = Phaser.Physics.ARCADE
-		item.element = elementForDrop
-		items[items.length] = item
-	}
-
-}
-Tank.prototype.pickUpItem = function(itemSprite) {
-	console.log("pickUpItem()")
-	itemSprite.kill()
-	switch (itemSprite.element) {
-		case 1:
-			this.RCounter++
-			break
-		case 2:
-			this.GCounter++
-			break
-		case 3:
-			this.BCounter++
-			break
-	}
-	console.log("R="+this.RCounter+" G="+this.GCounter+" B="+this.BCounter)
+    initializeInput()
 }
 
 function update () {
-	for (var j in tanksList)
-		for (var i in items) game.physics.arcade.overlap(items[i], tanksList[j].tank, function(a){tanksList[j].pickUpItem(a)}, null, this)
-	if (itemTimer==60) {
-		makeItem(Math.random()*mapHeight,Math.random()*mapWidth)
-		itemTimer=0
-	}
-	itemTimer++
-	//do not update if client not ready
     //do not update if client not ready
     if (!ready) return;
     
@@ -485,7 +404,6 @@ function update () {
     player.input.spell1 = cursors.spell1.isDown;
     player.input.spell2 = cursors.spell2.isDown;
     player.input.spell3 = cursors.spell3.isDown;
-    initializeInput()
 
 	player.healthBar.setText("HP: " + player.health + "%");
 	
@@ -507,30 +425,24 @@ function update () {
 			
 				var targetTank = tanksList[j].tank;
 				
-				game.physics.arcade.overlap(curBullets, targetTank, bulletHitPlayer, null, this);
 				if (game.physics.arcade.collide(targetTank, curBullets, bulletHitPlayer, null, this)
 					&& tanksList[i].tank.id == myId)
 				{
 					console.log('talk server about collide');
 					eurecaServer.updateHP(targetTank.id, -10);
 				}
+			
 			}
 			if (tanksList[j].alive)
 			{
 				tanksList[j].update();
 			}			
 		}
-    };
-    for(i=0;i<bullets.children.length;i++){
-    	//console.log(bullets.children[i].alive)
-    	if(bullets.children[i].alive && bullets.children[i].lifespan<=0)
-    		bullets.children[i].kill();
     }
 }
 
 function bulletHitPlayer (tank, bullet) {
-    bullet.kill();
-    tanksList[tank.id].dropItem()
+	bullet.kill();
 }
 
 function render () {}
