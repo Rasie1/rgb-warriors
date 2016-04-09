@@ -70,13 +70,13 @@ TouchControls.prototype.init = function create(game) {
 TouchControls.prototype.actionOnClick = function() {
 }
 
-TouchControls.prototype.processInput = function() {
+TouchControls.prototype.processInput = function(character) {
     if (this.movementDirectionVectorX == 1)
-        this.character.shouldMoveRight = true
+        character.shouldMoveRight = true
     if (this.movementDirectionVectorX == -1)
-        this.character.shouldMoveLeft = true
+        character.shouldMoveLeft = true
     if (this.movementDirectionVectorY == 1)
-        this.character.shouldMoveBottom = true
+        character.shouldMoveBottom = true
     if (this.movementDirectionVectorY == -1)
-        this.character.shouldMoveTop = true
+        character.shouldMoveTop = true
 }

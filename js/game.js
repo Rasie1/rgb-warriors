@@ -114,7 +114,7 @@ function initializeInput ()
     }
 }
 
-function handleInput()
+function handleInput(player)
 {
     cursors.up = game.input.keyboard.addKey(Phaser.Keyboard.UP)
     cursors.down = game.input.keyboard.addKey(Phaser.Keyboard.DOWN)
@@ -129,7 +129,7 @@ function handleInput()
     cursors.spell3 = game.input.keyboard.addKey(Phaser.Keyboard.FOUR)
 
     if (!game.device.desktop)
-        this.touchControls.processInput();
+        this.touchControls.processInput(player);
     
 }
 
@@ -149,7 +149,7 @@ function create ()
     charactersList = {};
 
     console.log('creating character')
-    player = new Character(myId, game,0,0);
+    player = new Character(myId, game, 0, 0);
     player.HUD = game.add.group();
     player.healthBar = game.add.text(10, 10, "HP: 99999%", 
         { font: "32px Arial", fill: "#ffffff", align: "left" });
@@ -243,7 +243,7 @@ function update () {
     player.input.spell2 = cursors.spell2.isDown;
     player.input.spell3 = cursors.spell3.isDown;
 
-    handleInput()
+    handleInput(player)
 
     player.healthBar.setText("HP: " + player.health + "%");
     
@@ -279,7 +279,7 @@ function update () {
 		}
     };
     for (i = 0; i < bullets.children.length; i++) {
-    	if(bullets.children[i].alive && bullets.children[i].lifespan <= 0)
+    	if (bullets.children[i].alive && bullets.children[i].lifespan <= 0)
     		bullets.children[i].kill();
     }
 }
