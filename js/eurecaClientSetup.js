@@ -66,9 +66,11 @@ var EurecaClientSetup = function() {
 		weapon.enableBody = true;
     	weapon.physicsBodyType = Phaser.Physics.ARCADE;
     	weapon.checkWorldBounds = true;
-
+    	weapon.scale.setTo(0.5, 0.5)
 		weapon.anchor.set(0.5)
 		weapon.lifespan = 100;
+		weapon.angle = Phaser.Math.radToDeg(angle) + 90;
+		//console.log(angle, weapon.angle)
 
 		if (player.id == id)
 			for (var i in charactersList)
@@ -79,10 +81,7 @@ var EurecaClientSetup = function() {
 											 charactersList[i].baseSprite.y - 32,
 											 64, 64);
 				if (Phaser.Rectangle.intersects(a, b))
-				{
-					console.log("HIT")
 					eurecaServer.updateHP(charactersList[i].baseSprite.id, closeFightWeaponDamage);
-				}
 			}
 	}
 

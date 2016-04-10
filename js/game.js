@@ -119,7 +119,7 @@ function preload () {
     game.load.image('stone', 'assets/stone.png')
     game.load.image('dead', 'assets/dead.png')
     game.load.image('wall', 'assets/wall.png')
-    game.load.image('weapon', 'assets/tank1.png')
+    game.load.image('weapon', 'assets/sword.png')
 }
 
 function initializeInput ()
