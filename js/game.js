@@ -149,14 +149,13 @@ function preload () {
 
 function initializeInput ()
 {
-    // if (!game.device.desktop) {
-        touchControls = new TouchControls(player)
-        touchControls.init(game)
-    // }
+    touchControls = new TouchControls(player)
+    touchControls.init(game)
 }
 
 function handleInput(player)
 {
+        
     cursors.up = game.input.keyboard.addKey(Phaser.Keyboard.UP)
     cursors.down = game.input.keyboard.addKey(Phaser.Keyboard.DOWN)
     cursors.left = game.input.keyboard.addKey(Phaser.Keyboard.LEFT)
@@ -177,10 +176,9 @@ function handleInput(player)
     cursors.spell5 = game.input.keyboard.addKey(Phaser.Keyboard.SIX)
     cursors.spell6 = game.input.keyboard.addKey(Phaser.Keyboard.SEVEN)
 
+    this.touchControls.processInput(player);
     touchCursors = touchControls.touchInput
 
-    this.touchControls.processInput(player);
-    
 }
 
 function create () 
@@ -374,7 +372,6 @@ function update () {
     player.input.spell6 = cursors.spell6.isDown;
 
     player.touchInput = touchCursors
-    
 
     //player.healthBar.setText("HP: " + player.health);
     player.hpline.scale.setTo(player.health / maxHealth, 1);
