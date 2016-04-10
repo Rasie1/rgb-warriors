@@ -232,10 +232,10 @@ eurecaServer.exports.killPlayer = function(id)
 	},3000)
 }
 
-eurecaServer.exports.updateHP = function(id, difHP)
+eurecaServer.exports.updateHP = function(id, difHP, attackerId)
 {
 	for (var c in clients)
-		clients[c].remote.updateHP(id, difHP);
+		clients[c].remote.updateHP(id, difHP, attackerId);
 }
 
 eurecaServer.exports.dropItem = function(x, y, elementForDrop)

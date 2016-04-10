@@ -439,8 +439,6 @@ Character.prototype.fire = function(target,type) {
 
 
 Character.prototype.kill = function() {
-    if (player.id==this.id) player.deaths++
-    else player.kills++
     this.alive = false;
     this.baseSprite.kill();
     if (this.hpBar != null) {
