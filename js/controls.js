@@ -139,28 +139,21 @@ TouchControls.prototype.actionOnClick = function() {
 
 TouchControls.prototype.spell0buttonAction = function() {
     // switch firemode
-
-    debugMessage(0)
 }
 
 TouchControls.prototype.spell1buttonAction = function() {
-    debugMessage(1)   
 }
 
 TouchControls.prototype.spell2buttonAction = function() {
-    debugMessage(2)
 }
 
 TouchControls.prototype.spell3buttonAction = function() {
-    debugMessage(3)
 }
 
 TouchControls.prototype.spell4buttonAction = function() {
-    debugMessage(4)
 }
 
 TouchControls.prototype.spell5buttonAction = function() {
-    debugMessage(5)
 }
 
 TouchControls.prototype.processInput = function(character) {
