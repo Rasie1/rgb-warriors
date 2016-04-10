@@ -58,6 +58,8 @@ var game = new Phaser.Game(
 	{ preload: preload, create: EurecaClientSetup, update: update, render: render }
 );
 
+var bdm;
+var ice;
 
 var onScreenChange = function() {
 	if(game.renderType==2) {
@@ -108,7 +110,6 @@ function preload () {
     game.load.image('spike', 'assets/spike.png');
     game.load.image('button-circle', 'assets/button_circle.png');
     game.load.image('earth', 'assets/scorched_earth.png');
-    game.load.image('sand-decor', 'assets/sand_decor.png');
     game.load.spritesheet('kaboom', 'assets/explosion.png', 64, 64, 23);
     game.load.spritesheet('vapelosion', 'assets/vapelosion.png', 128, 128, 23);
     game.load.spritesheet('yellow-jolt', 'assets/YellowJolt.png', 64, 64, 4);
@@ -124,6 +125,7 @@ function preload () {
     game.load.image('dead', 'assets/dead.png')
     game.load.image('wall', 'assets/wall.png')
     game.load.image('weapon', 'assets/sword.png')
+    game.load.image('ice', 'assets/ice.png')
 }
 
 function initializeInput ()
@@ -172,19 +174,6 @@ function create ()
     //  Our tiled scrolling background
     land = game.add.tileSprite(0, 0, gameWidth, gameHeight, 'earth');
 
-    decors = game.add.group();
-
-    for (var i = 0; i < 16; i++)
-    {
-        //  This creates a new Phaser.Sprite instance within the group
-        //  It will be randomly placed within the world and use the 'baddie' image to display
-        var x = decors.create(mapWidth * Math.random(), 
-                              mapHeight * Math.random(), 
-                              'sand-decor');
-        var sc = 10 * Math.random()
-        x.scale.set(sc, sc)
-    }
-
     land.fixedToCamera = true;
     
     charactersList = {};
@@ -224,7 +213,6 @@ function create ()
 
     //baseSprite.bringToTop();
     player.HUD.bringToTop(player.HUD);
-
     if(game.renderType!=2){
 	    game.scale.pageAlignHorizontally = true;
 	    game.scale.pageAlignVertically = true;
@@ -241,6 +229,14 @@ function create ()
     game.camera.focusOnXY(baseSprite.x, baseSprite.y);
 
     initializeInput()
+
+    bdm = game.add.bitmapData(game.width, game.height);
+	bdm.addToWorld();
+	bdm.smoothed = false;
+
+	ice = game.make.sprite(0, 0, 'ice');
+	ice.anchor.set(0.5);
+
 }
 createItem = function(x, y, elementForDrop,itemID)
 {
@@ -280,7 +276,7 @@ function update () {
                                         this)
 	if (itemTimer == 60) {
 		//makeItem(Math.random() * mapHeight, Math.random() * mapWidth);
-		if (player.health < 30 && player.alive)
+		if (player.health < player.privateHealth && player.alive)
 			eurecaServer.updateHP(myId, +1);
 		itemTimer = 0
 	}

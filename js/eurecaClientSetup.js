@@ -33,7 +33,7 @@ var EurecaClientSetup = function() {
 	{
 		if (charactersList[id])
 		{
-			charactersList[id].health = Phaser.Math.min(maxHealth, charactersList[id].health + difHP);
+			charactersList[id].health = Phaser.Math.min(charactersList[id].privateHealth, charactersList[id].health + difHP);
 			if (charactersList[id].hpBar != null)
 				charactersList[id].hpBar.scale.setTo(charactersList[id].health / maxHealth, 1);
 			if (charactersList[id].health <= 0 && id == player.baseSprite.id)

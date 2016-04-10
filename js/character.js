@@ -43,7 +43,8 @@ Character = function (index, game, x, y, r, g, b) {
 
 
     this.game = game;
-    this.health = 30;
+    this.privateHealth = maxHealth;
+    this.health = this.privateHealth;
     this.SpeedX = playerSpeedX
     this.SpeedY = playerSpeedY
 
@@ -401,6 +402,7 @@ Character.prototype.pickUpItem = function(itemSprite) {
             break 
     }
     this.inventory.push(itemSprite.element);
+    this.privateHealth += 3
     if(this.inventory.length>=2){
         switch(this.inventory[0]){
             case 1:
