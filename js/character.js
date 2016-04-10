@@ -97,15 +97,19 @@ Character = function (index, game, x, y, r, g, b) {
     this.deaths = 0
     this.kills = 0
 
-    this.baseSprite = game.add.sprite(x, y, 'enemy', 'tank1');
-    this.headSprite = game.add.sprite(x, y, 'enemy', 'turret');
+    this.baseSprite = game.add.sprite(x, y, 'player-base');
+    this.baseSprite.animations.add('move');
+
+    this.headSprite = game.add.sprite(x, y, 'player-head');
+    this.headSprite.animations.add('move');
+    
     this.auraSprite = game.add.sprite(x, y, 'aura');
     this.deadSprite = game.add.sprite(x, y, 'dead');
     this.deadSprite.kill()
 
     this.baseSprite.anchor.set(0.5);
     this.auraSprite.anchor.set(0.5);
-    this.headSprite.anchor.set(0.3, 0.5);
+    this.headSprite.anchor.set(0.5, 0.5);
 
     this.auraSprite.scale.setTo(10, 10);
     this.recolorAura()
@@ -167,7 +171,7 @@ Character = function (index, game, x, y, r, g, b) {
 
     this.spellsAvailable = [];
     for (i = 0; i < 6; ++i)
-        this.spellsAvailable[i] = true;//false;
+        this.spellsAvailable[i] = false;//false;
     this.type = 6;
 
     this.recolorAura()
@@ -284,6 +288,8 @@ Character.prototype.update = function() {
     }
     //cursor value is now updated by eurecaClient.exports.updateState method
     
+    var shouldAnim = false
+
     // commit movement
     if (this.cursor.left || this.cursor.a  || touchControls.touchInput.joystickX < -0.5) {
         this.headSprite.body.velocity.x 
@@ -291,6 +297,7 @@ Character.prototype.update = function() {
         = this.weapon.body.velocity.x 
         = -this.SpeedX
         baseSprite.rotation = -3.14
+        shouldAnim = true
     }
     else if (this.cursor.right || this.cursor.d || touchControls.touchInput.joystickX > 0.5) {
         this.headSprite.body.velocity.x 
@@ -298,6 +305,7 @@ Character.prototype.update = function() {
         = this.weapon.body.velocity.x 
         = this.SpeedX
         baseSprite.rotation = 0
+        shouldAnim = true
     }
     else
     {
@@ -305,6 +313,9 @@ Character.prototype.update = function() {
         = this.baseSprite.body.velocity.x 
         = this.weapon.body.velocity.x 
         = 0
+
+        this.baseSprite.animations.stop();
+        this.headSprite.animations.stop();
     }
 
     if (this.cursor.up || this.cursor.w || touchControls.touchInput.joystickY < -0.5) {
@@ -313,6 +324,7 @@ Character.prototype.update = function() {
         = this.weapon.body.velocity.y 
         = -this.SpeedY
         baseSprite.rotation = baseSprite.rotation==-3.14 ? -3*3.14/4 : baseSprite.rotation==0 ? -3.14/4 : -3.14/2
+        shouldAnim = true
     }
     else if (this.cursor.down  || this.cursor.s || touchControls.touchInput.joystickY > 0.5) {
         this.headSprite.body.velocity.y 
@@ -320,6 +332,7 @@ Character.prototype.update = function() {
         = this.weapon.body.velocity.y 
         = this.SpeedY
         baseSprite.rotation = baseSprite.rotation==-3.14 ? 3*3.14/4 : baseSprite.rotation==0 ? 3.14/4 : 3.14/2
+        shouldAnim = true
     }
     else
     {
@@ -327,6 +340,17 @@ Character.prototype.update = function() {
         = this.headSprite.body.velocity.y 
         = this.weapon.body.velocity.y = 0
     }
+
+    if (shouldAnim) {
+        this.baseSprite.animations.play('move', 10, true); 
+        this.headSprite.animations.play('move', 10, true); 
+    }
+    else
+    {
+        this.baseSprite.animations.stop();
+        this.headSprite.animations.stop();
+    }
+
 
     if (this.cursor.fire)
     {
@@ -474,16 +498,23 @@ Character.prototype.pickUpItem = function(itemSprite) {
                         this.spells.Fireball.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Fireball.spellPower + 1);
                         this.spells.Fireball.cooldown -= 3
                         this.spellsAvailable[0] = true;
+                        this.touchControls.button0.reset();
+                        console.log('fireball available')
+                        touchControls.buttons[0].reset()
                         break;
                     case 2:
                         this.spells.Leap.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Leap.spellPower + 1);
                         this.spellsAvailable[2] = true;
                         this.spells.Leap.jumpDist += 50;
                         this.spells.Leap.cooldown -= 30;
+                        console.log('leap available')
+                        touchControls.buttons[2].reset()
                         break;
                     case 3:
                         this.spells.Vape.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Vape.spellPower + 1);
-                        this.spellsAvailable[4] = true;
+                        this.spellsAvailable[5] = true;
+                        console.log('vape available')
+                        touchControls.buttons[5].reset()
                         break;
                 };
                 break;
@@ -494,15 +525,21 @@ Character.prototype.pickUpItem = function(itemSprite) {
                         this.spells.Leap.jumpDist += 50;
                         this.spells.Leap.cooldown -= 30;
                         this.spellsAvailable[2] = true;
+                        console.log('leap available');
+                        touchControls.buttons[2].reset()
                         break;
                     case 2:
                         this.spells.Spike.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Spike.spellPower + 1);
                         this.spellsAvailable[3] = true;
                         this.spells.Spike.cooldown -= 9;
+                        console.log('spike available')
+                        touchControls.buttons[3].reset()
                         break;
                     case 3:
                         this.spells.HealingSpell.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.HealingSpell.spellPower + 1);
                         this.spellsAvailable[1] = true;
+                        console.log('healing available')
+                        touchControls.buttons[1].reset()
                         break;
                 };
                 break;
@@ -510,15 +547,21 @@ Character.prototype.pickUpItem = function(itemSprite) {
                 switch(this.inventory[1]){
                     case 1:
                         this.spells.Vape.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Vape.spellPower + 1);
-                        this.spellsAvailable[4] = true;
+                        this.spellsAvailable[5] = true;
+                        console.log('vape available')
+                        touchControls.buttons[5].reset()
                         break;
                     case 2:
                         this.spells.HealingSpell.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.HealingSpell.spellPower + 1);
                         this.spellsAvailable[1] = true;
+                        console.log('healing available')
+                        touchControls.buttons[1].reset()
                         break;
                     case 3:
                         this.spells.ColdSphere.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.ColdSphere.spellPower + 1);
-                        this.spellsAvailable[5] = true;
+                        this.spellsAvailable[4] = true;
+                        console.log('coldsphere available')
+                        touchControls.buttons[4].reset()
                         break;
                 };
                 break;

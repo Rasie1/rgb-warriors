@@ -70,11 +70,11 @@ var EurecaClientSetup = function() {
     	weapon.scale.setTo(0.5, 0.5)
     	weapon.anchor.set(0.5,1.5)
 		weapon.lifespan = 100;
-		weapon.angle = Phaser.Math.radToDeg(angle) + 90;
+		weapon.angle = Phaser.Math.radToDeg(angle);
 		//console.log(angle, weapon.angle)
 		attacker.weapon.reset(attacker.baseSprite.x, attacker.baseSprite.y);
 		attacker.weapon.lifespan = 100;
-		attacker.weapon.angle = attacker.headSprite.angle + 90;
+		attacker.weapon.angle = attacker.headSprite.angle;
 
 		if (player.id == id)
 			for (var i in charactersList)
@@ -136,7 +136,6 @@ var EurecaClientSetup = function() {
                 var dist = Phaser.Point.distance(new Phaser.Point(x, y), 
                                                  new Phaser.Point(charactersList[i].baseSprite.x, 
                                                                   charactersList[i].baseSprite.y))
-                debugMessage(dist)
                 if (dist < 64)
                 {
                     eurecaServer.updateHP(charactersList[i].baseSprite.id, damage);
