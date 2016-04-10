@@ -1,6 +1,7 @@
 Spell = function() {
     this.cooldown = 0
     this.currentCooldown = 0
+    this.spellPower = 0;
 };
 
 Spell.prototype.cast = function(character) {

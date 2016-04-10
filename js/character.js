@@ -119,12 +119,13 @@ Character = function (index, game, x, y, r, g, b) {
     this.shouldCastSpell5 = false
     this.touchInputChanged = false
 
-    this.spell0Slot = new Fireball()
-    this.spell1Slot = new HealingSpell()
-    this.spell2Slot = new Leap()
-    this.spell3Slot = new Spike()
-    this.spell4Slot = new ColdSphere()
-    this.spell5Slot = new Vape()
+    this.spells = {};
+    this.spells.Fireball = new Fireball()
+    this.spells.HealingSpell = new HealingSpell()
+    this.spells.Leap = new Leap()
+    this.spells.Spike = new Spike()
+    this.spells.ColdSphere = new ColdSphere()
+    this.spells.Vape = new Vape()
 
     this.recolorAura()
 
@@ -445,45 +446,45 @@ Character.prototype.pickUpItem = function(itemSprite) {
             case 1:
                 switch(this.inventory[1]){
                     case 1:
-                        this.spellPowers.Fireball++;
+                        this.spells.Fireball.spellPower++;
                         break;
                     case 2:
-                        this.spellPowers.Leap++;
+                        this.spells.Leap.spellPower++;
                         break;
                     case 3:
-                        this.spellPowers.Vape++;
+                        this.spells.Vape.spellPower++;
                         break;
                 };
                 break;
             case 2:
                 switch(this.inventory[1]){
                     case 1:
-                        this.spellPowers.Leap++;
+                        this.spells.Leap.spellPower++;
                         break;
                     case 2:
-                        this.spellPowers.Spike++;
+                        this.spells.Spike.spellPower++;
                         break;
                     case 3:
-                        this.spellPowers.HealingSpell++;
+                        this.spells.HealingSpell.spellPower++;
                         break;
                 };
                 break;
             case 3:
                 switch(this.inventory[1]){
                     case 1:
-                        this.spellPowers.Vape++;
+                        this.spells.Vape.spellPower++;
                         break;
                     case 2:
-                        this.spellPowers.HealingSpell++;
+                        this.spells.HealingSpell.spellPower++;
                         break;
                     case 3:
-                        this.spellPowers.ColdSphere++;
+                        this.spells.ColdSphere.spellPower++;
                         break;
                 };
                 break;
         }
         this.inventory=[];
-        console.log(this.spellPowers);
+        console.log(this.spells);
 
     }
     var counter = this.RCounter+this.GCounter+this.BCounter

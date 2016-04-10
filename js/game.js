@@ -267,17 +267,12 @@ function update () {
 		itemTimer = 0
 	}
 	itemTimer++
-    
-
-    
+        
     handleInput(player)
+    for(var spell in player.spells){
+      player.spells[spell].currentCooldown--;
+    }
 
-    player.spell0Slot.currentCooldown--;
-    player.spell1Slot.currentCooldown--;
-    player.spell2Slot.currentCooldown--;
-    player.spell3Slot.currentCooldown--;
-    player.spell4Slot.currentCooldown--;
-    player.spell5Slot.currentCooldown--;
     
     player.input.left = cursors.left.isDown;
     player.input.right = cursors.right.isDown;
