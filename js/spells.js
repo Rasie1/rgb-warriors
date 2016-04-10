@@ -22,6 +22,7 @@ function HealingSpell() {
     this.visualEffectSprite = game.add.sprite(0, 0, 'yellow-jolt')
     this.visualEffectSprite.animations.add('cast');
     this.visualEffectSprite.anchor.set(0.5, 0.5)
+    this.visualEffectSprite.kill()
 }
 
 HealingSpell.prototype = Object.create(Spell.prototype);
@@ -77,9 +78,11 @@ function Leap() {
     this.visualEffectSpriteBegin = game.add.sprite(0, 0, 'yellow-fireball')
     this.visualEffectSpriteBegin.animations.add('cast');
     this.visualEffectSpriteBegin.anchor.set(0.5, 0.5)
+    this.visualEffectSpriteBegin.kill()
     this.visualEffectSpriteEnd = game.add.sprite(0, 0, 'yellow-fireball')
     this.visualEffectSpriteEnd.animations.add('cast');
     this.visualEffectSpriteEnd.anchor.set(0.5, 0.5)
+    this.visualEffectSpriteEnd.kill()
 }
 
 Leap.prototype = Object.create(Spell.prototype);

@@ -211,7 +211,6 @@ Character.prototype.update = function() {
         this.cursor.spell6 != this.input.spell6 ||
         this.input.fireType != this.type
     );
-    //console.log(this.input.fireType,this.type)
     var isContiniouslyFiring = (this.cursor.fire && 
                                 this.game.time.now+50 >= this.nextFire && 
                                 !this.mouseAlreadyUpdated);
