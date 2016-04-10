@@ -103,6 +103,7 @@ function preload () {
     game.load.atlas('character', 'assets/tanks.png', 'assets/tanks.json');
     game.load.atlas('enemy', 'assets/enemy-tanks.png', 'assets/tanks.json');
     game.load.image('bullet', 'assets/bullet.png');
+    game.load.spritesheet('bullets', 'assets/bullets.png',54,17,3);
     game.load.image('vape', 'assets/vape.png');
     game.load.image('spike', 'assets/spike.png');
     game.load.image('button-circle', 'assets/button_circle.png');
@@ -353,12 +354,14 @@ function bulletHit (victim, bullet) {
         }
     }
     if(bullet.type==5){
-        if(this.id == myId){
+        if(this.id == myId && victim.key=='enemy')
+            eurecaServer.castFreeze(victim.id)
+    }
+    if(bullet.type==6){
             var vape = this.vapelosions.getFirstDead();
             vape.reset(bullet.x, bullet.y);
             vape.play('vapelosion', 15, true, true);
             vape.lifespan = 2000
-        }
     }
 }
 function vapeHit (victim, vapelosion) {

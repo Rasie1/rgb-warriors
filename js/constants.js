@@ -21,6 +21,8 @@ var basicDamage = 10
 
 var closeFightWeaponDamage = -10
 
+var maxSpellsLevel = 10
+
 
 // Spells
 var healingSpellHealingPercentage = 10

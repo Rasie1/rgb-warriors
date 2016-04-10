@@ -85,6 +85,13 @@ var EurecaClientSetup = function() {
 			}
 	}
 
+	eurecaClient.exports.castFreeze = function(id,speedX,speedY){
+		if (!charactersList[id])
+			return;
+		charactersList[id].SpeedX = speedX;
+		charactersList[id].SpeedY = speedY;
+	}
+
     eurecaClient.exports.doLeap = function(id, new_x, new_y)
     {
         if (charactersList[id])
@@ -159,7 +166,8 @@ var EurecaClientSetup = function() {
 				charactersList[id].type = state.fireType;
 
 			charactersList[id].headSprite.rotation = state.rot;
-			charactersList[id].update();
+			if(id!=myId)
+				charactersList[id].update();
 		}
 	}
 	eurecaClient.exports.updateRotation = function(id, state)

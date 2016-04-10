@@ -50,7 +50,7 @@ Character = function (index, game, x, y, r, g, b) {
     this.bullets = game.add.group();
     this.bullets.enableBody = true;
     this.bullets.physicsBodyType = Phaser.Physics.ARCADE;
-    this.bullets.createMultiple(20, 'bullet', 0, false);
+    this.bullets.createMultiple(20, 'bullets', 0, false);
     this.bullets.setAll('anchor.x', 0.5);
     this.bullets.setAll('anchor.y', 0.5);
     //this.bullets.setAll('checkWorldBounds', true); 
@@ -103,6 +103,8 @@ Character = function (index, game, x, y, r, g, b) {
     this.baseSprite.body.immovable = false;
     this.baseSprite.body.collideWorldBounds = true;
     this.baseSprite.body.bounce.setTo(0, 0);
+    //inventory
+    this.inventory = [];
     if ((r!=-1 && r!=undefined) || (g!=-1 && g!=undefined) || (b!=-1 && b!=undefined)) {
         this.RCounter = r
         this.GCounter = g
@@ -113,11 +115,20 @@ Character = function (index, game, x, y, r, g, b) {
         this.BCounter = 0
         var randomElement = Math.round(Math.random()*2)
         if (randomElement == 1) 
+        {
             this.RCounter++
+            this.inventory.push(1);
+        }
         else if (randomElement == 2) 
+        {
             this.GCounter++
+            this.inventory.push(2);
+        }
         else if (randomElement == 3) 
+        {
             this.BCounter++
+            this.inventory.push(3);
+        }
     }
 
     // input section
@@ -132,6 +143,11 @@ Character = function (index, game, x, y, r, g, b) {
     this.spells.Vape = new Vape()
     this.spells.CloseFighting = new CloseFighting()
 
+    this.spellsAvailable = [];
+    for (i = 0; i < 6; ++i)
+        this.spellsAvailable[i] = false;
+    this.type = 6;
+
     this.recolorAura()
 
     this.hpBar = null;
@@ -143,9 +159,6 @@ Character = function (index, game, x, y, r, g, b) {
 
     //continious firing
     this.mouseAlreadyUpdated = false;
-
-    //inventory
-    this.inventory = [];
 };
 
 Character.prototype.recreate = function (x,y) {
@@ -198,7 +211,6 @@ Character.prototype.update = function() {
         this.cursor.spell6 != this.input.spell6 ||
         this.input.fireType != this.type
     );
-    // console.log(this.input.fireType,this.type)
     var isContiniouslyFiring = (this.cursor.fire && 
                                 this.game.time.now+50 >= this.nextFire && 
                                 !this.mouseAlreadyUpdated);
@@ -213,7 +225,9 @@ Character.prototype.update = function() {
             this.input.y = this.baseSprite.y;
             this.input.rot = this.headSprite.rotation;
             this.input.fireType = this.type;
-            
+            this.input.speedX = this.SpeedX;
+            this.input.speedY = this.SpeedY;
+
             eurecaServer.handleKeys(this.input,this.baseSprite.x,this.baseSprite.y,this.RCounter,this.GCounter,this.BCounter);
 
             this.touchInputChanged = false
@@ -264,27 +278,27 @@ Character.prototype.update = function() {
         }
     }
 
-    if (this.cursor.spell0) // fireball
+    if (this.cursor.spell0 && this.spellsAvailable[0]) // fireball
     {
         this.type=0
     }
-    if (this.cursor.spell1) //healing
+    if (this.cursor.spell1  && this.spellsAvailable[1]) //healing
     {
         this.type=1
     }
-    if (this.cursor.spell2) //leap
+    if (this.cursor.spell2  && this.spellsAvailable[2]) //leap
     {
         this.type=2
     }
-    if (this.cursor.spell3) //spike
+    if (this.cursor.spell3  && this.spellsAvailable[3]) //spike
     {
         this.type=3
     }
-    if (this.cursor.spell4) //cold sphere
+    if (this.cursor.spell4  && this.spellsAvailable[4]) //cold sphere
     {
         this.type=4
     }
-    if (this.cursor.spell5) //vape
+    if (this.cursor.spell5  && this.spellsAvailable[5]) //vape
     {
         this.type=5
     }
@@ -392,39 +406,48 @@ Character.prototype.pickUpItem = function(itemSprite) {
             case 1:
                 switch(this.inventory[1]){
                     case 1:
-                        this.spells.Fireball.spellPower++;
+                        this.spells.Fireball.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Fireball.spellPower + 1);
+                        this.spellsAvailable[0] = true;
                         break;
                     case 2:
-                        this.spells.Leap.spellPower++;
+                        this.spells.Leap.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Leap.spellPower + 1);
+                        this.spellsAvailable[2] = true;
                         break;
                     case 3:
-                        this.spells.Vape.spellPower++;
+                        this.spells.Vape.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Vape.spellPower + 1);
+                        this.spellsAvailable[4] = true;
                         break;
                 };
                 break;
             case 2:
                 switch(this.inventory[1]){
                     case 1:
-                        this.spells.Leap.spellPower++;
+                        this.spells.Leap.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Leap.spellPower + 1);
+                        this.spellsAvailable[2] = true;
                         break;
                     case 2:
-                        this.spells.Spike.spellPower++;
+                        this.spells.Spike.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Spike.spellPower + 1);
+                        this.spellsAvailable[3] = true;
                         break;
                     case 3:
-                        this.spells.HealingSpell.spellPower++;
+                        this.spells.HealingSpell.spellPower = Phaser.Math.max(maxSpellsLevel, this.HealingSpell.fireball.spellPower + 1);
+                        this.spellsAvailable[1] = true;
                         break;
                 };
                 break;
             case 3:
                 switch(this.inventory[1]){
                     case 1:
-                        this.spells.Vape.spellPower++;
+                        this.spells.Vape.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Vape.spellPower + 1);
+                        this.spellsAvailable[4] = true;
                         break;
                     case 2:
-                        this.spells.HealingSpell.spellPower++;
+                        this.spells.HealingSpell.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.HealingSpell.spellPower + 1);
+                        this.spellsAvailable[1] = true;
                         break;
                     case 3:
-                        this.spells.ColdSphere.spellPower++;
+                        this.spells.ColdSphere.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.ColdSphere.spellPower + 1);
+                        this.spellsAvailable[5] = true;
                         break;
                 };
                 break;

@@ -50,6 +50,7 @@ var eurecaServer = new Eureca.Server({allow:[
 	'createObstacles',
 	'castRemoteAttack',
 	'castCloseAttack',
+	'castFreeze',
 	'doLeap',
     'doSpike'
 ]
@@ -158,7 +159,7 @@ eurecaServer.exports.handleKeys = function (keys,x,y,r,g,b) {
 		clients[c].lastY = y;
 		clients[c].r = r;
 		clients[c].g = g;
-		clients[c].b = b;
+		clients[c].b = b;		
 	}
 }	
 eurecaServer.exports.handleRotation = function (keys) {
@@ -254,6 +255,30 @@ eurecaServer.exports.castCloseAttack = function(id, target)
 {
 	for (var c in clients)
 		clients[c].remote.castCloseAttack(id, target);
+}
+
+eurecaServer.exports.castCloseAttack = function(id, target)
+{
+	for (var c in clients)
+		clients[c].remote.castCloseAttack(id, target);
+}
+
+eurecaServer.exports.castFreeze = function(id)
+{
+	var savedSpeeds = {};
+	for (var c in clients){
+		savedSpeeds[c] = {};
+		savedSpeeds[c].x = clients[c].laststate.speedX;
+		savedSpeeds[c].y = clients[c].laststate.speedY;
+		clients[c].remote.castFreeze(id,0,0);
+	}
+	console.log(savedSpeeds[c].x,savedSpeeds[c].y,clients[c].laststate.speedX,clients[c].laststate.speedY)
+	setTimeout(function(){
+	for (var c in clients){
+		console.log(savedSpeeds[c].x,savedSpeeds[c].y,clients[c].laststate.speedX,clients[c].laststate.speedY)
+		clients[c].remote.castFreeze(id,savedSpeeds[c].x,savedSpeeds[c].y);
+	}
+	},2000)
 }
 
 eurecaServer.exports.doLeap = function(id, new_x, new_y)
