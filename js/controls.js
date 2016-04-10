@@ -1,5 +1,16 @@
 TouchControls = function(character)
 {
+    this.touchInput = { 
+        joystickX:0.0, 
+        joystickY:0.0,
+        button0:false,
+        button1:false,
+        button2:false,
+        button3:false,
+        button4:false,
+        button5:false,
+        button6:false
+    }
     this.character = character
     this.game = game
 
@@ -12,10 +23,6 @@ TouchControls = function(character)
     this.offsetY = window.innerHeight - this.segmentSize * 3 - this.margin
 };
 
-TouchControls.prototype.touch = function() {
-    this.character.touchInputChanged = true
-}
-
 TouchControls.prototype.init = function create(game) {
     buttonR = game.add.button(this.offsetX + this.segmentSize, 
                               this.offsetY + this.segmentSize,
@@ -25,8 +32,8 @@ TouchControls.prototype.init = function create(game) {
                               0, 0, 0);
     buttonR.scale.x = 2
     buttonR.scale.y = 6
-    buttonR.onInputUp.add(function() { this.touch(); this.movementDirectionVectorX = 0 }, this)
-    buttonR.onInputDown.add(function() { this.touch(); this.movementDirectionVectorX = 1 }, this)
+    buttonR.onInputUp.add(function() { this.movementDirectionVectorX = 0 }, this)
+    buttonR.onInputDown.add(function() { this.movementDirectionVectorX = 1 }, this)
 
     buttonL = game.add.button(this.offsetX, 
                               this.offsetY + this.segmentSize,
@@ -36,8 +43,8 @@ TouchControls.prototype.init = function create(game) {
                               0, 0, 0);
     buttonL.scale.x = 2
     buttonL.scale.y = 6
-    buttonL.onInputUp.add(function() { this.touch(); this.movementDirectionVectorX = 0 }, this)
-    buttonL.onInputDown.add(function() { this.touch(); this.movementDirectionVectorX = -1 }, this)
+    buttonL.onInputUp.add(function() { this.movementDirectionVectorX = 0 }, this)
+    buttonL.onInputDown.add(function() { this.movementDirectionVectorX = -1 }, this)
 
     buttonT = game.add.button(this.offsetX, 
                               this.offsetY + this.segmentSize,
@@ -47,8 +54,8 @@ TouchControls.prototype.init = function create(game) {
                               0, 0, 0);
     buttonT.scale.x = 6
     buttonT.scale.y = 2
-    buttonT.onInputUp.add(function() { this.touch(); this.movementDirectionVectorY = 0 }, this)
-    buttonT.onInputDown.add(function() { this.touch(); this.movementDirectionVectorY = -1 }, this)
+    buttonT.onInputUp.add(function() { this.movementDirectionVectorY = 0 }, this)
+    buttonT.onInputDown.add(function() { this.movementDirectionVectorY = -1 }, this)
 
     buttonB = game.add.button(this.offsetX, 
                               this.offsetY + this.segmentSize + this.segmentSize,
@@ -58,8 +65,8 @@ TouchControls.prototype.init = function create(game) {
                               0, 0, 0);
     buttonB.scale.x = 6
     buttonB.scale.y = 2
-    buttonB.onInputUp.add(function() { this.touch(); this.movementDirectionVectorY = 0 }, this)
-    buttonB.onInputDown.add(function() { this.touch(); this.movementDirectionVectorY = 1 }, this)
+    buttonB.onInputUp.add(function() { this.movementDirectionVectorY = 0 }, this)
+    buttonB.onInputDown.add(function() { this.movementDirectionVectorY = 1 }, this)
 
 
     buttonL.fixedToCamera = true
@@ -106,7 +113,9 @@ TouchControls.prototype.init = function create(game) {
     buttonS3.scale.x = 1
     buttonS3.scale.y = 1
     buttonS4 = game.add.button(window.innerWidth - this.segmentSize - this.margin, 
-                               this.offsetY + this.segmentSize + this.segmentSize + this.segmentSize + this.segmentSize,
+                               this.offsetY + this.segmentSize + 
+                               this.segmentSize + this.segmentSize + 
+                               this.segmentSize,
                                'button-circle', 
                                this.spell4buttonAction, 
                                this, 
@@ -114,13 +123,25 @@ TouchControls.prototype.init = function create(game) {
     buttonS4.scale.x = 1
     buttonS4.scale.y = 1
     buttonS5 = game.add.button(window.innerWidth - this.segmentSize - this.margin, 
-                               this.offsetY + this.segmentSize + this.segmentSize + this.segmentSize + this.segmentSize + this.segmentSize,
+                               this.offsetY + this.segmentSize + 
+                               this.segmentSize + this.segmentSize + 
+                               this.segmentSize + this.segmentSize,
                                'button-circle', 
                                this.spell5buttonAction, 
                                this, 
                                0, 0, 0);
     buttonS5.scale.x = 1
     buttonS5.scale.y = 1
+    buttonS6 = game.add.button(window.innerWidth - this.segmentSize - this.margin, 
+                               this.offsetY + this.segmentSize + 
+                               this.segmentSize + this.segmentSize + 
+                               this.segmentSize + this.segmentSize + this.segmentSize,
+                               'button-circle', 
+                               this.spell5buttonAction, 
+                               this, 
+                               0, 0, 0);
+    buttonS6.scale.x = 1
+    buttonS6.scale.y = 1
 
 
     buttonS0.fixedToCamera = true
@@ -129,6 +150,7 @@ TouchControls.prototype.init = function create(game) {
     buttonS3.fixedToCamera = true
     buttonS4.fixedToCamera = true
     buttonS5.fixedToCamera = true
+    buttonS6.fixedToCamera = true
 
 }
 
@@ -138,22 +160,32 @@ TouchControls.prototype.actionOnClick = function() {
 }
 
 TouchControls.prototype.spell0buttonAction = function() {
+    debugMessage(0)
     // switch firemode
 }
 
 TouchControls.prototype.spell1buttonAction = function() {
+    debugMessage(1)
 }
 
 TouchControls.prototype.spell2buttonAction = function() {
+    debugMessage(2)
 }
 
 TouchControls.prototype.spell3buttonAction = function() {
+    debugMessage(3)
 }
 
 TouchControls.prototype.spell4buttonAction = function() {
+    debugMessage(4)
 }
 
 TouchControls.prototype.spell5buttonAction = function() {
+    debugMessage(5)
+}
+
+TouchControls.prototype.spell6buttonAction = function() {
+    debugMessage(6)
 }
 
 TouchControls.prototype.processInput = function(character) {

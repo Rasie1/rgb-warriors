@@ -41,6 +41,18 @@ Character = function (index, game, x, y, r, g, b) {
         fireType:0
     }
 
+    
+    this.touchInput = { 
+        joystickX:0.0, 
+        joystickY:0.0,
+        button0:false,
+        button1:false,
+        button2:false,
+        button3:false,
+        button4:false,
+        button5:false,
+        button6:false
+    }
 
     this.game = game;
     this.privateHealth = maxHealth;
@@ -132,8 +144,6 @@ Character = function (index, game, x, y, r, g, b) {
         }
     }
 
-    // input section
-    this.touchInputChanged = false
 
     this.spells = {};
     this.spells.Fireball = new Fireball()
@@ -212,10 +222,21 @@ Character.prototype.update = function() {
         this.cursor.spell6 != this.input.spell6 ||
         this.input.fireType != this.type
     );
+    var touchInputChanged = (
+        this.touchControls.touchInput.joystickX != this.touchInput.joystickX ||
+        this.touchControls.touchInput.joystickY != this.touchInput.joystickY ||
+        this.touchControls.touchInput.button0 != this.touchInput.button0 ||
+        this.touchControls.touchInput.button1 != this.touchInput.button1 ||
+        this.touchControls.touchInput.button2 != this.touchInput.button2 ||
+        this.touchControls.touchInput.button3 != this.touchInput.button3 ||
+        this.touchControls.touchInput.button4 != this.touchInput.button4 ||
+        this.touchControls.touchInput.button5 != this.touchInput.button5 ||
+        this.touchControls.touchInput.button6 != this.touchInput.button6
+    );
     var isContiniouslyFiring = (this.cursor.fire && 
                                 this.game.time.now+50 >= this.nextFire && 
                                 !this.mouseAlreadyUpdated);
-    if (inputChanged || this.touchInputChanged)
+    if (inputChanged || touchInputChanged)
     {
         //Handle input change here
         //send new values to the server     
@@ -231,7 +252,11 @@ Character.prototype.update = function() {
 
             eurecaServer.handleKeys(this.input,this.baseSprite.x,this.baseSprite.y,this.RCounter,this.GCounter,this.BCounter);
 
-            this.touchInputChanged = false
+            if (touchInputChanged)
+            {
+                eurecaServer.handleTouchInput(1.0, )
+
+            }
             
         }
     }
