@@ -92,6 +92,7 @@ eurecaServer.onConnect(function (conn) {
 
 	if(!outOfPlaces){
 		remote.setId(conn.id,x,y)
+	}
 	else{
 		remote.setId(conn.id,0,0)
 	}	
