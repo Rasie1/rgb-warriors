@@ -416,7 +416,7 @@ function bulletHit (victim, bullet) {
 }
 function vapeHit (victim, vapelosion) {
    if(victim.health>0){
-        eurecaServer.updateHP(victim.id, -0.2);
+        eurecaServer.updateHP(victim.id, -15);
    }
 }
 function render () {}

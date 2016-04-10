@@ -464,6 +464,7 @@ Character.prototype.pickUpItem = function(itemSprite) {
                     case 2:
                         this.spells.Spike.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Spike.spellPower + 1);
                         this.spellsAvailable[3] = true;
+                        this.spells.Spike.cooldown -= 9;
                         break;
                     case 3:
                         this.spells.HealingSpell.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.HealingSpell.spellPower + 1);
