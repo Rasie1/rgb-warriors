@@ -324,7 +324,13 @@ Character.prototype.update = function() {
     }
     if (this.shouldCastSpell1) //healing
     {
+<<<<<<< HEAD
+        this.shouldCastSpell1 = false
+        if (this.spell1Slot.onCooldown())
+            this.spell1Slot.cast(this);
+=======
         this.type=1
+>>>>>>> 627405c156bd379083047fec93a4fdf30f8d7926
     }
     if (this.shouldCastSpell2) //leap
     {
@@ -340,7 +346,13 @@ Character.prototype.update = function() {
     }
     if (this.shouldCastSpell5) //vape
     {
+<<<<<<< HEAD
+        this.shouldCastSpell5 = false
+        if (this.spell5Slot.onCooldown())
+            this.spell5Slot.cast(this);
+=======
         this.type=5
+>>>>>>> 627405c156bd379083047fec93a4fdf30f8d7926
     }
 
     this.headSprite.x = this.baseSprite.x;

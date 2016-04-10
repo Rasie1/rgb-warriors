@@ -53,6 +53,8 @@ Fireball.prototype.cast = function(character){
 function Leap() {
     Spell.call(this);
     this.cooldown = 50;
+
+    this.jumpDist = 512;
 }
 
 Leap.prototype = Object.create(Spell.prototype);
@@ -62,6 +64,30 @@ Leap.prototype.constructor = Leap
 Leap.prototype.cast = function(character){
     this.currentCooldown = this.cooldown
 
+    var curPos = new Phaser.Point(character.baseSprite.x, character.baseSprite.y);
+    var target = new Phaser.Point(character.cursor.tx, character.cursor.ty);
+
+
+    var dist = Phaser.Math.min(this.jumpDist, 
+    			Phaser.Math.distance(curPos.x, curPos.y, target.x, target.y));
+
+    target.x = dist * Math.cos(Phaser.Math.angleBetweenPoints(curPos, target));
+    target.y = dist * Math.sin(Phaser.Math.angleBetweenPoints(curPos, target));
+
+
+    var isCollision = false;
+    for (var obst in character.game.obstacles)
+    {
+    	var a = new Phaser.Rectangle(obst.x, obst.y, obst.width, obdt.height);
+    	var b = new Phaser.Rectangle(target.x - 32, target.y - 32, 64, 64);
+    	if (Phaser.Rectangle.intersects(a, b))
+    	{
+    		isCollision = true;
+    		break;
+    	}
+    }
+    if (!isCollision)
+    	eurecaServer.doLeap(character.id, curPos.x + target.x, curPos.y + target.y);
 };
 
 // Spike

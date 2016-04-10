@@ -49,6 +49,16 @@ var EurecaClientSetup = function() {
         console.log("eurecaClient.exports.castRemoteAttack");
 		if (charactersList[id]) charactersList[id].fire(target,type);
 	}
+
+	eurecaClient.exports.doLeap = function(id, new_x, new_y)
+	{
+		if (charactersList[id])
+		{
+			charactersList[id].baseSprite.x = new_x;
+			charactersList[id].baseSprite.y = new_y;
+			game.camera.focusOnXY(new_x, new_y);
+		}
+	}
 	
 	eurecaClient.exports.spawnEnemy = function(i, x, y, r, g, b)
 	{
