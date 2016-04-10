@@ -104,8 +104,9 @@ function preload () {
     game.load.atlas('enemy', 'assets/enemy-tanks.png', 'assets/tanks.json');
     game.load.image('bullet', 'assets/bullet.png');
     game.load.image('vape', 'assets/vape.png');
+    game.load.image('spike', 'assets/spike.png');
     game.load.image('button-circle', 'assets/button_circle.png');
-    game.load.image('earth', 'assets/light_sand.png');
+    game.load.image('earth', 'assets/scorched_earth.png');
     game.load.spritesheet('kaboom', 'assets/explosion.png', 64, 64, 23);
     game.load.spritesheet('vapelosion', 'assets/vapelosion.png', 128, 128, 23);
     game.load.spritesheet('yellow-jolt', 'assets/YellowJolt.png', 64, 64, 4);

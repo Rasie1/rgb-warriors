@@ -97,7 +97,7 @@ var EurecaClientSetup = function() {
 
     eurecaClient.exports.doSpike = function(id, x, y, time, damage)
     {
-        var stone = obstacles.create(x, y, 'stone')
+        var stone = obstacles.create(x, y, 'spike')
         stone.anchor.set(0.5, 0.5)
         stone.body.immovable = true;
         stone.scale.setTo(1, 1);
