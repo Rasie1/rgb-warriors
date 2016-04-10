@@ -19,7 +19,7 @@ var maxGameHeight = 3000;
 var maxHealth = 100
 var basicDamage = 10
 
-var closeFightWeaponDamage = -10
+var closeFightWeaponDamage = -20
 
 var maxSpellsLevel = 10
 
