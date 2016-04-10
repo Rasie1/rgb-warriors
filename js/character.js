@@ -132,6 +132,11 @@ Character = function (index, game, x, y, r, g, b) {
     this.spells.Vape = new Vape()
     this.spells.CloseFighting = new CloseFighting()
 
+    this.spellsAvailable = [];
+    for (i = 0; i < 6; ++i)
+        this.spellsAvailable[i] = false;
+    this.type = 6;
+
     this.recolorAura()
 
     this.hpBar = null;
@@ -266,27 +271,27 @@ Character.prototype.update = function() {
         }
     }
 
-    if (this.cursor.spell0) // fireball
+    if (this.cursor.spell0 && this.spellsAvailable[0]) // fireball
     {
         this.type=0
     }
-    if (this.cursor.spell1) //healing
+    if (this.cursor.spell1  && this.spellsAvailable[1]) //healing
     {
         this.type=1
     }
-    if (this.cursor.spell2) //leap
+    if (this.cursor.spell2  && this.spellsAvailable[2]) //leap
     {
         this.type=2
     }
-    if (this.cursor.spell3) //spike
+    if (this.cursor.spell3  && this.spellsAvailable[3]) //spike
     {
         this.type=3
     }
-    if (this.cursor.spell4) //cold sphere
+    if (this.cursor.spell4  && this.spellsAvailable[4]) //cold sphere
     {
         this.type=4
     }
-    if (this.cursor.spell5) //vape
+    if (this.cursor.spell5  && this.spellsAvailable[5]) //vape
     {
         this.type=5
     }
