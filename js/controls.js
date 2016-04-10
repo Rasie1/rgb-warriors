@@ -169,7 +169,7 @@ TouchControls.prototype.init = function create(game) {
     {
         joystick = game.add.button(this.margin, 
                                    this.offsetY,
-                                   'logoS0', 
+                                   'button-circle', 
                                    this.joystickButtonAction, 
                                    this, 
                                    0, 0, 0);
