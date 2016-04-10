@@ -44,8 +44,8 @@ Fireball.prototype.constructor = Fireball
 Fireball.prototype.cast = function(character){
     this.currentCooldown = this.cooldown
 
-    /*eurecaServer.castRemoteAttack(character.id, {x: character.cursor.tx,
-    											 y: character.cursor.ty});*/
+    eurecaServer.castRemoteAttack(character.id, {x: character.cursor.tx,
+    											 y: character.cursor.ty});
 };
 
 // Leap

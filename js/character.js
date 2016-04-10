@@ -317,16 +317,10 @@ Character.prototype.update = function() {
 
     if (this.shouldCastSpell0) // fireball
     {
-        /*this.shouldCastSpell0 = false
-        if (this.spell0Slot.onCooldown())
-            this.spell0Slot.cast(this);*/
         this.type=0
     }
     if (this.shouldCastSpell1) //healing
     {
-        this.shouldCastSpell1 = false
-        if (this.spell1Slot.onCooldown())
-            this.spell1Slot.cast(this);
         this.type=1
     }
     if (this.shouldCastSpell2) //leap
@@ -343,9 +337,6 @@ Character.prototype.update = function() {
     }
     if (this.shouldCastSpell5) //vape
     {
-        this.shouldCastSpell5 = false
-        if (this.spell5Slot.onCooldown())
-            this.spell5Slot.cast(this);
         this.type=5
     }
 
@@ -371,24 +362,23 @@ Character.prototype.fire = function(target,type) {
         //console.log(this.bullets.countDead());
         switch (type) {
             case 0:
-                this.spell0Slot.cast()
+                this.spells.Fireball.cast(this)
             break
             case 1:
-                this.spell1Slot.cast()
+                this.spells.HealingSpell.cast(this)
             break
             case 2:
-                this.spell2Slot.cast()
+                this.spells.Leap.cast(this)
             break
             case 3:
-                this.spell3Slot.cast()
+                this.spells.Spike.cast(this)
             break
             case 4:
-                this.spell4Slot.cast()
+                this.spells.ColdSphere.cast(this)
             break
             case 5:
-                this.spell5Slot.cast()
+                this.spells.Vape.cast(this)
             break
-
         }
 }
 
