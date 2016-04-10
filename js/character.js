@@ -94,6 +94,8 @@ Character = function (index, game, x, y, r, g, b) {
     this.nextFire = 0;
     this.alive = true;
     this.type = 0
+    this.deaths = 0
+    this.kills = 0
 
     this.baseSprite = game.add.sprite(x, y, 'player-base');
     this.baseSprite.animations.add('move');
@@ -187,7 +189,7 @@ Character = function (index, game, x, y, r, g, b) {
 
 Character.prototype.recreate = function (x,y) {
 
-    this.health = 30;
+    this.health = 100;
     this.SpeedX = playerSpeedX
     this.SpeedY = playerSpeedY
     this.baseSprite.reset(x,y)
@@ -211,9 +213,11 @@ Character.prototype.recreate = function (x,y) {
         this.hpBar = game.add.sprite(x - 32, y - 32, 'hpBar');
         this.hpBar.anchor.set(0.5);
     }
-    this.rItems.setText(this.RCounter+"")
-    this.gItems.setText(this.GCounter+"")
-    this.bItems.setText(this.BCounter+"")
+    player.rItems.setText(this.RCounter+"")
+    player.gItems.setText(this.GCounter+"")
+    player.bItems.setText(this.BCounter+"")
+    player.hpline.scale.setTo(Phaser.Math.min(player.health/maxHealth,1), 1);
+    player.hpline_secondary.scale.setTo(Phaser.Math.max((player.health-maxHealth)/180,0), 1);
 }
 
 Character.prototype.update = function() {
@@ -435,6 +439,8 @@ Character.prototype.fire = function(target,type) {
 
 
 Character.prototype.kill = function() {
+    if (player.id==this.id) player.deaths++
+    else player.kills++
     this.alive = false;
     this.baseSprite.kill();
     if (this.hpBar != null) {

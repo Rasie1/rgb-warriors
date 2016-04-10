@@ -45,7 +45,7 @@ HealingSpell.prototype.cast = function(character){
 
 function Fireball() {
     Spell.call(this);
-    this.cooldown = 4 * 45;
+    this.cooldown = 180;
 }
 
 Fireball.prototype = Object.create(Spell.prototype);
