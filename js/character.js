@@ -339,13 +339,7 @@ Character.prototype.update = function() {
     }
     if (this.shouldCastSpell5) //vape
     {
-<<<<<<< HEAD
-        this.shouldCastSpell5 = false
-        if (this.spell5Slot.onCooldown())
-            this.spell5Slot.cast(this);
-=======
         this.type=5
->>>>>>> 627405c156bd379083047fec93a4fdf30f8d7926
     }
 
     this.headSprite.x = this.baseSprite.x;
