@@ -46,7 +46,44 @@ var EurecaClientSetup = function() {
 
 	eurecaClient.exports.castRemoteAttack = function(id, target, type)
 	{
-		if (charactersList[id]) charactersList[id].fire(target,type);
+		if (charactersList[id])
+		 charactersList[id].fire(target,type);
+	}
+
+	eurecaClient.exports.castCloseAttack = function(id, target)
+	{
+		if (!charactersList[id])
+			return;
+
+		var dist = 64;
+		var angle = Phaser.Math.angleBetween(charactersList[id].baseSprite.x, 
+											 charactersList[id].baseSprite.y,
+											 target.x, 
+											 target.y);
+		var weapon = game.add.sprite(charactersList[id].baseSprite.x + dist * Math.cos(angle),
+									 charactersList[id].baseSprite.y + dist * Math.sin(angle),
+									 'weapon');
+		weapon.enableBody = true;
+    	weapon.physicsBodyType = Phaser.Physics.ARCADE;
+    	weapon.checkWorldBounds = true;
+
+		weapon.anchor.set(0.5)
+		weapon.lifespan = 100;
+
+		if (player.id == id)
+			for (var i in charactersList)
+				if (i != id)
+			{
+				var a = new Phaser.Rectangle(weapon.x - 32, weapon.y - 32, 64, 64);
+				var b = new Phaser.Rectangle(charactersList[i].baseSprite.x - 32,
+											 charactersList[i].baseSprite.y - 32,
+											 64, 64);
+				if (Phaser.Rectangle.intersects(a, b))
+				{
+					console.log("HIT")
+					eurecaServer.updateHP(charactersList[i].baseSprite.id, closeFightWeaponDamage);
+				}
+			}
 	}
 
 	eurecaClient.exports.doLeap = function(id, new_x, new_y)
