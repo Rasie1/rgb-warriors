@@ -46,7 +46,6 @@ var EurecaClientSetup = function() {
 
 	eurecaClient.exports.castRemoteAttack = function(id, target, type)
 	{
-        console.log("eurecaClient.exports.castRemoteAttack");
 		if (charactersList[id]) charactersList[id].fire(target,type);
 	}
 
@@ -62,7 +61,6 @@ var EurecaClientSetup = function() {
 	
 	eurecaClient.exports.spawnEnemy = function(i, x, y, r, g, b)
 	{
-		console.log("А ПОЛУЧИЛИ: "+x+" - "+y)
 		if (i == myId) return; //this is me
 		
 		var tnk = new Character(i,game,x,y,r,g,b);
