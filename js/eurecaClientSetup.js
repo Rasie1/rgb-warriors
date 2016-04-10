@@ -17,7 +17,7 @@ var EurecaClientSetup = function() {
 		initialSpawnLocationX = x;
 		initialSpawnLocationY = y;
 		create();
-		eurecaServer.handshake(id,0,0); // надо ещё отравку координат при респауне !!!
+		eurecaServer.handshake(id,initialSpawnLocationX,initialSpawnLocationY);
 		ready = true;
 	}	
 	
@@ -44,10 +44,6 @@ var EurecaClientSetup = function() {
 		}
 	}
 
-	eurecaClient.exports.castRemoteAttack = function(id, target, type)
-	{
-		if (charactersList[id]) charactersList[id].fire(target,type);
-	}
 
 	eurecaClient.exports.doLeap = function(id, new_x, new_y)
 	{
@@ -90,6 +86,9 @@ var EurecaClientSetup = function() {
 			charactersList[id].baseSprite.x = state.x;
 			charactersList[id].baseSprite.y = state.y;
 
+			if(id!=myId)
+				charactersList[id].type = state.fireType;
+
 			charactersList[id].headSprite.rotation = state.rot;
 			charactersList[id].update();
 		}
@@ -116,9 +115,6 @@ var EurecaClientSetup = function() {
 			createItem(x, y, elementForDrop,itemID);
 		}
 
-	}
-	eurecaClient.exports.spawnAllItems = function(itemsList){
-		console.log(itemsList)
 	}
 	eurecaClient.exports.createObstacles = function(obstaclesList){
 	    for (var i=0;i<obstaclesList.length;i++) {

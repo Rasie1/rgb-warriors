@@ -35,11 +35,10 @@ Character = function (index, game, x, y, r, g, b) {
         spell2:false,
         spell3:false,
         spell4:false,
-        spell5:false
+        spell5:false,
+        fireType:0
     }
 
-    /*var x = def(x,0)
-    var y = def(y,0)*/
 
     this.game = game;
     this.health = 30;
@@ -52,12 +51,29 @@ Character = function (index, game, x, y, r, g, b) {
     this.bullets.createMultiple(20, 'bullet', 0, false);
     this.bullets.setAll('anchor.x', 0.5);
     this.bullets.setAll('anchor.y', 0.5);
+    //this.bullets.setAll('checkWorldBounds', true); 
 
-    //this.bullets.setAll('outOfBoundsKill', true);
-    //this.bullets.setAll('lifespan',5000);
-    this.bullets.setAll('checkWorldBounds', true);  
+    this.explosions = game.add.group();
+    this.explosions.enableBody = true;
+    this.explosions.physicsBodyType = Phaser.Physics.ARCADE;
+    this.explosions.createMultiple(20, 'kaboom', 0, false);
+    this.explosions.setAll('anchor.x', 0.5);
+    this.explosions.setAll('anchor.y', 0.5);
+    this.explosions.forEach(function(explosion){
+        explosion.animations.add('kaboom');
+    },this)
 
-    
+    this.vapelosions = game.add.group();
+    this.vapelosions.enableBody = true;
+    this.vapelosions.physicsBodyType = Phaser.Physics.ARCADE;
+    this.vapelosions.createMultiple(20, 'vapelosion', 0, false);
+    this.vapelosions.setAll('anchor.x', 0.5);
+    this.vapelosions.setAll('anchor.y', 0.5);
+    this.bullets.setAll('checkWorldBounds', true); 
+    this.vapelosions.forEach(function(explosion){
+        explosion.animations.add('vapelosion');
+    },this)
+
     this.currentSpeed =0;
     this.fireRate = 500;
     this.nextFire = 0;
@@ -69,12 +85,6 @@ Character = function (index, game, x, y, r, g, b) {
     this.auraSprite = game.add.sprite(x, y, 'aura');
     this.deadSprite = game.add.sprite(x, y, 'dead');
     this.deadSprite.kill()
-
-    this.wall = game.add.sprite(0, 0, 'wall');
-    this.wall.anchor.set(-0.2,0.5);
-    this.wall.enableBody = true;
-    game.physics.enable(this.wall, Phaser.Physics.ARCADE);
-    this.wall.kill()
 
     this.baseSprite.anchor.set(0.5);
     this.auraSprite.anchor.set(0.5);
@@ -109,16 +119,6 @@ Character = function (index, game, x, y, r, g, b) {
     }
 
     // input section
-    this.shouldMoveRight = false
-    this.shouldMoveLeft = false
-    this.shouldMoveTop = false
-    this.shouldMoveBottom = false
-    this.shouldCastSpell0 = false
-    this.shouldCastSpell1 = false
-    this.shouldCastSpell2 = false
-    this.shouldCastSpell3 = false
-    this.shouldCastSpell4 = false
-    this.shouldCastSpell5 = false
     this.touchInputChanged = false
 
     this.spells = {};
@@ -143,14 +143,6 @@ Character = function (index, game, x, y, r, g, b) {
 
     //inventory
     this.inventory = [];
-    this.spellPowers = {
-        HealingSpell:0,
-        Fireball:0,
-        Leap:0,
-        Spike:0,
-        ColdSphere:0,
-        Vape:0
-    }
 };
 
 Character.prototype.recreate = function (x,y) {
@@ -199,10 +191,11 @@ Character.prototype.update = function() {
         this.cursor.spell2 != this.input.spell2 ||
         this.cursor.spell3 != this.input.spell3 ||
         this.cursor.spell4 != this.input.spell4 ||
-        this.cursor.spell5 != this.input.spell5
+        this.cursor.spell5 != this.input.spell5 || 
+        this.input.fireType != this.type
 
     );
-    
+    console.log(this.input.fireType,this.type)
     var isContiniouslyFiring = (this.cursor.fire && 
                                 this.game.time.now+50 >= this.nextFire && 
                                 !this.mouseAlreadyUpdated);
@@ -216,7 +209,7 @@ Character.prototype.update = function() {
             this.input.x = this.baseSprite.x;
             this.input.y = this.baseSprite.y;
             this.input.rot = this.headSprite.rotation;
-            
+            this.input.fireType = this.type;
             
             eurecaServer.handleKeys(this.input,this.baseSprite.x,this.baseSprite.y,this.RCounter,this.GCounter,this.BCounter);
 
@@ -232,64 +225,13 @@ Character.prototype.update = function() {
     }
     //cursor value is now updated by eurecaClient.exports.updateState method
     
-    if (this.cursor.left || this.cursor.a)
-    {
-        this.shouldMoveLeft = true
-    }
-    else if (this.cursor.right || this.cursor.d)
-    {
-        this.shouldMoveRight = true
-    }
-
-    if (this.cursor.down || this.cursor.s)
-    {
-        this.shouldMoveBottom = true
-    }
-    else if (this.cursor.up  || this.cursor.w)
-    {
-        this.shouldMoveTop = true
-    }
-
-    if (this.cursor.fire)
-    {
-        if (this.alive) {
-            //this.fire({x:this.cursor.tx, y:this.cursor.ty});
-            eurecaServer.castRemoteAttack(this.id,{x:this.cursor.tx, y:this.cursor.ty},this.type)
-        }
-    }
-
-    if (this.cursor.spell0)
-    {
-        this.shouldCastSpell0 = true
-    }
-    if (this.cursor.spell1)
-    {
-        this.shouldCastSpell1 = true
-    }
-    if (this.cursor.spell2)
-    {
-        this.shouldCastSpell2 = true
-    }
-    if (this.cursor.spell3)
-    {
-        this.shouldCastSpell3 = true
-    }
-    if (this.cursor.spell4)
-    {
-        this.shouldCastSpell4 = true
-    }
-    if (this.cursor.spell5)
-    {
-        this.shouldCastSpell5 = true
-    }
-
     // commit movement
-    if (this.shouldMoveLeft) {
+    if (this.cursor.left || this.cursor.a) {
         this.headSprite.body.velocity.x = this.baseSprite.body.velocity.x = -this.SpeedX
         baseSprite.rotation = -3.14
         this.shouldMoveLeft   = false
     }
-    else if (this.shouldMoveRight) {
+    else if (this.cursor.right || this.cursor.d) {
         this.headSprite.body.velocity.x = this.baseSprite.body.velocity.x = this.SpeedX
         baseSprite.rotation = 0
         this.shouldMoveRight  = false
@@ -299,12 +241,12 @@ Character.prototype.update = function() {
         this.headSprite.body.velocity.x = this.baseSprite.body.velocity.x = 0
     }
 
-    if (this.shouldMoveTop) {
+    if (this.cursor.up || this.cursor.w) {
         this.headSprite.body.velocity.y = this.baseSprite.body.velocity.y = -this.SpeedY
         baseSprite.rotation = baseSprite.rotation==-3.14 ? -3*3.14/4 : baseSprite.rotation==0 ? -3.14/4 : -3.14/2
         this.shouldMoveTop    = false
     }
-    else if (this.shouldMoveBottom) {
+    else if (this.cursor.down  || this.cursor.s) {
         this.headSprite.body.velocity.y = this.baseSprite.body.velocity.y = this.SpeedY
         baseSprite.rotation = baseSprite.rotation==-3.14 ? 3*3.14/4 : baseSprite.rotation==0 ? 3.14/4 : 3.14/2
         this.shouldMoveBottom = false
@@ -315,30 +257,42 @@ Character.prototype.update = function() {
         this.headSprite.body.velocity.y = 0
     }
 
-    if (this.shouldCastSpell0) // fireball
+    if (this.cursor.fire)
+    {
+        //console.log(this.type,this.spells.Fireball)
+        if (this.alive) {
+            this.fire({x:this.cursor.tx, y:this.cursor.ty},this.type);
+        }
+    }
+
+    if (this.cursor.spell0) // fireball
     {
         this.type=0
     }
-    if (this.shouldCastSpell1) //healing
+    if (this.cursor.spell1) //healing
     {
         this.type=1
     }
-    if (this.shouldCastSpell2) //leap
+    if (this.cursor.spell2) //leap
     {
         this.type=2
     }
-    if (this.shouldCastSpell3) //spike
+    if (this.cursor.spell3) //spike
     {
         this.type=3
     }
-    if (this.shouldCastSpell4) //cold sphere
+    if (this.cursor.spell4) //cold sphere
     {
         this.type=4
     }
-    if (this.shouldCastSpell5) //vape
+    if (this.cursor.spell5) //vape
     {
         this.type=5
     }
+
+
+
+
 
     this.headSprite.x = this.baseSprite.x;
     this.headSprite.y = this.baseSprite.y;
@@ -352,7 +306,7 @@ Character.prototype.update = function() {
     }
 
     game.physics.arcade.collide(this.baseSprite, obstacles);
-    game.physics.arcade.collide(this.bullets, obstacles, function(a){a.kill()},null,this);
+    game.physics.arcade.collide( obstacles,this.bullets, bulletHit,null,this);
     for (var c in charactersList) game.physics.arcade.collide(charactersList[c].baseSprite, this.baseSprite/* урон от столкновения: , function(){eurecaServer.updateHP(this.id,-1)},null,this*/);
 };
 
@@ -474,7 +428,7 @@ Character.prototype.pickUpItem = function(itemSprite) {
                 break;
         }
         this.inventory=[];
-        console.log(this.spells);
+        //console.log(this.spells);
 
     }
     var counter = this.RCounter+this.GCounter+this.BCounter

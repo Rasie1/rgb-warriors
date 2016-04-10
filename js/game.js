@@ -8,7 +8,6 @@ var explosions;
 
 var cactuses
 var obstacles
-var walls
 
 var cursors = {
     left:false,
@@ -103,9 +102,11 @@ function preload () {
     game.load.atlas('character', 'assets/tanks.png', 'assets/tanks.json');
     game.load.atlas('enemy', 'assets/enemy-tanks.png', 'assets/tanks.json');
     game.load.image('bullet', 'assets/bullet.png');
+    game.load.image('vape', 'assets/vape.png');
     game.load.image('button-circle', 'assets/button_circle.png');
     game.load.image('earth', 'assets/light_sand.png');
     game.load.spritesheet('kaboom', 'assets/explosion.png', 64, 64, 23);
+    game.load.spritesheet('vapelosion', 'assets/vapelosion.png', 128, 128, 23);
     game.load.image('item1', 'assets/item0.png')
     game.load.image('item2', 'assets/item1.png')
     game.load.image('item3', 'assets/item2.png')
@@ -167,10 +168,6 @@ function create ()
     
     charactersList = {};
 
-	walls = game.add.group();
-	walls.enableBody = true;
-	cactuses = game.add.group();
-	cactuses.enableBody = true;
 	obstacles = game.add.group();
 	obstacles.enableBody = true;
 
@@ -308,40 +305,45 @@ function update () {
     {
 		if (!charactersList[i]) continue;
         var curBullets = charactersList[i].bullets;
-        var wall = charactersList[i].wall;
+        var curVapelosions = charactersList[i].vapelosions;        
 		for (var j in charactersList)
 		{
 			if (!charactersList[j]) continue;
+            var targetCharacter = charactersList[j].baseSprite;
 			if (j!=i) 
-			{
-			
-				var targetCharacter = charactersList[j].baseSprite;
-				
-				if (wall.alive) game.physics.arcade.collide(targetCharacter, wall, function(b,a){a.kill();eurecaServer.updateHP(j,-15)}, null, this);
-				if(
-                    game.physics.arcade.overlap(targetCharacter, curBullets, bulletHitPlayer, null, this) &&
-                    charactersList[i].baseSprite.id == player.baseSprite.id &&
-                    charactersList[j].health>0
-                )
-				{
-					console.log('talk server about collide');
-					eurecaServer.updateHP(targetCharacter.id, -10);
-				}
+			{				
+                game.physics.arcade.overlap(targetCharacter, curBullets, bulletHit, null, charactersList[i]);                
 			}
+            game.physics.arcade.overlap(targetCharacter, curVapelosions, vapeHit, null, charactersList[i]);
 			if (charactersList[j].alive)
 			{
 				charactersList[j].update();
 			}			
 		}
     };
-    for (i = 0; i < bullets.children.length; i++) {
-    	if (bullets.children[i].alive && bullets.children[i].lifespan <= 0)
-    		bullets.children[i].kill();
-    };
 }
 
-function bulletHitPlayer (character, bullet) {
+function bulletHit (victim, bullet) {
     bullet.kill();
-}
+    if(bullet.type==0){
+        if(this.id == myId){
+            if(victim.health>0 && victim.key=='enemy')
+                eurecaServer.updateHP(victim.id, -10);
 
+        }
+    }
+    if(bullet.type==5){
+        if(this.id == myId){
+            var vape = this.vapelosions.getFirstDead();
+            vape.reset(bullet.x, bullet.y);
+            vape.play('vapelosion', 15, true, true);
+            vape.lifespan = 2000
+        }
+    }
+}
+function vapeHit (victim, vapelosion) {
+   if(victim.health>0){
+        eurecaServer.updateHP(victim.id, -0.2);
+   }
+}
 function render () {}

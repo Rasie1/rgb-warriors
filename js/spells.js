@@ -2,6 +2,7 @@ Spell = function() {
     this.cooldown = 0
     this.currentCooldown = 0
     this.spellPower = 0;
+    this.nextFire = 0;
 };
 
 Spell.prototype.cast = function(character) {
@@ -34,7 +35,7 @@ HealingSpell.prototype.cast = function(character){
 
 function Fireball() {
     Spell.call(this);
-    this.cooldown = 50;
+    this.cooldown = 500;
 }
 
 Fireball.prototype = Object.create(Spell.prototype);
@@ -42,10 +43,16 @@ Fireball.prototype = Object.create(Spell.prototype);
 Fireball.prototype.constructor = Fireball
 
 Fireball.prototype.cast = function(character){
-    this.currentCooldown = this.cooldown
-
-    eurecaServer.castRemoteAttack(character.id, {x: character.cursor.tx,
-    											 y: character.cursor.ty});
+    //console.log(this.bullets.countDead());
+    if (game.time.now > this.nextFire && character.bullets.countDead() > 0){
+        this.nextFire = game.time.now + this.cooldown;
+        this.currentCooldown = this.cooldown;
+        var bullet = character.bullets.getFirstDead();
+        bullet.lifespan = 5000;
+        bullet.type = 0;
+        bullet.reset(character.headSprite.x, character.headSprite.y);
+        bullet.rotation = game.physics.arcade.moveToObject(bullet, {x:character.cursor.tx,y:character.cursor.ty}, 500);
+    }
 };
 
 // Leap
@@ -53,7 +60,6 @@ Fireball.prototype.cast = function(character){
 function Leap() {
     Spell.call(this);
     this.cooldown = 50;
-
     this.jumpDist = 512;
 }
 
@@ -62,16 +68,7 @@ Leap.prototype = Object.create(Spell.prototype);
 Leap.prototype.constructor = Leap
 
 Leap.prototype.cast = function(character){
-    this.currentCooldown = this.cooldown/*
-                if (this.game.time.now > this.nextFire && this.bullets.countDead() > 0) {
-                    this.mouseAlreadyUpdated = false;
-                    this.nextFire = this.game.time.now + this.fireRate;
-                    var bullet = this.bullets.getFirstDead();
-                    bullet.lifespan = 5000;
-                    bullet.reset(this.headSprite.x, this.headSprite.y);
-
-                    bullet.rotation = this.game.physics.arcade.moveToObject(bullet, target, 500);
-                }*/
+    this.currentCooldown = this.cooldown
 
     var curPos = new Phaser.Point(character.baseSprite.x, character.baseSprite.y);
     var target = new Phaser.Point(character.cursor.tx, character.cursor.ty);
@@ -112,9 +109,6 @@ Spike.prototype.constructor = Spike
 
 Spike.prototype.cast = function(character){
     this.currentCooldown = this.cooldown
-                /*this.wall.reset(this.headSprite.x, this.headSprite.y)
-                this.wall.lifespan = 5000;
-                this.wall.rotation = this.game.physics.arcade.moveToObject(this.wall, target, 0)*/
 
 };
 
@@ -131,16 +125,13 @@ ColdSphere.prototype.constructor = ColdSphere
 
 ColdSphere.prototype.cast = function(character){
     this.currentCooldown = this.cooldown
-
-    eurecaServer.castRemoteAttack(character.id, {x: character.cursor.tx,
-    											 y: character.cursor.ty});
 };
 
 // Vape
 
 function Vape() {
     Spell.call(this);
-    this.cooldown = 50;
+    this.cooldown = 300;
 }
 
 Vape.prototype = Object.create(Spell.prototype);
@@ -148,9 +139,14 @@ Vape.prototype = Object.create(Spell.prototype);
 Vape.prototype.constructor = Vape
 
 Vape.prototype.cast = function(character){
-    this.currentCooldown = this.cooldown
-
-    eurecaServer.castRemoteAttack(character.id, {x: character.cursor.tx,
-    											 y: character.cursor.ty});
+    if (game.time.now > this.nextFire && character.bullets.countDead() > 0){
+        this.nextFire = game.time.now + this.cooldown;
+        this.currentCooldown = this.cooldown;
+        var bullet = character.bullets.getFirstDead();
+        bullet.lifespan = 5000;
+        bullet.type = 5;
+        bullet.reset(character.headSprite.x, character.headSprite.y);
+        bullet.rotation = game.physics.arcade.moveToObject(bullet, {x:character.cursor.tx,y:character.cursor.ty}, 500);
+    }
 };
 
