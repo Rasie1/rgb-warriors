@@ -449,6 +449,9 @@ Character.prototype.kill = function() {
     this.deadSprite.lifespan = 3000;
     this.headSprite.kill();
     this.auraSprite.kill();
+    for(i=0;i<touchControls.buttons.length;i++){
+        touchControls.buttons[i].kill()
+    }
     this.dropItem();
 }
 
