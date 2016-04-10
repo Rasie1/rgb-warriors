@@ -50,7 +50,7 @@ Character = function (index, game, x, y, r, g, b) {
     this.bullets = game.add.group();
     this.bullets.enableBody = true;
     this.bullets.physicsBodyType = Phaser.Physics.ARCADE;
-    this.bullets.createMultiple(20, 'bullet', 0, false);
+    this.bullets.createMultiple(20, 'bullets', 0, false);
     this.bullets.setAll('anchor.x', 0.5);
     this.bullets.setAll('anchor.y', 0.5);
     //this.bullets.setAll('checkWorldBounds', true); 
@@ -198,7 +198,7 @@ Character.prototype.update = function() {
         this.cursor.spell6 != this.input.spell6 ||
         this.input.fireType != this.type
     );
-    console.log(this.input.fireType,this.type)
+    //console.log(this.input.fireType,this.type)
     var isContiniouslyFiring = (this.cursor.fire && 
                                 this.game.time.now+50 >= this.nextFire && 
                                 !this.mouseAlreadyUpdated);
@@ -213,7 +213,9 @@ Character.prototype.update = function() {
             this.input.y = this.baseSprite.y;
             this.input.rot = this.headSprite.rotation;
             this.input.fireType = this.type;
-            
+            this.input.speedX = this.SpeedX;
+            this.input.speedY = this.SpeedY;
+
             eurecaServer.handleKeys(this.input,this.baseSprite.x,this.baseSprite.y,this.RCounter,this.GCounter,this.BCounter);
 
             this.touchInputChanged = false

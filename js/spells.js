@@ -58,6 +58,7 @@ Fireball.prototype.cast = function(character){
         var bullet = character.bullets.getFirstDead();
         bullet.lifespan = 5000;
         bullet.type = 0;
+        bullet.frame = 0;
         bullet.reset(character.headSprite.x, character.headSprite.y);
         bullet.rotation = game.physics.arcade.moveToObject(bullet, {x:character.cursor.tx,y:character.cursor.ty}, 500);
     }
@@ -69,7 +70,7 @@ Fireball.prototype.cast = function(character){
 function Leap() {
     Spell.call(this);
 
-    this.cooldown = 10;
+    this.cooldown = 1000;
 
     this.jumpDist = 512;
 
@@ -87,54 +88,53 @@ Leap.prototype.constructor = Leap
 
 Leap.prototype.cast = function(character){
 
-    console.log("trying to cast leap")
-	if (this.onCooldown() == false)
-		return
-	console.log("OK")
+    if (game.time.now > this.nextFire){
+        this.nextFire = game.time.now + this.cooldown;
+        this.currentCooldown = this.cooldown;
 
-    this.currentCooldown = this.cooldown
-
-    var curPos = new Phaser.Point(character.baseSprite.x, character.baseSprite.y);
-    var target = new Phaser.Point(character.cursor.tx, character.cursor.ty);
+        var curPos = new Phaser.Point(character.baseSprite.x, character.baseSprite.y);
+        var target = new Phaser.Point(character.cursor.tx, character.cursor.ty);
 
 
-    var dist = Phaser.Math.min(this.jumpDist, 
-                               Phaser.Math.distance(curPos.x, 
-                                                    curPos.y, 
-                                                    target.x, 
-                                                    target.y));
+        var dist = Phaser.Math.min(this.jumpDist, 
+                                   Phaser.Math.distance(curPos.x, 
+                                                        curPos.y, 
+                                                        target.x, 
+                                                        target.y));
 
-    var offset_x = dist * Math.cos(Phaser.Math.angleBetweenPoints(curPos, target));
-    var offset_y = dist * Math.sin(Phaser.Math.angleBetweenPoints(curPos, target));
-    target.x = curPos.x + offset_x;
-    target.y = curPos.y + offset_y;
+        var offset_x = dist * Math.cos(Phaser.Math.angleBetweenPoints(curPos, target));
+        var offset_y = dist * Math.sin(Phaser.Math.angleBetweenPoints(curPos, target));
+        target.x = curPos.x + offset_x;
+        target.y = curPos.y + offset_y;
 
-    this.visualEffectSpriteBegin.reset(curPos.x,
-                                       curPos.y)
-    this.visualEffectSpriteBegin.animations.play('cast', 15, false, true);   
-    this.visualEffectSpriteEnd.reset(target.x,
-                                     target.y)
-    this.visualEffectSpriteEnd.animations.play('cast', 15, false, true);   
-    /*var isCollision = false;
-    for (var obst in character.game.obstacles)
-    {
-    	var a = new Phaser.Rectangle(obst.x, obst.y, obst.width, obst.height);
-    	var b = new Phaser.Rectangle(target.x - 32, target.y - 32, 64, 64);
-    	if (Phaser.Rectangle.intersects(a, b))
-    	{
-    		isCollision = true;
-    		break;
-    	}
+        this.visualEffectSpriteBegin.reset(curPos.x,
+                                           curPos.y)
+        this.visualEffectSpriteBegin.animations.play('cast', 15, false, true);   
+        this.visualEffectSpriteEnd.reset(target.x,
+                                         target.y)
+        this.visualEffectSpriteEnd.animations.play('cast', 15, false, true);   
+        /*var isCollision = false;
+        for (var obst in character.game.obstacles)
+        {
+        	var a = new Phaser.Rectangle(obst.x, obst.y, obst.width, obst.height);
+        	var b = new Phaser.Rectangle(target.x - 32, target.y - 32, 64, 64);
+        	if (Phaser.Rectangle.intersects(a, b))
+        	{
+        		isCollision = true;
+        		break;
+        	}
+        }
+        if (!isCollision)*/
+        if(character.id==myId)
+    	   eurecaServer.doLeap(character.id, target.x, target.y);
     }
-    if (!isCollision)*/
-	eurecaServer.doLeap(character.id, target.x, target.y);
 };
 
 // Spike
 
 function Spike() {
     Spell.call(this);
-    this.cooldown = 50
+    this.cooldown = 2000
     this.distance = 128
     this.stayTime = 5
     this.damage = -15
@@ -145,26 +145,25 @@ Spike.prototype = Object.create(Spell.prototype);
 Spike.prototype.constructor = Spike
 
 Spike.prototype.cast = function(character){
-    console.log("trying to cast spike")
 
-    if (this.onCooldown() == false)
-        return
+    if (game.time.now > this.nextFire){
+        this.nextFire = game.time.now + this.cooldown;
+        this.currentCooldown = this.cooldown;
 
-    this.currentCooldown = this.cooldown
+        var curPos = new Phaser.Point(character.baseSprite.x, character.baseSprite.y);
+        var target = new Phaser.Point(character.cursor.tx, character.cursor.ty);
 
-    var curPos = new Phaser.Point(character.baseSprite.x, character.baseSprite.y);
-    var target = new Phaser.Point(character.cursor.tx, character.cursor.ty);
+        var offset = Phaser.Point.subtract(target, curPos).normalize()
 
-    var offset = Phaser.Point.subtract(target, curPos).normalize()
-
-    target.x = offset.x * this.distance + curPos.x
-    target.y = offset.y * this.distance + curPos.y
-
-    eurecaServer.doSpike(character.id, 
-                         target.x, 
-                         target.y, 
-                         this.stayTime, 
-                         this.damage);
+        target.x = offset.x * this.distance + curPos.x
+        target.y = offset.y * this.distance + curPos.y
+        if(character.id==myId)
+            eurecaServer.doSpike(character.id, 
+                             target.x, 
+                             target.y, 
+                             this.stayTime, 
+                             this.damage);
+    }
 
 };
 
@@ -172,7 +171,7 @@ Spike.prototype.cast = function(character){
 
 function ColdSphere() {
     Spell.call(this);
-    this.cooldown = 50;
+    this.cooldown = 500;
 }
 
 ColdSphere.prototype = Object.create(Spell.prototype);
@@ -180,8 +179,16 @@ ColdSphere.prototype = Object.create(Spell.prototype);
 ColdSphere.prototype.constructor = ColdSphere
 
 ColdSphere.prototype.cast = function(character){
-    console.log("trying to cast cold sphere")
-    this.currentCooldown = this.cooldown
+    if (game.time.now > this.nextFire && character.bullets.countDead() > 0){
+        this.nextFire = game.time.now + this.cooldown;
+        this.currentCooldown = this.cooldown;
+        var bullet = character.bullets.getFirstDead();
+        bullet.lifespan = 5000;
+        bullet.type = 5;
+        bullet.frame = 2;
+        bullet.reset(character.headSprite.x, character.headSprite.y);
+        bullet.rotation = game.physics.arcade.moveToObject(bullet, {x:character.cursor.tx,y:character.cursor.ty}, 500);
+    }
 };
 
 // Vape
@@ -201,7 +208,8 @@ Vape.prototype.cast = function(character){
         this.currentCooldown = this.cooldown;
         var bullet = character.bullets.getFirstDead();
         bullet.lifespan = 5000;
-        bullet.type = 5;
+        bullet.type = 6;
+        bullet.frame = 1;
         bullet.reset(character.headSprite.x, character.headSprite.y);
         bullet.rotation = game.physics.arcade.moveToObject(bullet, {x:character.cursor.tx,y:character.cursor.ty}, 500);
     }
