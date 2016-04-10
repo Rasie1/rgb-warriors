@@ -97,13 +97,14 @@ Character = function (index, game, x, y, r, g, b) {
     this.deaths = 0
     this.kills = 0
 
+    this.auraSprite = game.add.sprite(x, y, 'aura');
+    
     this.baseSprite = game.add.sprite(x, y, 'player-base');
     this.baseSprite.animations.add('move');
 
     this.headSprite = game.add.sprite(x, y, 'player-head');
     this.headSprite.animations.add('move');
     
-    this.auraSprite = game.add.sprite(x, y, 'aura');
     this.deadSprite = game.add.sprite(x, y, 'dead');
     this.deadSprite.kill()
 
