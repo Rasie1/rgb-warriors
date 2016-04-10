@@ -29,7 +29,7 @@ var EurecaClientSetup = function() {
 	eurecaClient.exports.updateHP = function(id, difHP, attackerId)
 	{
 		var target = charactersList[id]
-		if (target && target.health > 0) {
+		if (target && target.health >= 0) {
 			console.log(difHP);
 			target.health = Phaser.Math.min(target.privateHealth,target.health + difHP);
 			if (target.hpBar != null)
