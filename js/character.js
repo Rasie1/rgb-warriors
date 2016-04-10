@@ -253,8 +253,7 @@ Character.prototype.update = function() {
     if (this.cursor.fire)
     {
         if (this.alive) {
-            // this.fire({x:this.cursor.tx, y:this.cursor.ty});
-            eurecaServer.castRemoteAttack(this.id,{x:this.cursor.tx, y:this.cursor.ty},this.type)
+            this.fire({x:this.cursor.tx, y:this.cursor.ty}, this.type);
         }
     }
 
