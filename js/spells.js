@@ -17,6 +17,9 @@ Spell.prototype.onCooldown = function(character) {
 function HealingSpell() {	
     Spell.call(this);
     this.cooldown = 100;
+    this.visualEffectSprite = game.add.sprite(0, 0, 'yellow-jolt')
+    this.visualEffectSprite.animations.add('cast');
+    // this.visualEffectSprite.kill()
 }
 
 HealingSpell.prototype = Object.create(Spell.prototype);
@@ -25,6 +28,12 @@ HealingSpell.prototype.constructor = HealingSpell
 
 HealingSpell.prototype.cast = function(character){
     this.currentCooldown = this.cooldown
+ 
+    this.visualEffectSprite.x = character.x
+    this.visualEffectSprite.y = character.y
+
+    this.visualEffectSprite.animations.play('cast', 10, true);   
+    
 
     eurecaServer.updateHP(character.id, healingSpellHealingPercentage);
 };
