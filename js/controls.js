@@ -247,15 +247,6 @@ TouchControls.prototype.processInput = function(character) {
             var y = (game.input.activePointer.clientY - this.offsetY - this.segmentSize / 2) / this.segmentSize
             this.touchInput.joystickX = x
             this.touchInput.joystickY = y
-            debugMessage(x, " ::: ", y)
         }
     }
-    // if (this.movementDirectionVectorX == 1)
-    //     character.shouldMoveRight = true
-    // if (this.movementDirectionVectorX == -1)
-    //     character.shouldMoveLeft = true
-    // if (this.movementDirectionVectorY == 1)
-    //     character.shouldMoveBottom = true
-    // if (this.movementDirectionVectorY == -1)
-    //     character.shouldMoveTop = true
 }
