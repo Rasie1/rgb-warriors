@@ -96,18 +96,33 @@ var EurecaClientSetup = function() {
         }
     }
 
-    eurecaClient.exports.doSpike = function(x, y, time, damage)
+    eurecaClient.exports.doSpike = function(id, x, y, time, damage)
     {
-        var v = obstacles.create(x, y, 'stone')
-        v.anchor.set(0.5, 0.5)
-        v.body.immovable = true;
-        v.scale.setTo(1, 1);
-
-        // should also damage players 
+        var stone = obstacles.create(x, y, 'stone')
+        stone.anchor.set(0.5, 0.5)
+        stone.body.immovable = true;
+        stone.scale.setTo(1, 1);
 
         game.time.events.add(Phaser.Timer.SECOND * time, 
-                             function() { obstacles.remove(v) }, 
+                             function() { obstacles.remove(stone) }, 
                              this)
+
+        if (!charactersList[id])
+            return;
+
+        if (player.id == id)
+            for (var i in charactersList)
+                if (i != id)
+            {
+                var dist = Phaser.Point.distance(new Phaser.Point(x, y), 
+                                                 new Phaser.Point(charactersList[i].baseSprite.x, 
+                                                                  charactersList[i].baseSprite.y))
+                debugMessage(dist)
+                if (dist < 64)
+                {
+                    eurecaServer.updateHP(charactersList[i].baseSprite.id, damage);
+                }
+            }
     }
 	
 	eurecaClient.exports.spawnEnemy = function(i, x, y, r, g, b)

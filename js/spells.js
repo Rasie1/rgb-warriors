@@ -118,7 +118,7 @@ Leap.prototype.cast = function(character){
     	}
     }
     if (!isCollision)*/
-    	eurecaServer.doLeap(character.id, target.x, target.y);
+	eurecaServer.doLeap(character.id, target.x, target.y);
 };
 
 // Spike
@@ -126,9 +126,9 @@ Leap.prototype.cast = function(character){
 function Spike() {
     Spell.call(this);
     this.cooldown = 50
-    this.distance = 100
+    this.distance = 128
     this.stayTime = 5
-    this.damage = 15
+    this.damage = -15
 }
 
 Spike.prototype = Object.create(Spell.prototype);
@@ -151,7 +151,12 @@ Spike.prototype.cast = function(character){
     target.x = offset.x * this.distance + curPos.x
     target.y = offset.y * this.distance + curPos.y
 
-    eurecaServer.doSpike(target.x, target.y, this.stayTime, this.damage);
+    eurecaServer.doSpike(character.id, 
+                         target.x, 
+                         target.y, 
+                         this.stayTime, 
+                         this.damage);
+
 };
 
 // Cold Sphere
@@ -211,6 +216,6 @@ CloseFighting.prototype.cast = function(character)
 	this.currentCooldown = this.cooldown
 
 	eurecaServer.castCloseAttack(character.id, {x: character.cursor.tx,
-    											 y: character.cursor.ty});
+    											y: character.cursor.ty});
 }
 

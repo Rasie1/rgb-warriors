@@ -268,10 +268,10 @@ eurecaServer.exports.doLeap = function(id, new_x, new_y)
         clients[c].remote.doLeap(id, new_x, new_y);
 }
 
-eurecaServer.exports.doSpike = function(x, y, time, damage)
+eurecaServer.exports.doSpike = function(id, x, y, time, damage)
 {
     for (var c in clients)
-        clients[c].remote.doSpike(x, y, time, damage);
+        clients[c].remote.doSpike(id, x, y, time, damage);
 }
 
 
