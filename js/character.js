@@ -253,7 +253,7 @@ Character.prototype.update = function() {
     if (this.cursor.fire)
     {
         if (this.alive) {
-            this.fire({x:this.cursor.tx, y:this.cursor.ty}, this.type);     
+            this.fire({x:this.cursor.tx, y:this.cursor.ty}, this.type);
         }
     }
 
@@ -358,6 +358,7 @@ Character.prototype.update = function() {
 
 Character.prototype.fire = function(target,type) {
         if (!this.alive) return
+        debugMessage(type)
         //console.log(this.bullets.countDead());
         switch (type) {
             case 0:
