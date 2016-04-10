@@ -25,4 +25,4 @@ var maxSpellsLevel = 10
 
 
 // Spells
-var healingSpellHealingPercentage = 10
+var healingSpellHealingPercentage = 40

@@ -18,7 +18,8 @@ Spell.prototype.onCooldown = function(character) {
 
 function HealingSpell() {	
     Spell.call(this);
-    this.cooldown = 100;
+    this.cooldown = 15 * 60;
+    this.healingSpellHealing = 40;
     this.visualEffectSprite = game.add.sprite(0, 0, 'yellow-jolt')
     this.visualEffectSprite.animations.add('cast');
     this.visualEffectSprite.anchor.set(0.5, 0.5)
@@ -37,7 +38,7 @@ HealingSpell.prototype.cast = function(character){
                                   character.baseSprite.y)
     this.visualEffectSprite.animations.play('cast', 5, false, true);   
 
-    eurecaServer.updateHP(character.id, healingSpellHealingPercentage);
+    eurecaServer.updateHP(character.id, this.healingSpellHealing + 20 * this.spellPower);
 };
 
 // Fireball
