@@ -378,8 +378,6 @@ Character.prototype.update = function() {
 
 Character.prototype.fire = function(target,type) {
         if (!this.alive) return
-        console.log(type);
-        //console.log(this.bullets.countDead());
         switch (type) {
             case 0:
                 this.spells.Fireball.cast(this)

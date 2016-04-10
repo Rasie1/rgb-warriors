@@ -146,17 +146,10 @@ Spike.prototype.cast = function(character){
     var curPos = new Phaser.Point(character.baseSprite.x, character.baseSprite.y);
     var target = new Phaser.Point(character.cursor.tx, character.cursor.ty);
 
+    var offset = Phaser.Point.subtract(target, curPos).normalize()
 
-    var dist = Phaser.Math.min(this.distance, 
-                               Phaser.Math.distance(curPos.x, 
-                                                    curPos.y, 
-                                                    target.x, 
-                                                    target.y));
-
-    var offset_x = dist * Math.cos(Phaser.Math.angleBetweenPoints(curPos, target));
-    var offset_y = dist * Math.sin(Phaser.Math.angleBetweenPoints(curPos, target));
-    target.x = curPos.x + offset_x;
-    target.y = curPos.y + offset_y;
+    target.x = offset.x * this.distance + curPos.x
+    target.y = offset.y * this.distance + curPos.y
 
     eurecaServer.doSpike(target.x, target.y, this.stayTime, this.damage);
 };

@@ -49,13 +49,9 @@ var eurecaServer = new Eureca.Server({allow:[
 	'pickUpItem',
 	'createObstacles',
 	'castRemoteAttack',
-<<<<<<< HEAD
 	'castCloseAttack',
-	'doLeap'
-=======
 	'doLeap',
     'doSpike'
->>>>>>> 454a8d9e470ae73e8d135fe48d1cde1ed8c8dbff
 ]
 });
 
