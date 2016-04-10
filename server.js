@@ -12,8 +12,6 @@ var playerSpeedY = 300;
 var maxGameWidth = 3000; 
 var maxGameHeight = 3000;
 
-var itemX;
-var itemY;
 var elementForDrop;
 
 var itemsList = [];
@@ -77,16 +75,26 @@ eurecaServer.onConnect(function (conn) {
 	var isOccupied = true;
 	var i = 0;
 	var x,y;
-	while(isOccupied==true){
-		//console.log(obstaclesPositions,i)
-		if(!obstaclesPositions[i].occupied){
-			isOccupied=false;
-			x = obstaclesPositions[i].x;
-			y = obstaclesPositions[i].y;
+	var outOfPlaces=false;
+	while(isOccupied==true && !outOfPlaces){
+		if(typeof obstaclesPositions[i] != 'undefined'){
+			if(!obstaclesPositions[i].occupied){
+				isOccupied=false;
+				x = obstaclesPositions[i].x;
+				y = obstaclesPositions[i].y;
+			}
+			i++
 		}
-		i++
+		else{
+			outOfPlaces = true;
+		};
 	}
-	remote.setId(conn.id,x,y);	
+
+	if(!outOfPlaces){
+		remote.setId(conn.id,x,y)
+	else{
+		remote.setId(conn.id,0,0)
+	}	
 
 	if(itemsList.length){
 		for(i=0;i<itemsList.length;i++){	
@@ -171,16 +179,30 @@ eurecaServer.exports.killPlayer = function(id)
 		var isOccupied = true;
 		var i = 0;
 		var x,y;
-		while(isOccupied==true){
-			if(!obstaclesPositions[i].occupied){
-				isOccupied=false;
-				x = obstaclesPositions[i].x;
-				y = obstaclesPositions[i].y;
+		var outOfPlaces=false;
+		while(isOccupied==true && !outOfPlaces){
+			if(typeof obstaclesPositions[i] != 'undefined'){
+				if(!obstaclesPositions[i].occupied){
+					isOccupied=false;
+					x = obstaclesPositions[i].x;
+					y = obstaclesPositions[i].y;
+				}
+				i++
 			}
-			i++
+			else{
+				outOfPlaces = true;
+			};
 		}
-		for (var c in clients){
-			clients[c].remote.respawnPlayer(id,x,y)
+
+		if(!outOfPlaces){
+			for (var c in clients){
+				clients[c].remote.respawnPlayer(id,x,y)
+			}
+		}
+		else{
+			for (var c in clients){
+				clients[c].remote.respawnPlayer(id,0,0)
+			}
 		}
 	},3000)
 }
@@ -293,30 +315,41 @@ setInterval(function(){
 		var isOccupied = true;
 		var i = 0;
 		var gridPosition;
-		while(isOccupied==true){
+		var outOfPlaces=false;
+
+		var itemX,itemY;
+
+		while(isOccupied==true && !outOfPlaces){
 			//console.log(obstaclesPositions,i)
-			if(!obstaclesPositions[i].occupied){
-				isOccupied=false;
-				itemX = obstaclesPositions[i].x;
-				itemY = obstaclesPositions[i].y;
-				obstaclesPositions[i].occupied = true;
-				gridPosition = obstaclesPositions[i];
+			if(typeof obstaclesPositions[i] != 'undefined'){
+				if(!obstaclesPositions[i].occupied){
+					isOccupied=false;
+					itemX = obstaclesPositions[i].x;
+					itemY = obstaclesPositions[i].y;
+					obstaclesPositions[i].occupied = true;
+					gridPosition = obstaclesPositions[i];
+				}
+				i++
 			}
-			i++
+			else{
+				outOfPlaces=true;
+			}
 		}
-		elementForDrop = Math.round(Math.random()*2)+1;
-		for (var c in clients){		
-			clients[c].remote.makeItem(itemX, itemY, elementForDrop,itemIdCounter);
-		};
-		itemsList.push({
-			x:itemX,
-			y:itemY,
-			element:elementForDrop,
-			id:itemIdCounter,
-			gridPosition:gridPosition
-		})
-		itemIdCounter++;
-		//console.log(itemsList,itemIdCounter);
+		if(!outOfPlaces){
+			elementForDrop = Math.round(Math.random()*2)+1;
+			for (var c in clients){		
+				clients[c].remote.makeItem(itemX, itemY, elementForDrop,itemIdCounter);
+			};
+			itemsList.push({
+				x:itemX,
+				y:itemY,
+				element:elementForDrop,
+				id:itemIdCounter,
+				gridPosition:gridPosition
+			})
+			itemIdCounter++;
+			//console.log(itemsList,itemIdCounter);
+		}
 	}
 },5000)
 server.listen(8000);

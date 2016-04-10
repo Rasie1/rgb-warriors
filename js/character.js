@@ -119,7 +119,7 @@ Character = function (index, game, x, y, r, g, b) {
     this.spell2Slot = new Leap()
     this.spell3Slot = new Spike()
     this.spell4Slot = new ColdSphere()
-    this.spell5Slot = new Poison()
+    this.spell5Slot = new Vape()
 
     this.recolorAura()
 
@@ -132,6 +132,17 @@ Character = function (index, game, x, y, r, g, b) {
 
     //continious firing
     this.mouseAlreadyUpdated = false;
+
+    //inventory
+    this.inventory = [];
+    this.spellPowers = {
+        HealingSpell:0,
+        Fireball:0,
+        Leap:0,
+        Spike:0,
+        ColdSphere:0,
+        Vape:0
+    }
 };
 
 Character.prototype.recreate = function (x,y) {
@@ -164,7 +175,7 @@ Character.prototype.recreate = function (x,y) {
 }
 
 Character.prototype.update = function() {
-    
+ 
     var inputChanged = (
         this.cursor.left   != this.input.left ||
         this.cursor.right  != this.input.right ||
@@ -324,7 +335,7 @@ Character.prototype.update = function() {
         if (this.spell4Slot.onCooldown())
             this.spell4Slot.cast(this);
     }
-    if (this.shouldCastSpell5) //poison
+    if (this.shouldCastSpell5) //vape
     {
         this.shouldCastSpell5 = false
         console.log(this.spell5Slot.currentCooldown);
@@ -412,6 +423,53 @@ Character.prototype.pickUpItem = function(itemSprite) {
         case 3:
             this.BCounter++
             break 
+    }
+    this.inventory.push(itemSprite.element);
+    if(this.inventory.length>=2){
+        switch(this.inventory[0]){
+            case 1:
+                switch(this.inventory[1]){
+                    case 1:
+                        this.spellPowers.Fireball++;
+                        break;
+                    case 2:
+                        this.spellPowers.Leap++;
+                        break;
+                    case 3:
+                        this.spellPowers.Vape++;
+                        break;
+                };
+                break;
+            case 2:
+                switch(this.inventory[1]){
+                    case 1:
+                        this.spellPowers.Leap++;
+                        break;
+                    case 2:
+                        this.spellPowers.Spike++;
+                        break;
+                    case 3:
+                        this.spellPowers.HealingSpell++;
+                        break;
+                };
+                break;
+            case 3:
+                switch(this.inventory[1]){
+                    case 1:
+                        this.spellPowers.Vape++;
+                        break;
+                    case 2:
+                        this.spellPowers.HealingSpell++;
+                        break;
+                    case 3:
+                        this.spellPowers.ColdSphere++;
+                        break;
+                };
+                break;
+        }
+        this.inventory=[];
+        console.log(this.spellPowers);
+
     }
     var counter = this.RCounter+this.GCounter+this.BCounter
     if (counter <= 20) {
