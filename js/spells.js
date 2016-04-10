@@ -18,7 +18,8 @@ Spell.prototype.onCooldown = function(character) {
 
 function HealingSpell() {	
     Spell.call(this);
-    this.cooldown = 100;
+    this.cooldown = 15 * 60;
+    this.healingSpellHealing = 40;
     this.visualEffectSprite = game.add.sprite(0, 0, 'yellow-jolt')
     this.visualEffectSprite.animations.add('cast');
     this.visualEffectSprite.anchor.set(0.5, 0.5)
@@ -37,14 +38,14 @@ HealingSpell.prototype.cast = function(character){
                                   character.baseSprite.y)
     this.visualEffectSprite.animations.play('cast', 5, false, true);   
 
-    eurecaServer.updateHP(character.id, healingSpellHealingPercentage);
+    eurecaServer.updateHP(character.id, this.healingSpellHealing + 20 * this.spellPower);
 };
 
 // Fireball
 
 function Fireball() {
     Spell.call(this);
-    this.cooldown = 500;
+    this.cooldown = 45;
 }
 
 Fireball.prototype = Object.create(Spell.prototype);
@@ -60,6 +61,7 @@ Fireball.prototype.cast = function(character){
         bullet.lifespan = 5000;
         bullet.type = 0;
         bullet.frame = 0;
+        //bullet.damagePower = this.spellPower;
         bullet.reset(character.headSprite.x, character.headSprite.y);
         bullet.rotation = game.physics.arcade.moveToObject(bullet, {x:character.cursor.tx,y:character.cursor.ty}, 500);
     }
@@ -71,9 +73,9 @@ Fireball.prototype.cast = function(character){
 function Leap() {
     Spell.call(this);
 
-    this.cooldown = 1000;
+    this.cooldown = 60 * 5;
 
-    this.jumpDist = 512;
+    this.jumpDist = 300;
 
     this.visualEffectSpriteBegin = game.add.sprite(0, 0, 'yellow-fireball')
     this.visualEffectSpriteBegin.animations.add('cast');

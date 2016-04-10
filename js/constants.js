@@ -16,7 +16,7 @@ var playerSpeedY = 300;
 var maxGameWidth = 3000; 
 var maxGameHeight = 3000;
 
-var maxHealth = 30
+var maxHealth = 100
 var basicDamage = 10
 
 var closeFightWeaponDamage = -10
@@ -25,4 +25,4 @@ var maxSpellsLevel = 10
 
 
 // Spells
-var healingSpellHealingPercentage = 10
+var healingSpellHealingPercentage = 40

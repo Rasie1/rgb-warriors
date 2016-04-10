@@ -43,7 +43,8 @@ Character = function (index, game, x, y, r, g, b) {
 
 
     this.game = game;
-    this.health = 30;
+    this.privateHealth = maxHealth;
+    this.health = this.privateHealth;
     this.SpeedX = playerSpeedX
     this.SpeedY = playerSpeedY
 
@@ -145,7 +146,7 @@ Character = function (index, game, x, y, r, g, b) {
 
     this.spellsAvailable = [];
     for (i = 0; i < 6; ++i)
-        this.spellsAvailable[i] = false;
+        this.spellsAvailable[i] = true;//false;
     this.type = 6;
 
     this.recolorAura()
@@ -401,17 +402,21 @@ Character.prototype.pickUpItem = function(itemSprite) {
             break 
     }
     this.inventory.push(itemSprite.element);
+    this.privateHealth += 3
     if(this.inventory.length>=2){
         switch(this.inventory[0]){
             case 1:
                 switch(this.inventory[1]){
                     case 1:
                         this.spells.Fireball.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Fireball.spellPower + 1);
+                        this.spells.Fireball.cooldown -= 3
                         this.spellsAvailable[0] = true;
                         break;
                     case 2:
                         this.spells.Leap.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Leap.spellPower + 1);
                         this.spellsAvailable[2] = true;
+                        this.spells.Leap.jumpDist += 50;
+                        this.spells.Leap.cooldown -= 30;
                         break;
                     case 3:
                         this.spells.Vape.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Vape.spellPower + 1);
@@ -423,6 +428,8 @@ Character.prototype.pickUpItem = function(itemSprite) {
                 switch(this.inventory[1]){
                     case 1:
                         this.spells.Leap.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Leap.spellPower + 1);
+                        this.spells.Leap.jumpDist += 50;
+                        this.spells.Leap.cooldown -= 30;
                         this.spellsAvailable[2] = true;
                         break;
                     case 2:
