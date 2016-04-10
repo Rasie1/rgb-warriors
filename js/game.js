@@ -124,6 +124,12 @@ function preload () {
     game.load.image('dead', 'assets/dead.png')
     game.load.image('wall', 'assets/wall.png')
     game.load.image('weapon', 'assets/sword.png')
+    game.load.image('window_health_0', 'assets/window_health_0.png')
+    game.load.image('window_health_1', 'assets/window_health_1.png')
+    game.load.image('window_health_2', 'assets/window_health_2.png')
+    game.load.image('window_item0', 'assets/window_item1.png')
+    game.load.image('window_item1', 'assets/window_item2.png')
+    game.load.image('window_item2', 'assets/window_item3.png')
 }
 
 function initializeInput ()
@@ -202,6 +208,49 @@ function create ()
     player.healthBar.fixedToCamera = true
     player.healthBar.cameraOffset.setTo(10, 10);
     player.HUD.add(player.healthBar);
+
+    player.healthBar.setText(" ")
+    player.hpline_red = game.add.sprite(10, 10, 'window_health_2')
+    player.hpline_red.fixedToCamera = true
+    player.HUD.add(player.hpline_red)
+    player.hpline_red.kill()
+    player.hpline_green = game.add.sprite(10, 10, 'window_health_2')
+    player.hpline_green.fixedToCamera = true
+    player.HUD.add(player.hpline_green)
+    player.hpline = game.add.sprite(25, 10, 'window_health_1')
+    player.hpline.fixedToCamera = true
+    player.HUD.add(player.hpline)
+    player.hpline_glass = game.add.sprite(10, 10, 'window_health_0')
+    player.hpline_glass.fixedToCamera = true
+    player.HUD.add(player.hpline_glass)
+    var wiScale = 0.7
+    var window_item0 = game.add.sprite(window.innerWidth-150, 10, 'window_item0')
+    window_item0.scale.setTo(wiScale,wiScale)
+    window_item0.fixedToCamera = true
+    player.HUD.add(window_item0)
+    var window_item1 = game.add.sprite(window.innerWidth-100, 10, 'window_item1')
+    window_item1.scale.setTo(wiScale,wiScale)
+    window_item1.fixedToCamera = true
+    player.HUD.add(window_item1)
+    var window_item2 = game.add.sprite(window.innerWidth-50, 10, 'window_item2')
+    window_item2.scale.setTo(wiScale,wiScale)
+    window_item2.fixedToCamera = true
+    player.HUD.add(window_item2)
+    player.rItems = game.add.text(window.innerWidth-130, 18, player.RCounter+"",
+        { font: "24px Arial", fill: "#0000", align: "center" })
+    player.rItems.fixedToCamera = true
+    player.rItems.anchor.setTo(0.5,0)
+    player.HUD.add(player.rItems)
+    player.gItems = game.add.text(window.innerWidth-80, 18, player.GCounter+"",
+        { font: "24px Arial", fill: "#0000", align: "center" })
+    player.gItems.fixedToCamera = true
+    player.gItems.anchor.setTo(0.5,0)
+    player.HUD.add(player.gItems)
+    player.bItems = game.add.text(window.innerWidth-30, 18, player.BCounter+"",
+        { font: "24px Arial", fill: "#0000", align: "center" })
+    player.bItems.fixedToCamera = true
+    player.bItems.anchor.setTo(0.5,0)
+    player.HUD.add(player.bItems)
 
     charactersList[myId] = player;
     baseSprite = player.baseSprite;
@@ -315,7 +364,8 @@ function update () {
     player.input.spell6 = cursors.spell6.isDown;
     
 
-    player.healthBar.setText("HP: " + player.health);
+    //player.healthBar.setText("HP: " + player.health);
+    player.hpline.scale.setTo(player.health / maxHealth, 1);
     
     headSprite.rotation = game.physics.arcade.angleToPointer(headSprite);   
     //baseSprite.rotation = game.physics.arcade.angleToPointer(baseSprite); 
