@@ -17,7 +17,8 @@ Character = function (index, game, x, y, r, g, b) {
         spell2:false,
         spell3:false,
         spell4:false,
-        spell5:false
+        spell5:false,
+        spell6:false
     }
 
     this.input = {
@@ -35,7 +36,8 @@ Character = function (index, game, x, y, r, g, b) {
         spell2:false,
         spell3:false,
         spell4:false,
-        spell5:false
+        spell5:false,
+        spell6:false
     }
 
     /*var x = def(x,0)
@@ -128,6 +130,7 @@ Character = function (index, game, x, y, r, g, b) {
     this.spells.Spike = new Spike()
     this.spells.ColdSphere = new ColdSphere()
     this.spells.Vape = new Vape()
+    this.spells.CloseFighting = new CloseFighting()
 
     this.recolorAura()
 
@@ -199,7 +202,8 @@ Character.prototype.update = function() {
         this.cursor.spell2 != this.input.spell2 ||
         this.cursor.spell3 != this.input.spell3 ||
         this.cursor.spell4 != this.input.spell4 ||
-        this.cursor.spell5 != this.input.spell5
+        this.cursor.spell5 != this.input.spell5 ||
+        this.cursor.spell6 != this.input.spell6
 
     );
     
@@ -281,6 +285,10 @@ Character.prototype.update = function() {
     {
         this.shouldCastSpell5 = true
     }
+    if (this.cursor.spell6)
+    {
+        this.shouldCastSpell6 = true;
+    }
 
     // commit movement
     if (this.shouldMoveLeft) {
@@ -338,7 +346,19 @@ Character.prototype.update = function() {
     {
         this.type=5
     }
+    if (this.shouldCastSpell6) //close-in fighting
+    {
+        this.type=6
+    }
 
+    this.shouldCastSpell0 = false;
+    this.shouldCastSpell1 = false;
+    this.shouldCastSpell2 = false;
+    this.shouldCastSpell3 = false;
+    this.shouldCastSpell4 = false;
+    this.shouldCastSpell5 = false;
+    this.shouldCastSpell6 = false;
+    
     this.headSprite.x = this.baseSprite.x;
     this.headSprite.y = this.baseSprite.y;
     this.auraSprite.x = this.baseSprite.x;
@@ -358,7 +378,6 @@ Character.prototype.update = function() {
 
 Character.prototype.fire = function(target,type) {
         if (!this.alive) return
-        //console.log(this.bullets.countDead());
         switch (type) {
             case 0:
                 this.spells.Fireball.cast(this)
@@ -377,6 +396,9 @@ Character.prototype.fire = function(target,type) {
             break
             case 5:
                 this.spells.Vape.cast(this)
+            break
+            case 6:
+                this.spells.CloseFighting.cast(this)
             break
         }
 }

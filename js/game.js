@@ -21,7 +21,8 @@ var cursors = {
     spell2:false,
     spell3:false,
     spell4:false,
-    spell5:false
+    spell5:false,
+    spell6:false
 };
 
 var touchControls;
@@ -118,6 +119,7 @@ function preload () {
     game.load.image('stone', 'assets/stone.png')
     game.load.image('dead', 'assets/dead.png')
     game.load.image('wall', 'assets/wall.png')
+    game.load.image('weapon', 'assets/tank1.png')
 }
 
 function initializeInput ()
@@ -148,6 +150,7 @@ function handleInput(player)
     cursors.spell3 = game.input.keyboard.addKey(Phaser.Keyboard.FOUR)
     cursors.spell4 = game.input.keyboard.addKey(Phaser.Keyboard.FIVE)
     cursors.spell5 = game.input.keyboard.addKey(Phaser.Keyboard.SIX)
+    cursors.spell6 = game.input.keyboard.addKey(Phaser.Keyboard.SEVEN)
 
     if (!game.device.desktop)
         this.touchControls.processInput(player);
@@ -296,7 +299,7 @@ function update () {
     player.input.spell3 = cursors.spell3.isDown;
     player.input.spell4 = cursors.spell4.isDown;
     player.input.spell5 = cursors.spell5.isDown;
-
+    player.input.spell6 = cursors.spell6.isDown;
     
 
     player.healthBar.setText("HP: " + player.health);

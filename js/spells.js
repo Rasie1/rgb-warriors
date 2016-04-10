@@ -192,3 +192,25 @@ Vape.prototype.cast = function(character){
     											 y: character.cursor.ty});
 };
 
+//close-in fighting
+
+function CloseFighting()
+{
+	Spell.call(this);
+	this.cooldown = 25;
+}
+
+CloseFighting.prototype = Object.create(Spell.prototype)
+
+CloseFighting.prototype.constructor = CloseFighting
+
+CloseFighting.prototype.cast = function(character)
+{
+	if (this.onCooldown() == false)
+		return
+	this.currentCooldown = this.cooldown
+
+	eurecaServer.castCloseAttack(character.id, {x: character.cursor.tx,
+    											 y: character.cursor.ty});
+}
+
