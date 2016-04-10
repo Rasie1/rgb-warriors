@@ -84,7 +84,7 @@ TouchControls.prototype.init = function create(game) {
 
     buttonS0 = game.add.button(window.innerWidth - this.segmentSize - this.margin, 
                                this.offsetY,
-                               'button-circle', 
+                               'logoS0', 
                                this.spell0buttonAction, 
                                this, 
                                0, 0, 0);
@@ -95,7 +95,7 @@ TouchControls.prototype.init = function create(game) {
 
     buttonS1 = game.add.button(window.innerWidth - this.segmentSize - this.margin, 
                                this.offsetY + this.segmentSize,
-                              'button-circle', 
+                              'logoS1', 
                                this.spell1buttonAction, 
                                this, 
                                0, 0, 0);
@@ -106,7 +106,7 @@ TouchControls.prototype.init = function create(game) {
     
     buttonS2 = game.add.button(window.innerWidth - this.segmentSize - this.margin, 
                                this.offsetY + this.segmentSize + this.segmentSize,
-                               'button-circle', 
+                               'logoS2', 
                                this.spell2buttonAction, 
                                this, 
                                0, 0, 0);
@@ -117,7 +117,7 @@ TouchControls.prototype.init = function create(game) {
 
     buttonS3 = game.add.button(window.innerWidth - this.segmentSize - this.margin, 
                                this.offsetY + this.segmentSize + this.segmentSize + this.segmentSize,
-                               'button-circle', 
+                               'logoS3', 
                                this.spell3buttonAction, 
                                this, 
                                0, 0, 0);
@@ -130,7 +130,7 @@ TouchControls.prototype.init = function create(game) {
                                this.offsetY + this.segmentSize + 
                                this.segmentSize + this.segmentSize + 
                                this.segmentSize,
-                               'button-circle', 
+                               'logoS4', 
                                this.spell4buttonAction, 
                                this, 
                                0, 0, 0);
@@ -143,7 +143,7 @@ TouchControls.prototype.init = function create(game) {
                                this.offsetY + this.segmentSize + 
                                this.segmentSize + this.segmentSize + 
                                this.segmentSize + this.segmentSize,
-                               'button-circle', 
+                               'logoS5', 
                                this.spell5buttonAction, 
                                this, 
                                0, 0, 0);
@@ -156,7 +156,7 @@ TouchControls.prototype.init = function create(game) {
                                this.offsetY + this.segmentSize + 
                                this.segmentSize + this.segmentSize + 
                                this.segmentSize + this.segmentSize + this.segmentSize,
-                               'button-circle', 
+                               'logoS6', 
                                this.spell5buttonAction, 
                                this, 
                                0, 0, 0);
@@ -169,7 +169,7 @@ TouchControls.prototype.init = function create(game) {
     {
         joystick = game.add.button(this.margin, 
                                    this.offsetY,
-                                   'button-circle', 
+                                   'logoS0', 
                                    this.joystickButtonAction, 
                                    this, 
                                    0, 0, 0);

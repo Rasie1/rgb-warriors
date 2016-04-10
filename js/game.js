@@ -147,6 +147,13 @@ function preload () {
     game.load.image('window_item0', 'assets/window_item1.png')
     game.load.image('window_item1', 'assets/window_item2.png')
     game.load.image('window_item2', 'assets/window_item3.png')
+    game.load.image('logoS0', 'assets/logo/logo_fire.png')
+    game.load.image('logoS1', 'assets/logo/logo_health.png')
+    game.load.image('logoS2', 'assets/logo/logo_portal.png')
+    game.load.image('logoS3', 'assets/logo/logo_spike.png')
+    game.load.image('logoS4', 'assets/logo/logo_cold.png')
+    game.load.image('logoS5', 'assets/logo/logo_smoke.png')
+    game.load.image('logoS6', 'assets/logo/logo_sword.png')
 }
 
 function initializeInput ()
