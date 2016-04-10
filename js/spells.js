@@ -175,6 +175,9 @@ Spike.prototype.cast = function(character){
 function ColdSphere() {
     Spell.call(this);
     this.cooldown = 500;
+    this.visualEffectSpriteEnd = game.add.sprite(0, 0, 'ice')
+    this.visualEffectSpriteEnd.anchor.set(0.5, 0.5)
+    this.visualEffectSpriteEnd.kill()
 }
 
 ColdSphere.prototype = Object.create(Spell.prototype);

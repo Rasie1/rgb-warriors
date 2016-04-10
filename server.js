@@ -52,8 +52,9 @@ var eurecaServer = new Eureca.Server({allow:[
 	'castCloseAttack',
 	'castFreeze',
 	'doLeap',
-    'doSpike'
-]
+    'doSpike',
+    'scaleSpeed'
+] 
 });
 
 //attach eureca.io to our http server
@@ -263,22 +264,17 @@ eurecaServer.exports.castCloseAttack = function(id, target)
 		clients[c].remote.castCloseAttack(id, target);
 }
 
-eurecaServer.exports.castFreeze = function(id)
+eurecaServer.exports.castFreeze = function(id, time)
 {
-	var savedSpeeds = {};
-	for (var c in clients){
-		savedSpeeds[c] = {};
-		savedSpeeds[c].x = clients[c].laststate.speedX;
-		savedSpeeds[c].y = clients[c].laststate.speedY;
-		clients[c].remote.castFreeze(id,0,0);
-	}
-	console.log(savedSpeeds[c].x,savedSpeeds[c].y,clients[c].laststate.speedX,clients[c].laststate.speedY)
-	setTimeout(function(){
-	for (var c in clients){
-		console.log(savedSpeeds[c].x,savedSpeeds[c].y,clients[c].laststate.speedX,clients[c].laststate.speedY)
-		clients[c].remote.castFreeze(id,savedSpeeds[c].x,savedSpeeds[c].y);
-	}
-	},2000)
+    for (var c in clients) {
+        clients[c].remote.scaleSpeed(id, 0.01)
+    }
+    setTimeout(function() {
+            for (var c in clients) {
+                 clients[c].remote.scaleSpeed(id, 100.0)
+            }
+        },
+        time * 1000)
 }
 
 eurecaServer.exports.doLeap = function(id, new_x, new_y)

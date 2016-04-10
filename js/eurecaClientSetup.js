@@ -85,12 +85,22 @@ var EurecaClientSetup = function() {
 			}
 	}
 
-	eurecaClient.exports.castFreeze = function(id,speedX,speedY){
-		if (!charactersList[id])
-			return;
-		charactersList[id].SpeedX = speedX;
-		charactersList[id].SpeedY = speedY;
-	}
+    eurecaClient.exports.castFreeze = function(id, speedX, speedY){
+        if (!charactersList[id])
+            return;
+        
+        charactersList[id].SpeedX = speedX;
+        charactersList[id].SpeedY = speedY;
+    }
+
+    eurecaClient.exports.scaleSpeed = function(id, k){
+        if (!charactersList[id])
+            return;
+        
+        charactersList[id].SpeedX *= k;
+        charactersList[id].SpeedY *= k;
+        // console.log(charactersList[id].SpeedX)
+    }
 
     eurecaClient.exports.doLeap = function(id, new_x, new_y)
     {
