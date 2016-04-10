@@ -71,6 +71,8 @@ Character = function (index, game, x, y, r, g, b) {
     this.deadSprite.kill()
 
     this.wall = game.add.sprite(0, 0, 'wall');
+    this.wall.anchor.set(-0.2,0.5);
+    this.wall.enableBody = true;
     game.physics.enable(this.wall, Phaser.Physics.ARCADE);
     this.wall.kill()
 
@@ -124,7 +126,7 @@ Character = function (index, game, x, y, r, g, b) {
     this.spell2Slot = new Leap()
     this.spell3Slot = new Spike()
     this.spell4Slot = new ColdSphere()
-    this.spell5Slot = new Poison()
+    this.spell5Slot = new Vape()
 
     this.recolorAura()
 
@@ -137,6 +139,17 @@ Character = function (index, game, x, y, r, g, b) {
 
     //continious firing
     this.mouseAlreadyUpdated = false;
+
+    //inventory
+    this.inventory = [];
+    this.spellPowers = {
+        HealingSpell:0,
+        Fireball:0,
+        Leap:0,
+        Spike:0,
+        ColdSphere:0,
+        Vape:0
+    }
 };
 
 Character.prototype.recreate = function (x,y) {
@@ -169,7 +182,7 @@ Character.prototype.recreate = function (x,y) {
 }
 
 Character.prototype.update = function() {
-    
+ 
     var inputChanged = (
         this.cursor.left   != this.input.left ||
         this.cursor.right  != this.input.right ||
@@ -237,10 +250,8 @@ Character.prototype.update = function() {
     }
 
     if (this.cursor.fire)
-    {   
-        console.log("this.cursor.fire");
+    {
         if (this.alive) {
-            console.log("this.alive");
             //this.fire({x:this.cursor.tx, y:this.cursor.ty});
             eurecaServer.castRemoteAttack(this.id,{x:this.cursor.tx, y:this.cursor.ty},this.type)
         }
@@ -312,6 +323,9 @@ Character.prototype.update = function() {
     }
     if (this.shouldCastSpell1) //healing
     {
+        this.shouldCastSpell1 = false
+        if (this.spell1Slot.onCooldown())
+            this.spell1Slot.cast(this);
         this.type=1
     }
     if (this.shouldCastSpell2) //leap
@@ -326,8 +340,11 @@ Character.prototype.update = function() {
     {
         this.type=4
     }
-    if (this.shouldCastSpell5) //poison
+    if (this.shouldCastSpell5) //vape
     {
+        this.shouldCastSpell5 = false
+        if (this.spell5Slot.onCooldown())
+            this.spell5Slot.cast(this);
         this.type=5
     }
 
@@ -351,30 +368,24 @@ Character.prototype.update = function() {
 Character.prototype.fire = function(target,type) {
         if (!this.alive) return
         //console.log(this.bullets.countDead());
-        console.log("Character.prototype.fire("+type+")");
         switch (type) {
             case 0:
-            case 4:
-            case 5:
-                if (this.game.time.now > this.nextFire && this.bullets.countDead() > 0) {
-                    this.mouseAlreadyUpdated = false;
-                    this.nextFire = this.game.time.now + this.fireRate;
-                    var bullet = this.bullets.getFirstDead();
-                    bullet.lifespan = 5000;
-                    bullet.reset(this.headSprite.x, this.headSprite.y);
-
-                    bullet.rotation = this.game.physics.arcade.moveToObject(bullet, target, 500);
-                }
+                this.spell0Slot.cast()
             break
-            case 1: // healing
+            case 1:
+                this.spell1Slot.cast()
             break
-            case 2: // jump
+            case 2:
+                this.spell2Slot.cast()
             break
             case 3:
-                console.log("case 3");
-                this.wall.reset(this.headSprite.x, this.headSprite.y-56)
-                this.wall.lifespan = 5000;
-                this.wall.rotation = this.game.physics.arcade.moveToObject(this.wall, target, 0)
+                this.spell3Slot.cast()
+            break
+            case 4:
+                this.spell4Slot.cast()
+            break
+            case 5:
+                this.spell5Slot.cast()
             break
 
         }
@@ -427,6 +438,53 @@ Character.prototype.pickUpItem = function(itemSprite) {
         case 3:
             this.BCounter++
             break 
+    }
+    this.inventory.push(itemSprite.element);
+    if(this.inventory.length>=2){
+        switch(this.inventory[0]){
+            case 1:
+                switch(this.inventory[1]){
+                    case 1:
+                        this.spellPowers.Fireball++;
+                        break;
+                    case 2:
+                        this.spellPowers.Leap++;
+                        break;
+                    case 3:
+                        this.spellPowers.Vape++;
+                        break;
+                };
+                break;
+            case 2:
+                switch(this.inventory[1]){
+                    case 1:
+                        this.spellPowers.Leap++;
+                        break;
+                    case 2:
+                        this.spellPowers.Spike++;
+                        break;
+                    case 3:
+                        this.spellPowers.HealingSpell++;
+                        break;
+                };
+                break;
+            case 3:
+                switch(this.inventory[1]){
+                    case 1:
+                        this.spellPowers.Vape++;
+                        break;
+                    case 2:
+                        this.spellPowers.HealingSpell++;
+                        break;
+                    case 3:
+                        this.spellPowers.ColdSphere++;
+                        break;
+                };
+                break;
+        }
+        this.inventory=[];
+        console.log(this.spellPowers);
+
     }
     var counter = this.RCounter+this.GCounter+this.BCounter
     if (counter <= 20) {
