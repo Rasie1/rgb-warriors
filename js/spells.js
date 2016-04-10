@@ -33,7 +33,6 @@ HealingSpell.prototype.cast = function(character){
  
     this.visualEffectSprite.reset(character.baseSprite.x,
                                   character.baseSprite.y)
-
     this.visualEffectSprite.animations.play('cast', 5, false, true);   
 
     eurecaServer.updateHP(character.id, healingSpellHealingPercentage);
@@ -89,13 +88,22 @@ Leap.prototype.cast = function(character){
 
 
     var dist = Phaser.Math.min(this.jumpDist, 
-    			Phaser.Math.distance(curPos.x, curPos.y, target.x, target.y));
+                               Phaser.Math.distance(curPos.x, 
+                                                    curPos.y, 
+                                                    target.x, 
+                                                    target.y));
 
     var offset_x = dist * Math.cos(Phaser.Math.angleBetweenPoints(curPos, target));
     var offset_y = dist * Math.sin(Phaser.Math.angleBetweenPoints(curPos, target));
     target.x = curPos.x + offset_x;
     target.y = curPos.y + offset_y;
 
+    this.visualEffectSpriteBegin.reset(curPos.x,
+                                       curPos.y)
+    this.visualEffectSpriteBegin.animations.play('cast', 15, false, true);   
+    this.visualEffectSpriteEnd.reset(target.x,
+                                     target.y)
+    this.visualEffectSpriteEnd.animations.play('cast', 15, false, true);   
     /*var isCollision = false;
     for (var obst in character.game.obstacles)
     {
