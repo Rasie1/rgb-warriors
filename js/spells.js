@@ -1,6 +1,7 @@
 Spell = function() {
     this.cooldown = 0
     this.currentCooldown = 0
+    this.spellPower = 0;
 };
 
 Spell.prototype.cast = function(character) {
@@ -43,8 +44,8 @@ Fireball.prototype.constructor = Fireball
 Fireball.prototype.cast = function(character){
     this.currentCooldown = this.cooldown
 
-    /*eurecaServer.castRemoteAttack(character.id, {x: character.cursor.tx,
-    											 y: character.cursor.ty});*/
+    eurecaServer.castRemoteAttack(character.id, {x: character.cursor.tx,
+    											 y: character.cursor.ty});
 };
 
 // Leap
