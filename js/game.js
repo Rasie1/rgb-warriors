@@ -480,7 +480,7 @@ function bulletHit (victim, bullet) {
     }
 }
 function vapeHit (victim, vapelosion) {
-   if(victim.health>0){
+   if(victim.health>0 && this.id == myId){
         eurecaServer.updateHP(victim.id, -15);
    }
 }
