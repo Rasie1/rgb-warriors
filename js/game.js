@@ -120,8 +120,9 @@ function preload () {
     game.load.spritesheet('bullets', 'assets/bullets.png',54,17,3);
     game.load.image('vape', 'assets/vape.png');
     game.load.image('spike', 'assets/spike.png')
+    game.load.image('sand-decor', 'assets/sand_decor.png')
     game.load.image('button-circle', 'assets/button_circle.png');
-    game.load.image('earth', 'assets/scorched_earth.png');
+    game.load.image('earth', 'assets/desert.png');
     game.load.spritesheet('kaboom', 'assets/explosion.png', 64, 64, 23);
     game.load.spritesheet('vapelosion', 'assets/vapelosion.png', 128, 128, 23);
     game.load.spritesheet('yellow-jolt', 'assets/YellowJolt.png', 64, 64, 4);
@@ -193,6 +194,18 @@ function create ()
     
     //  Our tiled scrolling background
     land = game.add.tileSprite(0, 0, gameWidth, gameHeight, 'earth');
+
+     decors = game.add.group();
+ 
+     for (var i = 0; i < 16; i++)
+     {
+         var x = decors.create(mapWidth * Math.random(), 
+                               mapHeight * Math.random(), 
+                               'sand-decor');
+         var sc = 10 * Math.random()
+         x.scale.set(sc, sc)
+     }
+
 
     land.fixedToCamera = true;
     
