@@ -133,6 +133,11 @@ function handleInput(player)
     cursors.left = game.input.keyboard.addKey(Phaser.Keyboard.LEFT)
     cursors.right = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT)
 
+    cursors.w = game.input.keyboard.addKey(Phaser.Keyboard.W)
+    cursors.s = game.input.keyboard.addKey(Phaser.Keyboard.S)
+    cursors.a = game.input.keyboard.addKey(Phaser.Keyboard.A)
+    cursors.d = game.input.keyboard.addKey(Phaser.Keyboard.D)
+
     cursors.fire = game.input.keyboard.addKey(Phaser.Mouse.LEFT_BUTTON)
     
     cursors.spell0 = game.input.keyboard.addKey(Phaser.Keyboard.ONE)
@@ -245,7 +250,11 @@ activateItem = function(index, x, y,itemID)
 
 
 function update () {
-	for (var j in charactersList)
+    //do not update if client not ready
+    if (!ready) 
+        return;
+    
+    for (var j in charactersList)
 		for (var i in items)
             game.physics.arcade.overlap(items[i], charactersList[j].baseSprite, 
                                         function(a){charactersList[j].pickUpItem(items[i])}, 
@@ -259,10 +268,10 @@ function update () {
 	}
 	itemTimer++
     
-    //do not update if client not ready
-    if (!ready) 
-        return;
+
     
+    handleInput(player)
+
     player.spell0Slot.currentCooldown--;
     player.spell1Slot.currentCooldown--;
     player.spell2Slot.currentCooldown--;
@@ -275,6 +284,11 @@ function update () {
     player.input.up = cursors.up.isDown;
     player.input.down = cursors.down.isDown;
 
+    player.input.w = cursors.w.isDown;
+    player.input.a = cursors.a.isDown;
+    player.input.s = cursors.s.isDown;
+    player.input.d = cursors.d.isDown;
+
     player.input.fire = game.input.activePointer.isDown;
     player.input.tx = game.input.x + game.camera.x;
     player.input.ty = game.input.y + game.camera.y;
@@ -286,7 +300,7 @@ function update () {
     player.input.spell4 = cursors.spell4.isDown;
     player.input.spell5 = cursors.spell5.isDown;
 
-    handleInput(player)
+    
 
     player.healthBar.setText("HP: " + player.health);
     
