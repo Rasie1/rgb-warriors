@@ -21,18 +21,25 @@ var EurecaClientSetup = function() {
 		ready = true;
 	}	
 	
-	eurecaClient.exports.kill = function(id) {
+	eurecaClient.exports.kill = function(id)
+	{	
 		if (charactersList[id]) charactersList[id].kill();
 	}	
 
-	eurecaClient.exports.updateHP = function(id, difHP)
+	eurecaClient.exports.updateHP = function(id, difHP, attackerId)
 	{
-		if (charactersList[id]) {
+		var target = charactersList[id]
+		if (target && target.health > 0) {
 			console.log(difHP);
-			charactersList[id].health = Phaser.Math.min(charactersList[id].privateHealth, charactersList[id].health + difHP);
-			if (charactersList[id].hpBar != null)
-				charactersList[id].hpBar.scale.setTo(Phaser.Math.max(charactersList[id].health/charactersList[id].privateHealth,0), 1);
-			if (charactersList[id].health <= 0 && id == player.baseSprite.id) {
+			target.health = Phaser.Math.min(target.privateHealth,target.health + difHP);
+			if (target.hpBar != null)
+				target.hpBar.scale.setTo(Phaser.Math.max(target.health/target.privateHealth,0), 1);
+			if (target.health <= 0) {
+				//console.log("id="+id+" attackerId="+attackerId+" player.id="+player.id)
+				if (id == player.id) player.deaths++
+				else player.kills++
+			}
+			if (target.health <= 0 && id == player.baseSprite.id) {
 				console.log('talk server about killing');
 				eurecaServer.killPlayer(id);
 			}

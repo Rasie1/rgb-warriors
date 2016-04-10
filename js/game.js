@@ -255,29 +255,29 @@ function create ()
     player.HUD.add(player.hpline_glass)
 
     var wiScale = 0.7
-    var window_item0 = game.add.sprite(window.innerWidth-150, 10, 'window_item0')
+    var window_item0 = game.add.sprite(10, 80, 'window_item0')
     window_item0.scale.setTo(wiScale,wiScale)
     window_item0.fixedToCamera = true
     player.HUD.add(window_item0)
-    var window_item1 = game.add.sprite(window.innerWidth-100, 10, 'window_item1')
+    var window_item1 = game.add.sprite(10, 130, 'window_item1')
     window_item1.scale.setTo(wiScale,wiScale)
     window_item1.fixedToCamera = true
     player.HUD.add(window_item1)
-    var window_item2 = game.add.sprite(window.innerWidth-50, 10, 'window_item2')
+    var window_item2 = game.add.sprite(10, 180, 'window_item2')
     window_item2.scale.setTo(wiScale,wiScale)
     window_item2.fixedToCamera = true
     player.HUD.add(window_item2)
-    player.rItems = game.add.text(window.innerWidth-130, 18, player.RCounter+"",
+    player.rItems = game.add.text(30, 88, player.RCounter+"",
         { font: "24px Arial", fill: "#000000", align: "center" })
     player.rItems.fixedToCamera = true
     player.rItems.anchor.setTo(0.5,0)
     player.HUD.add(player.rItems)
-    player.gItems = game.add.text(window.innerWidth-80, 18, player.GCounter+"",
+    player.gItems = game.add.text(30, 138, player.GCounter+"",
         { font: "24px Arial", fill: "#000000", align: "center" })
     player.gItems.fixedToCamera = true
     player.gItems.anchor.setTo(0.5,0)
     player.HUD.add(player.gItems)
-    player.bItems = game.add.text(window.innerWidth-30, 18, player.BCounter+"",
+    player.bItems = game.add.text(30, 188, player.BCounter+"",
         { font: "24px Arial", fill: "#000000", align: "center" })
     player.bItems.fixedToCamera = true
     player.bItems.anchor.setTo(0.5,0)
@@ -461,11 +461,9 @@ function bulletHit (victim, bullet) {
     bullet.kill();
     if(bullet.type==0){
         if(this.id == myId){
-            if(victim.health>0 && victim.key=='enemy')
-            {
-                eurecaServer.updateHP(victim.id, -20);
+            if(victim.health>0 && victim.key=='enemy') {
+                eurecaServer.updateHP(victim.id, -20, player.id);
             }
-
         }
     }
     if(bullet.type==5){
@@ -480,8 +478,8 @@ function bulletHit (victim, bullet) {
     }
 }
 function vapeHit (victim, vapelosion) {
-   if(victim.health>0){
-        eurecaServer.updateHP(victim.id, -15);
+   if (victim.health>0 && this.id == myId) {
+        eurecaServer.updateHP(victim.id, -15, player.id);
    }
 }
 function render () {}
