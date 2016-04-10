@@ -121,12 +121,13 @@ Character = function (index, game, x, y, r, g, b) {
     this.shouldCastSpell5 = false
     this.touchInputChanged = false
 
-    this.spell0Slot = new Fireball()
-    this.spell1Slot = new HealingSpell()
-    this.spell2Slot = new Leap()
-    this.spell3Slot = new Spike()
-    this.spell4Slot = new ColdSphere()
-    this.spell5Slot = new Vape()
+    this.spells = {};
+    this.spells.Fireball = new Fireball()
+    this.spells.HealingSpell = new HealingSpell()
+    this.spells.Leap = new Leap()
+    this.spells.Spike = new Spike()
+    this.spells.ColdSphere = new ColdSphere()
+    this.spells.Vape = new Vape()
 
     this.recolorAura()
 
@@ -316,16 +317,10 @@ Character.prototype.update = function() {
 
     if (this.shouldCastSpell0) // fireball
     {
-        /*this.shouldCastSpell0 = false
-        if (this.spell0Slot.onCooldown())
-            this.spell0Slot.cast(this);*/
         this.type=0
     }
     if (this.shouldCastSpell1) //healing
     {
-        this.shouldCastSpell1 = false
-        if (this.spell1Slot.onCooldown())
-            this.spell1Slot.cast(this);
         this.type=1
     }
     if (this.shouldCastSpell2) //leap
@@ -342,9 +337,6 @@ Character.prototype.update = function() {
     }
     if (this.shouldCastSpell5) //vape
     {
-        this.shouldCastSpell5 = false
-        if (this.spell5Slot.onCooldown())
-            this.spell5Slot.cast(this);
         this.type=5
     }
 
@@ -370,24 +362,23 @@ Character.prototype.fire = function(target,type) {
         //console.log(this.bullets.countDead());
         switch (type) {
             case 0:
-                this.spell0Slot.cast(this)
+                this.spells.Fireball.cast(this)
             break
             case 1:
-                this.spell1Slot.cast(this)
+                this.spells.HealingSpell.cast(this)
             break
             case 2:
-                this.spell2Slot.cast(this)
+                this.spells.Leap.cast(this)
             break
             case 3:
-                this.spell3Slot.cast(this)
+                this.spells.Spike.cast(this)
             break
             case 4:
-                this.spell4Slot.cast(this)
+                this.spells.ColdSphere.cast(this)
             break
             case 5:
-                this.spell5Slot.cast(this)
+                this.spells.Vape.cast(this)
             break
-
         }
 }
 
@@ -445,45 +436,45 @@ Character.prototype.pickUpItem = function(itemSprite) {
             case 1:
                 switch(this.inventory[1]){
                     case 1:
-                        this.spellPowers.Fireball++;
+                        this.spells.Fireball.spellPower++;
                         break;
                     case 2:
-                        this.spellPowers.Leap++;
+                        this.spells.Leap.spellPower++;
                         break;
                     case 3:
-                        this.spellPowers.Vape++;
+                        this.spells.Vape.spellPower++;
                         break;
                 };
                 break;
             case 2:
                 switch(this.inventory[1]){
                     case 1:
-                        this.spellPowers.Leap++;
+                        this.spells.Leap.spellPower++;
                         break;
                     case 2:
-                        this.spellPowers.Spike++;
+                        this.spells.Spike.spellPower++;
                         break;
                     case 3:
-                        this.spellPowers.HealingSpell++;
+                        this.spells.HealingSpell.spellPower++;
                         break;
                 };
                 break;
             case 3:
                 switch(this.inventory[1]){
                     case 1:
-                        this.spellPowers.Vape++;
+                        this.spells.Vape.spellPower++;
                         break;
                     case 2:
-                        this.spellPowers.HealingSpell++;
+                        this.spells.HealingSpell.spellPower++;
                         break;
                     case 3:
-                        this.spellPowers.ColdSphere++;
+                        this.spells.ColdSphere.spellPower++;
                         break;
                 };
                 break;
         }
         this.inventory=[];
-        console.log(this.spellPowers);
+        console.log(this.spells);
 
     }
     var counter = this.RCounter+this.GCounter+this.BCounter
