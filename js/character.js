@@ -62,12 +62,17 @@ Character = function (index, game, x, y, r, g, b) {
     this.fireRate = 500;
     this.nextFire = 0;
     this.alive = true;
+    this.type = 0
 
     this.baseSprite = game.add.sprite(x, y, 'enemy', 'tank1');
     this.headSprite = game.add.sprite(x, y, 'enemy', 'turret');
     this.auraSprite = game.add.sprite(x, y, 'aura');
     this.deadSprite = game.add.sprite(x, y, 'dead');
     this.deadSprite.kill()
+
+    this.wall = game.add.sprite(0, 0, 'wall');
+    game.physics.enable(this.wall, Phaser.Physics.ARCADE);
+    this.wall.kill()
 
     this.baseSprite.anchor.set(0.5);
     this.auraSprite.anchor.set(0.5);
@@ -244,7 +249,12 @@ Character.prototype.update = function() {
 
     if (this.cursor.fire)
     {   
-        this.fire({x:this.cursor.tx, y:this.cursor.ty});
+        console.log("this.cursor.fire");
+        if (this.alive) {
+            console.log("this.alive");
+            //this.fire({x:this.cursor.tx, y:this.cursor.ty});
+            eurecaServer.castRemoteAttack(this.id,{x:this.cursor.tx, y:this.cursor.ty},this.type)
+        }
     }
 
     if (this.cursor.spell0)
@@ -306,41 +316,30 @@ Character.prototype.update = function() {
 
     if (this.shouldCastSpell0) // fireball
     {
-        this.shouldCastSpell0 = false
+        /*this.shouldCastSpell0 = false
         if (this.spell0Slot.onCooldown())
-            this.spell0Slot.cast(this);
+            this.spell0Slot.cast(this);*/
+        this.type=0
     }
     if (this.shouldCastSpell1) //healing
     {
-        this.shouldCastSpell1 = false
-        console.log(this.spell1Slot.currentCooldown);
-        if (this.spell1Slot.onCooldown())
-            this.spell1Slot.cast(this);
+        this.type=1
     }
     if (this.shouldCastSpell2) //leap
     {
-        this.shouldCastSpell2 = false
-        if (this.spell2Slot.onCooldown())
-            this.spell2Slot.cast(this);
+        this.type=2
     }
     if (this.shouldCastSpell3) //spike
     {
-        this.shouldCastSpell3 = false
-        if (this.spell3Slot.onCooldown())
-            this.spell3Slot.cast(this);
+        this.type=3
     }
     if (this.shouldCastSpell4) //cold sphere
     {
-        this.shouldCastSpell4 = false
-        if (this.spell4Slot.onCooldown())
-            this.spell4Slot.cast(this);
+        this.type=4
     }
     if (this.shouldCastSpell5) //vape
     {
-        this.shouldCastSpell5 = false
-        console.log(this.spell5Slot.currentCooldown);
-        if (this.spell5Slot.onCooldown())
-            this.spell5Slot.cast(this);
+        this.type=5
     }
 
     this.headSprite.x = this.baseSprite.x;
@@ -360,19 +359,35 @@ Character.prototype.update = function() {
 };
 
 
-Character.prototype.fire = function(target) {
-        if (!this.alive) return;
+Character.prototype.fire = function(target,type) {
+        if (!this.alive) return
         //console.log(this.bullets.countDead());
-        if (this.game.time.now > this.nextFire && this.bullets.countDead() > 0)
-        {
-            this.mouseAlreadyUpdated = false;
-            this.nextFire = this.game.time.now + this.fireRate;
-            var bullet = this.bullets.getFirstDead();
-            //console.log(bullet);
-            bullet.lifespan = 5000;
-            bullet.reset(this.headSprite.x, this.headSprite.y);
+        console.log("Character.prototype.fire("+type+")");
+        switch (type) {
+            case 0:
+            case 4:
+            case 5:
+                if (this.game.time.now > this.nextFire && this.bullets.countDead() > 0) {
+                    this.mouseAlreadyUpdated = false;
+                    this.nextFire = this.game.time.now + this.fireRate;
+                    var bullet = this.bullets.getFirstDead();
+                    bullet.lifespan = 5000;
+                    bullet.reset(this.headSprite.x, this.headSprite.y);
 
-            bullet.rotation = this.game.physics.arcade.moveToObject(bullet, target, 500);
+                    bullet.rotation = this.game.physics.arcade.moveToObject(bullet, target, 500);
+                }
+            break
+            case 1: // healing
+            break
+            case 2: // jump
+            break
+            case 3:
+                console.log("case 3");
+                this.wall.reset(this.headSprite.x, this.headSprite.y-56)
+                this.wall.lifespan = 5000;
+                this.wall.rotation = this.game.physics.arcade.moveToObject(this.wall, target, 0)
+            break
+
         }
 }
 

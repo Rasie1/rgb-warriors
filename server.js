@@ -245,10 +245,11 @@ eurecaServer.exports.pickUpItem = function(itemID)
 	}
 }
 
-eurecaServer.exports.castRemoteAttack = function(id, target)
+eurecaServer.exports.castRemoteAttack = function(id, target, type)
 {
+    console.log("eurecaServer.exports.castRemoteAttack()");
 	for (var c in clients)
-		clients[c].remote.castRemoteAttack(id, target);
+		clients[c].remote.castRemoteAttack(id, target, type);
 }
 
 
