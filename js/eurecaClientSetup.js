@@ -129,7 +129,6 @@ var EurecaClientSetup = function() {
                 var dist = Phaser.Point.distance(new Phaser.Point(x, y), 
                                                  new Phaser.Point(charactersList[i].baseSprite.x, 
                                                                   charactersList[i].baseSprite.y))
-                debugMessage(dist)
                 if (dist < 64)
                 {
                     eurecaServer.updateHP(charactersList[i].baseSprite.id, damage);

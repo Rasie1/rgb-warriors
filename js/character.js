@@ -97,15 +97,19 @@ Character = function (index, game, x, y, r, g, b) {
     this.deaths = 0
     this.kills = 0
 
-    this.baseSprite = game.add.sprite(x, y, 'enemy', 'tank1');
-    this.headSprite = game.add.sprite(x, y, 'enemy', 'turret');
+    this.baseSprite = game.add.sprite(x, y, 'player-base');
+    this.baseSprite.animations.add('move');
+
+    this.headSprite = game.add.sprite(x, y, 'player-head');
+    this.headSprite.animations.add('move');
+    
     this.auraSprite = game.add.sprite(x, y, 'aura');
     this.deadSprite = game.add.sprite(x, y, 'dead');
     this.deadSprite.kill()
 
     this.baseSprite.anchor.set(0.5);
     this.auraSprite.anchor.set(0.5);
-    this.headSprite.anchor.set(0.3, 0.5);
+    this.headSprite.anchor.set(0.5, 0.5);
 
     this.auraSprite.scale.setTo(10, 10);
     this.recolorAura()
@@ -284,6 +288,8 @@ Character.prototype.update = function() {
     }
     //cursor value is now updated by eurecaClient.exports.updateState method
     
+    var shouldAnim = false
+
     // commit movement
     if (this.cursor.left || this.cursor.a  || touchControls.touchInput.joystickX < -0.5) {
         this.headSprite.body.velocity.x 
@@ -291,6 +297,7 @@ Character.prototype.update = function() {
         = this.weapon.body.velocity.x 
         = -this.SpeedX
         baseSprite.rotation = -3.14
+        shouldAnim = true
     }
     else if (this.cursor.right || this.cursor.d || touchControls.touchInput.joystickX > 0.5) {
         this.headSprite.body.velocity.x 
@@ -298,6 +305,7 @@ Character.prototype.update = function() {
         = this.weapon.body.velocity.x 
         = this.SpeedX
         baseSprite.rotation = 0
+        shouldAnim = true
     }
     else
     {
@@ -305,6 +313,9 @@ Character.prototype.update = function() {
         = this.baseSprite.body.velocity.x 
         = this.weapon.body.velocity.x 
         = 0
+
+        this.baseSprite.animations.stop();
+        this.headSprite.animations.stop();
     }
 
     if (this.cursor.up || this.cursor.w || touchControls.touchInput.joystickY < -0.5) {
@@ -313,6 +324,7 @@ Character.prototype.update = function() {
         = this.weapon.body.velocity.y 
         = -this.SpeedY
         baseSprite.rotation = baseSprite.rotation==-3.14 ? -3*3.14/4 : baseSprite.rotation==0 ? -3.14/4 : -3.14/2
+        shouldAnim = true
     }
     else if (this.cursor.down  || this.cursor.s || touchControls.touchInput.joystickY > 0.5) {
         this.headSprite.body.velocity.y 
@@ -320,6 +332,7 @@ Character.prototype.update = function() {
         = this.weapon.body.velocity.y 
         = this.SpeedY
         baseSprite.rotation = baseSprite.rotation==-3.14 ? 3*3.14/4 : baseSprite.rotation==0 ? 3.14/4 : 3.14/2
+        shouldAnim = true
     }
     else
     {
@@ -327,6 +340,17 @@ Character.prototype.update = function() {
         = this.headSprite.body.velocity.y 
         = this.weapon.body.velocity.y = 0
     }
+
+    if (shouldAnim) {
+        this.baseSprite.animations.play('move', 10, true); 
+        this.headSprite.animations.play('move', 10, true); 
+    }
+    else
+    {
+        this.baseSprite.animations.stop();
+        this.headSprite.animations.stop();
+    }
+
 
     if (this.cursor.fire)
     {

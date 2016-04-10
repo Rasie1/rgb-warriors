@@ -115,7 +115,6 @@ window.addEventListener("orientationchange",onScreenChange);
 
 function preload () {
     game.load.atlas('character', 'assets/tanks.png', 'assets/tanks.json');
-    game.load.atlas('enemy', 'assets/enemy-tanks.png', 'assets/tanks.json');
     game.load.image('bullet', 'assets/bullet.png');
     game.load.spritesheet('bullets', 'assets/bullets.png',54,17,3);
     game.load.image('vape', 'assets/vape.png');
@@ -127,6 +126,8 @@ function preload () {
     game.load.spritesheet('vapelosion', 'assets/vapelosion.png', 128, 128, 23);
     game.load.spritesheet('yellow-jolt', 'assets/YellowJolt.png', 64, 64, 4);
     game.load.spritesheet('yellow-fireball', 'assets/YellowFireBall.png', 64, 64, 4);
+    game.load.spritesheet('player-base', 'assets/player-move-base.png', 64, 64, 8);
+    game.load.spritesheet('player-head', 'assets/player-move-head.png', 64, 64, 8);
     game.load.image('item1', 'assets/item0.png')
     game.load.image('item2', 'assets/item1.png')
     game.load.image('item3', 'assets/item2.png')
@@ -429,7 +430,7 @@ function update () {
     player.deaths_counter.setText(player.deaths+"")
     player.kills_counter.setText(player.kills+"")
     
-    headSprite.rotation = game.physics.arcade.angleToPointer(headSprite); 
+    headSprite.rotation = game.physics.arcade.angleToPointer(headSprite) + 3.14/2; 
     //baseSprite.rotation = game.physics.arcade.angleToPointer(baseSprite); 
 
     land.tilePosition.x = -game.camera.x;
