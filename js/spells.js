@@ -33,7 +33,7 @@ HealingSpell.prototype.cast = function(character){
  
     this.visualEffectSprite.reset(character.baseSprite.x,
                                   character.baseSprite.y)
-    
+
     this.visualEffectSprite.animations.play('cast', 5, false, true);   
 
     eurecaServer.updateHP(character.id, healingSpellHealingPercentage);
@@ -65,6 +65,13 @@ function Leap() {
     this.cooldown = 50;
 
     this.jumpDist = 512;
+
+    this.visualEffectSpriteBegin = game.add.sprite(0, 0, 'yellow-fireball')
+    this.visualEffectSpriteBegin.animations.add('cast');
+    this.visualEffectSpriteBegin.anchor.set(0.5, 0.5)
+    this.visualEffectSpriteEnd = game.add.sprite(0, 0, 'yellow-fireball')
+    this.visualEffectSpriteEnd.animations.add('cast');
+    this.visualEffectSpriteEnd.anchor.set(0.5, 0.5)
 }
 
 Leap.prototype = Object.create(Spell.prototype);

@@ -107,6 +107,7 @@ function preload () {
     game.load.image('earth', 'assets/light_sand.png');
     game.load.spritesheet('kaboom', 'assets/explosion.png', 64, 64, 23);
     game.load.spritesheet('yellow-jolt', 'assets/YellowJolt.png', 64, 64, 4);
+    game.load.spritesheet('yellow-fireball', 'assets/YellowFireBall.png', 64, 64, 4);
     game.load.image('item1', 'assets/item0.png')
     game.load.image('item2', 'assets/item1.png')
     game.load.image('item3', 'assets/item2.png')
