@@ -41,6 +41,18 @@ Character = function (index, game, x, y, r, g, b) {
         fireType:0
     }
 
+    
+    this.touchInput = { 
+        joystickX:0.0, 
+        joystickY:0.0,
+        button0:false,
+        button1:false,
+        button2:false,
+        button3:false,
+        button4:false,
+        button5:false,
+        button6:false
+    }
 
     this.game = game;
     this.privateHealth = maxHealth;
@@ -141,8 +153,6 @@ Character = function (index, game, x, y, r, g, b) {
         }
     }
 
-    // input section
-    this.touchInputChanged = false
 
     this.spells = {};
     this.spells.Fireball = new Fireball()
@@ -223,10 +233,21 @@ Character.prototype.update = function() {
         this.cursor.spell6 != this.input.spell6 ||
         this.input.fireType != this.type
     );
+    var touchInputChanged = (
+        touchControls.touchInput.joystickX != this.touchInput.joystickX ||
+        touchControls.touchInput.joystickY != this.touchInput.joystickY ||
+        touchControls.touchInput.button0 != this.touchInput.button0 ||
+        touchControls.touchInput.button1 != this.touchInput.button1 ||
+        touchControls.touchInput.button2 != this.touchInput.button2 ||
+        touchControls.touchInput.button3 != this.touchInput.button3 ||
+        touchControls.touchInput.button4 != this.touchInput.button4 ||
+        touchControls.touchInput.button5 != this.touchInput.button5 ||
+        touchControls.touchInput.button6 != this.touchInput.button6
+    );
     var isContiniouslyFiring = (this.cursor.fire && 
                                 this.game.time.now+50 >= this.nextFire && 
                                 !this.mouseAlreadyUpdated);
-    if (inputChanged || this.touchInputChanged)
+    if (inputChanged || touchInputChanged)
     {
         //Handle input change here
         //send new values to the server     
@@ -240,9 +261,14 @@ Character.prototype.update = function() {
             this.input.speedX = this.SpeedX;
             this.input.speedY = this.SpeedY;
 
+
             eurecaServer.handleKeys(this.input,this.baseSprite.x,this.baseSprite.y,this.RCounter,this.GCounter,this.BCounter);
 
-            this.touchInputChanged = false
+            if (touchInputChanged)
+            {
+                eurecaServer.handleTouchInput(this.touchInput)
+
+            }
             
         }
     }
@@ -255,14 +281,14 @@ Character.prototype.update = function() {
     //cursor value is now updated by eurecaClient.exports.updateState method
     
     // commit movement
-    if (this.cursor.left || this.cursor.a) {
+    if (this.cursor.left || this.cursor.a  || touchControls.touchInput.joystickX < -0.5) {
         this.headSprite.body.velocity.x 
         = this.baseSprite.body.velocity.x 
         = this.weapon.body.velocity.x 
         = -this.SpeedX
         baseSprite.rotation = -3.14
     }
-    else if (this.cursor.right || this.cursor.d) {
+    else if (this.cursor.right || this.cursor.d || touchControls.touchInput.joystickX > 0.5) {
         this.headSprite.body.velocity.x 
         = this.baseSprite.body.velocity.x 
         = this.weapon.body.velocity.x 
@@ -277,14 +303,14 @@ Character.prototype.update = function() {
         = 0
     }
 
-    if (this.cursor.up || this.cursor.w) {
+    if (this.cursor.up || this.cursor.w || touchControls.touchInput.joystickY < -0.5) {
         this.headSprite.body.velocity.y 
         = this.baseSprite.body.velocity.y 
         = this.weapon.body.velocity.y 
         = -this.SpeedY
         baseSprite.rotation = baseSprite.rotation==-3.14 ? -3*3.14/4 : baseSprite.rotation==0 ? -3.14/4 : -3.14/2
     }
-    else if (this.cursor.down  || this.cursor.s) {
+    else if (this.cursor.down  || this.cursor.s || touchControls.touchInput.joystickY > 0.5) {
         this.headSprite.body.velocity.y 
         = this.baseSprite.body.velocity.y 
         = this.weapon.body.velocity.y 
@@ -306,31 +332,31 @@ Character.prototype.update = function() {
         }
     }
 
-    if (this.cursor.spell0 && this.spellsAvailable[0]) // fireball
+    if ((this.cursor.spell0 || this.touchInput.button0) && this.spellsAvailable[0]) // fireball
     {
         this.type=0
     }
-    if (this.cursor.spell1  && this.spellsAvailable[1]) //healing
+    if ((this.cursor.spell1 || this.touchInput.button1)  && this.spellsAvailable[1]) //healing
     {
         this.type=1
     }
-    if (this.cursor.spell2  && this.spellsAvailable[2]) //leap
+    if ((this.cursor.spell2 || this.touchInput.button2)  && this.spellsAvailable[2]) //leap
     {
         this.type=2
     }
-    if (this.cursor.spell3  && this.spellsAvailable[3]) //spike
+    if ((this.cursor.spell3 || this.touchInput.button3)  && this.spellsAvailable[3]) //spike
     {
         this.type=3
     }
-    if (this.cursor.spell4  && this.spellsAvailable[4]) //cold sphere
+    if ((this.cursor.spell4 || this.touchInput.button4)  && this.spellsAvailable[4]) //cold sphere
     {
         this.type=4
     }
-    if (this.cursor.spell5  && this.spellsAvailable[5]) //vape
+    if ((this.cursor.spell5 || this.touchInput.button5)  && this.spellsAvailable[5]) //vape
     {
         this.type=5
     }
-    if (this.cursor.spell6) //close-in fighting
+    if ((this.cursor.spell6 || this.touchInput.button6)) //close-in fighting
     {
         this.type=6
     }

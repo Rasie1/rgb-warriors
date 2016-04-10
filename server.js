@@ -147,22 +147,41 @@ eurecaServer.exports.handshake = function(id,x,y,r,g,b)
 
 //be exposed to client side
 eurecaServer.exports.handleKeys = function (keys,x,y,r,g,b) {
-	var conn = this.connection;
-	var updatedClient = clients[conn.id];
-	
-	for (var c in clients)
-	{
-		var remote = clients[c].remote;
-		remote.updateState(updatedClient.id, keys);
-		//keep last known state so we can send it to new connected clients
-		clients[c].laststate = keys;
-		clients[c].lastX = x;
-		clients[c].lastY = y;
-		clients[c].r = r;
-		clients[c].g = g;
-		clients[c].b = b;		
-	}
-}	
+    var conn = this.connection;
+    var updatedClient = clients[conn.id];
+    
+    for (var c in clients)
+    {
+        var remote = clients[c].remote;
+        remote.updateState(updatedClient.id, keys);
+        //keep last known state so we can send it to new connected clients
+        clients[c].laststate = keys;
+        clients[c].lastX = x;
+        clients[c].lastY = y;
+        clients[c].r = r;
+        clients[c].g = g;
+        clients[c].b = b;       
+    }
+}   
+
+eurecaServer.exports.handleTouchInput = function (input) {
+    var conn = this.connection;
+    var updatedClient = clients[conn.id];
+    
+    for (var c in clients)
+    {
+        console.log("button0: ", input.button0)
+        // var remote = clients[c].remote;
+        // remote.updateState(updatedClient.id, keys);
+        // //keep last known state so we can send it to new connected clients
+        // clients[c].laststate = keys;
+        // clients[c].lastX = x;
+        // clients[c].lastY = y;
+        // clients[c].r = r;
+        // clients[c].g = g;
+        // clients[c].b = b;       
+    }
+}   
 eurecaServer.exports.handleRotation = function (keys) {
 	var conn = this.connection;
 	var updatedClient = clients[conn.id];

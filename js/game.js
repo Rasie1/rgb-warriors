@@ -24,6 +24,18 @@ var cursors = {
     spell6:false
 };
 
+var touchCursors = { 
+    joystickX:0.0, 
+    joystickY:0.0,
+    button0:false,
+    button1:false,
+    button2:false,
+    button3:false,
+    button4:false,
+    button5:false,
+    button6:false
+}
+
 var touchControls;
 
 var bullets;
@@ -139,14 +151,13 @@ function preload () {
 
 function initializeInput ()
 {
-    if (!game.device.desktop) {
-        touchControls = new TouchControls(player)
-        touchControls.init(game)
-    }
+    touchControls = new TouchControls(player)
+    touchControls.init(game)
 }
 
 function handleInput(player)
 {
+        
     cursors.up = game.input.keyboard.addKey(Phaser.Keyboard.UP)
     cursors.down = game.input.keyboard.addKey(Phaser.Keyboard.DOWN)
     cursors.left = game.input.keyboard.addKey(Phaser.Keyboard.LEFT)
@@ -167,9 +178,9 @@ function handleInput(player)
     cursors.spell5 = game.input.keyboard.addKey(Phaser.Keyboard.SIX)
     cursors.spell6 = game.input.keyboard.addKey(Phaser.Keyboard.SEVEN)
 
-    if (!game.device.desktop)
-        this.touchControls.processInput(player);
-    
+    this.touchControls.processInput(player);
+    touchCursors = touchControls.touchInput
+
 }
 
 function create () 
@@ -365,7 +376,8 @@ function update () {
     player.input.spell4 = cursors.spell4.isDown;
     player.input.spell5 = cursors.spell5.isDown;
     player.input.spell6 = cursors.spell6.isDown;
-    
+
+    player.touchInput = touchCursors
 
     //player.healthBar.setText("HP: " + player.health);
     player.hpline.scale.setTo(Phaser.Math.min(player.health/maxHealth,1), 1);
