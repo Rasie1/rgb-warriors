@@ -33,9 +33,10 @@ var EurecaClientSetup = function() {
 	{
 		if (charactersList[id])
 		{
-			charactersList[id].health = Phaser.Math.min(maxHealth, charactersList[id].health + difHP);
+			console.log(difHP);
+			charactersList[id].health = Phaser.Math.min(charactersList[id].privateHealth, charactersList[id].health + difHP);
 			if (charactersList[id].hpBar != null)
-				charactersList[id].hpBar.scale.setTo(charactersList[id].health / maxHealth, 1);
+				charactersList[id].hpBar.scale.setTo(charactersList[id].health / charactersList[id].privateHealth, 1);
 			if (charactersList[id].health <= 0 && id == player.baseSprite.id)
 			{
 				console.log('talk server about killing');
@@ -85,12 +86,22 @@ var EurecaClientSetup = function() {
 			}
 	}
 
-	eurecaClient.exports.castFreeze = function(id,speedX,speedY){
-		if (!charactersList[id])
-			return;
-		charactersList[id].SpeedX = speedX;
-		charactersList[id].SpeedY = speedY;
-	}
+    eurecaClient.exports.castFreeze = function(id, speedX, speedY){
+        if (!charactersList[id])
+            return;
+        
+        charactersList[id].SpeedX = speedX;
+        charactersList[id].SpeedY = speedY;
+    }
+
+    eurecaClient.exports.scaleSpeed = function(id, k){
+        if (!charactersList[id])
+            return;
+        
+        charactersList[id].SpeedX *= k;
+        charactersList[id].SpeedY *= k;
+        // console.log(charactersList[id].SpeedX)
+    }
 
     eurecaClient.exports.doLeap = function(id, new_x, new_y)
     {
