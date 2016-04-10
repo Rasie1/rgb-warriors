@@ -370,22 +370,22 @@ Character.prototype.fire = function(target,type) {
         //console.log(this.bullets.countDead());
         switch (type) {
             case 0:
-                this.spell0Slot.cast()
+                this.spell0Slot.cast(this)
             break
             case 1:
-                this.spell1Slot.cast()
+                this.spell1Slot.cast(this)
             break
             case 2:
-                this.spell2Slot.cast()
+                this.spell2Slot.cast(this)
             break
             case 3:
-                this.spell3Slot.cast()
+                this.spell3Slot.cast(this)
             break
             case 4:
-                this.spell4Slot.cast()
+                this.spell4Slot.cast(this)
             break
             case 5:
-                this.spell5Slot.cast()
+                this.spell5Slot.cast(this)
             break
 
         }

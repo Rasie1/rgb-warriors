@@ -27,6 +27,8 @@ HealingSpell.prototype = Object.create(Spell.prototype);
 HealingSpell.prototype.constructor = HealingSpell
 
 HealingSpell.prototype.cast = function(character){
+    debugMessage("healing")
+
     this.currentCooldown = this.cooldown
  
     this.visualEffectSprite.x = character.x
@@ -50,6 +52,8 @@ Fireball.prototype = Object.create(Spell.prototype);
 Fireball.prototype.constructor = Fireball
 
 Fireball.prototype.cast = function(character){
+    debugMessage("fireball")
+
     this.currentCooldown = this.cooldown
 
     /*eurecaServer.castRemoteAttack(character.id, {x: character.cursor.tx,
