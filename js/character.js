@@ -430,7 +430,7 @@ Character.prototype.pickUpItem = function(itemSprite) {
                         this.spellsAvailable[3] = true;
                         break;
                     case 3:
-                        this.spells.HealingSpell.spellPower = Phaser.Math.max(maxSpellsLevel, this.HealingSpell.fireball.spellPower + 1);
+                        this.spells.HealingSpell.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.HealingSpell.spellPower + 1);
                         this.spellsAvailable[1] = true;
                         break;
                 };
