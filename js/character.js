@@ -500,7 +500,9 @@ Character.prototype.pickUpItem = function(itemSprite) {
                         this.spells.Fireball.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Fireball.spellPower + 1);
                         this.spells.Fireball.cooldown -= 3
                         this.spellsAvailable[0] = true;
+                        this.touchControls.button0.reset();
                         console.log('fireball available')
+                        touchControls.buttons[0].reset()
                         break;
                     case 2:
                         this.spells.Leap.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Leap.spellPower + 1);
@@ -508,11 +510,13 @@ Character.prototype.pickUpItem = function(itemSprite) {
                         this.spells.Leap.jumpDist += 50;
                         this.spells.Leap.cooldown -= 30;
                         console.log('leap available')
+                        touchControls.buttons[2].reset()
                         break;
                     case 3:
                         this.spells.Vape.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Vape.spellPower + 1);
                         this.spellsAvailable[5] = true;
                         console.log('vape available')
+                        touchControls.buttons[5].reset()
                         break;
                 };
                 break;
@@ -523,18 +527,21 @@ Character.prototype.pickUpItem = function(itemSprite) {
                         this.spells.Leap.jumpDist += 50;
                         this.spells.Leap.cooldown -= 30;
                         this.spellsAvailable[2] = true;
-                        console.log('leap available')
+                        console.log('leap available');
+                        touchControls.buttons[2].reset()
                         break;
                     case 2:
                         this.spells.Spike.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Spike.spellPower + 1);
                         this.spellsAvailable[3] = true;
                         this.spells.Spike.cooldown -= 9;
                         console.log('spike available')
+                        touchControls.buttons[3].reset()
                         break;
                     case 3:
                         this.spells.HealingSpell.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.HealingSpell.spellPower + 1);
                         this.spellsAvailable[1] = true;
                         console.log('healing available')
+                        touchControls.buttons[1].reset()
                         break;
                 };
                 break;
@@ -544,16 +551,19 @@ Character.prototype.pickUpItem = function(itemSprite) {
                         this.spells.Vape.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Vape.spellPower + 1);
                         this.spellsAvailable[5] = true;
                         console.log('vape available')
+                        touchControls.buttons[5].reset()
                         break;
                     case 2:
                         this.spells.HealingSpell.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.HealingSpell.spellPower + 1);
                         this.spellsAvailable[1] = true;
                         console.log('healing available')
+                        touchControls.buttons[1].reset()
                         break;
                     case 3:
                         this.spells.ColdSphere.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.ColdSphere.spellPower + 1);
                         this.spellsAvailable[4] = true;
                         console.log('coldsphere available')
+                        touchControls.buttons[4].reset()
                         break;
                 };
                 break;

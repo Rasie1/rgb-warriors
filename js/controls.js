@@ -78,7 +78,7 @@ TouchControls.prototype.init = function create(game) {
 
 
     // spell buttons
-
+    this.buttons = [];
     
     this.segmentSize = this.segmentSize / 2
 
@@ -105,6 +105,7 @@ TouchControls.prototype.init = function create(game) {
     buttonS1.onInputUp.add(function() { this.touchInput.button1 = false }, this)
     buttonS1.onInputDown.add(function() { this.touchInput.button1 = true }, this)
     buttonS1.kill();
+    this.buttons[0] = buttonS1;
 
     buttonS2 = game.add.button(window.innerWidth - this.segmentSize - this.margin, 
                                this.offsetY + this.segmentSize + this.segmentSize,
@@ -117,6 +118,7 @@ TouchControls.prototype.init = function create(game) {
     buttonS2.onInputUp.add(function() { this.touchInput.button2 = false }, this)
     buttonS2.onInputDown.add(function() { this.touchInput.button2 = true }, this)
     buttonS2.kill();
+    this.buttons[1] = buttonS2;
 
     buttonS3 = game.add.button(window.innerWidth - this.segmentSize - this.margin, 
                                this.offsetY + this.segmentSize + this.segmentSize + this.segmentSize,
@@ -129,6 +131,7 @@ TouchControls.prototype.init = function create(game) {
     buttonS3.onInputUp.add(function() { this.touchInput.button3 = false }, this)
     buttonS3.onInputDown.add(function() { this.touchInput.button3 = true }, this)
     buttonS3.kill();
+    this.buttons[2] = buttonS3;
 
     buttonS4 = game.add.button(window.innerWidth - this.segmentSize - this.margin, 
                                this.offsetY + this.segmentSize + 
@@ -143,6 +146,7 @@ TouchControls.prototype.init = function create(game) {
     buttonS4.onInputUp.add(function() { this.touchInput.button4 = false }, this)
     buttonS4.onInputDown.add(function() { this.touchInput.button4 = true }, this)
     buttonS4.kill();
+    this.buttons[3] = buttonS4;
 
     buttonS5 = game.add.button(window.innerWidth - this.segmentSize - this.margin, 
                                this.offsetY + this.segmentSize + 
@@ -157,6 +161,7 @@ TouchControls.prototype.init = function create(game) {
     buttonS5.onInputUp.add(function() { this.touchInput.button5 = false }, this)
     buttonS5.onInputDown.add(function() { this.touchInput.button5 = true }, this)
     buttonS5.kill();
+    this.buttons[4] = buttonS5;
 
     buttonS6 = game.add.button(window.innerWidth - this.segmentSize - this.margin, 
                                this.offsetY + this.segmentSize + 
@@ -171,6 +176,7 @@ TouchControls.prototype.init = function create(game) {
     buttonS6.onInputUp.add(function() { this.touchInput.button6 = false }, this)
     buttonS6.onInputDown.add(function() { this.touchInput.button6 = true }, this)
     //buttonS6.kill();
+    this.buttons[5] = buttonS6;
 
     if (!game.device.desktop)
     {
