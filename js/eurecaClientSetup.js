@@ -31,14 +31,12 @@ var EurecaClientSetup = function() {
 
 	eurecaClient.exports.updateHP = function(id, difHP)
 	{
-		if (charactersList[id])
-		{
+		if (charactersList[id]) {
 			console.log(difHP);
 			charactersList[id].health = Phaser.Math.min(charactersList[id].privateHealth, charactersList[id].health + difHP);
 			if (charactersList[id].hpBar != null)
 				charactersList[id].hpBar.scale.setTo(Phaser.Math.max(charactersList[id].health/charactersList[id].privateHealth,0), 1);
-			if (charactersList[id].health <= 0 && id == player.baseSprite.id)
-			{
+			if (charactersList[id].health <= 0 && id == player.baseSprite.id) {
 				console.log('talk server about killing');
 				eurecaServer.killPlayer(id);
 			}
@@ -51,28 +49,39 @@ var EurecaClientSetup = function() {
 		 charactersList[id].fire(target,type);
 	}
 
-	eurecaClient.exports.castCloseAttack = function(id, target)
-	{
-		var character = charactersList[id]
-		if (!character)
-			return;
+	eurecaClient.exports.castCloseAttack = function(id, target) {
+		var attacker = charactersList[id]
+		if (!attacker) return
 
 		var dist = 64;
-		character.weapon.reset(character.baseSprite.x, character.baseSprite.y);
-		character.weapon.lifespan = 100;
-		character.weapon.angle = character.headSprite.angle + 90;
+		var angle = Phaser.Math.angleBetween(attacker.baseSprite.x, 
+											 attacker.baseSprite.y,
+											 target.x, 
+											 target.y);
+		var weapon = game.add.sprite(attacker.baseSprite.x + dist * Math.cos(angle),
+									 attacker.baseSprite.y + dist * Math.sin(angle),
+									 'weapon_');
+		weapon.enableBody = true;
+    	weapon.physicsBodyType = Phaser.Physics.ARCADE;
+    	weapon.checkWorldBounds = true;
+    	weapon.scale.setTo(0.5, 0.5)
+    	weapon.anchor.set(0.5,1.5)
+		weapon.lifespan = 100;
+		weapon.angle = Phaser.Math.radToDeg(angle) + 90;
+		//console.log(angle, weapon.angle)
+		attacker.weapon.reset(attacker.baseSprite.x, attacker.baseSprite.y);
+		attacker.weapon.lifespan = 100;
+		attacker.weapon.angle = attacker.headSprite.angle + 90;
 
 		if (player.id == id)
 			for (var i in charactersList)
-				if (i != id)
-			{
-				console.log()
-				var a = new Phaser.Rectangle(character.weapon.x - 32, character.weapon.y - 32, 64, 64);
-				var b = new Phaser.Rectangle(character.baseSprite.x - 32,
-											 character.baseSprite.y - 32,
+				if (i != id) {
+				var a = new Phaser.Rectangle(weapon.x - 32, weapon.y - 32, 64, 64);
+				var b = new Phaser.Rectangle(charactersList[i].baseSprite.x - 32,
+											 charactersList[i].baseSprite.y - 32,
 											 64, 64);
 				if (Phaser.Rectangle.intersects(a, b))
-					eurecaServer.updateHP(i, closeFightWeaponDamage);
+					eurecaServer.updateHP(charactersList[i].baseSprite.id, closeFightWeaponDamage);
 			}
 	}
 
