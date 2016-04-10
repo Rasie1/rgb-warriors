@@ -36,7 +36,7 @@ var EurecaClientSetup = function() {
 			console.log(difHP);
 			charactersList[id].health = Phaser.Math.min(charactersList[id].privateHealth, charactersList[id].health + difHP);
 			if (charactersList[id].hpBar != null)
-				charactersList[id].hpBar.scale.setTo(charactersList[id].health / charactersList[id].privateHealth, 1);
+				charactersList[id].hpBar.scale.setTo(Phaser.Math.max(charactersList[id].health/charactersList[id].privateHealth,0), 1);
 			if (charactersList[id].health <= 0 && id == player.baseSprite.id)
 			{
 				console.log('talk server about killing');
@@ -58,24 +58,21 @@ var EurecaClientSetup = function() {
 			return;
 
 		var dist = 64;
-		var angle = Phaser.Math.angleBetween(character.baseSprite.x, 
-											 character.baseSprite.y,
-											 target.x, 
-											 target.y);
 		character.weapon.reset(character.baseSprite.x, character.baseSprite.y);
 		character.weapon.lifespan = 100;
-		character.weapon.angle = Phaser.Math.radToDeg(angle) + 90;
+		character.weapon.angle = character.headSprite.angle + 90;
 
 		if (player.id == id)
 			for (var i in charactersList)
 				if (i != id)
 			{
-				var a = new Phaser.Rectangle(weapon.x - 32, weapon.y - 32, 64, 64);
+				console.log()
+				var a = new Phaser.Rectangle(character.weapon.x - 32, character.weapon.y - 32, 64, 64);
 				var b = new Phaser.Rectangle(character.baseSprite.x - 32,
 											 character.baseSprite.y - 32,
 											 64, 64);
 				if (Phaser.Rectangle.intersects(a, b))
-					eurecaServer.updateHP(character.baseSprite.id, closeFightWeaponDamage);
+					eurecaServer.updateHP(i, closeFightWeaponDamage);
 			}
 	}
 

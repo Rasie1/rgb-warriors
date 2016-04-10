@@ -1,6 +1,5 @@
 var character
 var headSprite
-var weapon
 
 Character = function (index, game, x, y, r, g, b) {
     this.cursor = {
@@ -194,11 +193,13 @@ Character.prototype.recreate = function (x,y) {
     else if (randomElement == 3) this.BCounter++
     this.recolorAura()
     this.hpBar = null;
-    if (myId != this.baseSprite.id)
-    {
+    if (myId != this.baseSprite.id) {
         this.hpBar = game.add.sprite(x - 32, y - 32, 'hpBar');
         this.hpBar.anchor.set(0.5);
     }
+    this.rItems.setText(this.RCounter+"")
+    this.gItems.setText(this.GCounter+"")
+    this.bItems.setText(this.BCounter+"")
 }
 
 Character.prototype.update = function() {
@@ -335,13 +336,16 @@ Character.prototype.update = function() {
     }
 
 
-    this.headSprite.x = this.baseSprite.x;
-    this.headSprite.y = this.baseSprite.y;
-    this.auraSprite.x = this.baseSprite.x;
-    this.auraSprite.y = this.baseSprite.y;
+    this.headSprite.x
+    = this.auraSprite.x
+    = this.weapon.x         // на самом деле
+    = this.baseSprite.x;
+    this.headSprite.y
+    = this.auraSprite.y
+    = this.weapon.y         // не обязательно
+    = this.baseSprite.y;
 
-    if (this.hpBar != null)
-    {
+    if (this.hpBar != null) {
         this.hpBar.x = this.baseSprite.x;
         this.hpBar.y = this.baseSprite.y - 42;    
     }

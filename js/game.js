@@ -130,6 +130,8 @@ function preload () {
     game.load.image('window_health_0', 'assets/window_health_0.png')
     game.load.image('window_health_1', 'assets/window_health_1.png')
     game.load.image('window_health_2', 'assets/window_health_2.png')
+    game.load.image('window_health_3', 'assets/window_health_3.png')
+    game.load.image('window_health_secondary', 'assets/window_health_secondary.png')
     game.load.image('window_item0', 'assets/window_item1.png')
     game.load.image('window_item1', 'assets/window_item2.png')
     game.load.image('window_item2', 'assets/window_item3.png')
@@ -210,6 +212,10 @@ function create ()
     player.hpline = game.add.sprite(25, 10, 'window_health_1')
     player.hpline.fixedToCamera = true
     player.HUD.add(player.hpline)
+    player.hpline_secondary = game.add.sprite(12, 10, 'window_health_secondary')
+    player.hpline_secondary.fixedToCamera = true
+    player.hpline_secondary.scale.setTo(0,1)
+    player.HUD.add(player.hpline_secondary)
     player.hpline_glass = game.add.sprite(10, 10, 'window_health_0')
     player.hpline_glass.fixedToCamera = true
     player.HUD.add(player.hpline_glass)
@@ -362,7 +368,8 @@ function update () {
     
 
     //player.healthBar.setText("HP: " + player.health);
-    player.hpline.scale.setTo(player.health / maxHealth, 1);
+    player.hpline.scale.setTo(Phaser.Math.min(player.health/maxHealth,1), 1);
+    player.hpline_secondary.scale.setTo(Phaser.Math.max((player.health-maxHealth)/180,0), 1);
     
     headSprite.rotation = game.physics.arcade.angleToPointer(headSprite); 
     //baseSprite.rotation = game.physics.arcade.angleToPointer(baseSprite); 
