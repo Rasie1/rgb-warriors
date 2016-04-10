@@ -498,7 +498,7 @@ Character.prototype.pickUpItem = function(itemSprite) {
                         this.spells.Fireball.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Fireball.spellPower + 1);
                         this.spells.Fireball.cooldown -= 3
                         this.spellsAvailable[0] = true;
-                        this.touchControls.button0.reset();
+                        touchControls.buttons[0].reset();
                         console.log('fireball available')
                         touchControls.buttons[0].reset()
                         break;
