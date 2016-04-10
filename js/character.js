@@ -415,6 +415,8 @@ Character.prototype.pickUpItem = function(itemSprite) {
                     case 2:
                         this.spells.Leap.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Leap.spellPower + 1);
                         this.spellsAvailable[2] = true;
+                        this.spells.Leap.jumpDist += 50;
+                        this.spells.Leap.cooldown -= 30;
                         break;
                     case 3:
                         this.spells.Vape.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Vape.spellPower + 1);
@@ -426,6 +428,8 @@ Character.prototype.pickUpItem = function(itemSprite) {
                 switch(this.inventory[1]){
                     case 1:
                         this.spells.Leap.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Leap.spellPower + 1);
+                        this.spells.Leap.jumpDist += 50;
+                        this.spells.Leap.cooldown -= 30;
                         this.spellsAvailable[2] = true;
                         break;
                     case 2:

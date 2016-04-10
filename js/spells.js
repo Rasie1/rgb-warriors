@@ -73,9 +73,9 @@ Fireball.prototype.cast = function(character){
 function Leap() {
     Spell.call(this);
 
-    this.cooldown = 1000;
+    this.cooldown = 60 * 5;
 
-    this.jumpDist = 512;
+    this.jumpDist = 300;
 
     this.visualEffectSpriteBegin = game.add.sprite(0, 0, 'yellow-fireball')
     this.visualEffectSpriteBegin.animations.add('cast');
