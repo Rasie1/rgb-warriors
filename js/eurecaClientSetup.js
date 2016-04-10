@@ -44,12 +44,10 @@ var EurecaClientSetup = function() {
 		}
 	}
 
-	eurecaClient.exports.castRemoteAttack = function(id, target)
+	eurecaClient.exports.castRemoteAttack = function(id, target, type)
 	{
-		if (charactersList[id])
-		{
-			charactersList[id].fire(target);
-		}
+        console.log("eurecaClient.exports.castRemoteAttack");
+		if (charactersList[id]) charactersList[id].fire(target,type);
 	}
 
 	eurecaClient.exports.doLeap = function(id, new_x, new_y)

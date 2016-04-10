@@ -123,18 +123,18 @@ ColdSphere.prototype.cast = function(character){
     											 y: character.cursor.ty});
 };
 
-// Poison
+// Vape
 
-function Poison() {
+function Vape() {
     Spell.call(this);
     this.cooldown = 50;
 }
 
-Poison.prototype = Object.create(Spell.prototype);
+Vape.prototype = Object.create(Spell.prototype);
 
-Poison.prototype.constructor = Poison
+Vape.prototype.constructor = Vape
 
-Poison.prototype.cast = function(character){
+Vape.prototype.cast = function(character){
     this.currentCooldown = this.cooldown
 
     eurecaServer.castRemoteAttack(character.id, {x: character.cursor.tx,
