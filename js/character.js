@@ -418,12 +418,15 @@ Character.prototype.pickUpItem = function(itemSprite) {
     switch (itemSprite.element) {
         case 1:
             this.RCounter++
+            player.rItems.setText(this.RCounter)
             break
         case 2:
             this.GCounter++
+            player.gItems.setText(this.GCounter)
             break
         case 3:
             this.BCounter++
+            player.bItems.setText(this.BCounter)
             break 
     }
     this.inventory.push(itemSprite.element);
@@ -496,4 +499,5 @@ Character.prototype.pickUpItem = function(itemSprite) {
     // console.log("R="+this.RCounter+" G="+this.GCounter+" B="+this.BCounter)
     this.recolorAura()
     eurecaServer.pickUpItem(itemSprite.id);
+
 }
