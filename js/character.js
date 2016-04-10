@@ -1,5 +1,6 @@
-var character;
-var headSprite;
+var character
+var headSprite
+var weapon
 
 Character = function (index, game, x, y, r, g, b) {
     this.cursor = {
@@ -104,6 +105,15 @@ Character = function (index, game, x, y, r, g, b) {
     this.baseSprite.body.immovable = false;
     this.baseSprite.body.collideWorldBounds = true;
     this.baseSprite.body.bounce.setTo(0, 0);
+
+    this.weapon = game.add.sprite(0,0,'weapon');
+    game.physics.enable(this.weapon, Phaser.Physics.ARCADE);
+    this.weapon.enableBody = true;
+    this.weapon.physicsBodyType = Phaser.Physics.ARCADE;
+    this.weapon.checkWorldBounds = true;
+    this.weapon.scale.setTo(0.5, 0.5)
+    this.weapon.anchor.set(0.5,1.5)
+    this.weapon.kill()
     //inventory
     this.inventory = [];
     if ((r!=-1 && r!=undefined) || (g!=-1 && g!=undefined) || (b!=-1 && b!=undefined)) {
@@ -245,30 +255,46 @@ Character.prototype.update = function() {
     
     // commit movement
     if (this.cursor.left || this.cursor.a) {
-        this.headSprite.body.velocity.x = this.baseSprite.body.velocity.x = -this.SpeedX
+        this.headSprite.body.velocity.x 
+        = this.baseSprite.body.velocity.x 
+        = this.weapon.body.velocity.x 
+        = -this.SpeedX
         baseSprite.rotation = -3.14
     }
     else if (this.cursor.right || this.cursor.d) {
-        this.headSprite.body.velocity.x = this.baseSprite.body.velocity.x = this.SpeedX
+        this.headSprite.body.velocity.x 
+        = this.baseSprite.body.velocity.x 
+        = this.weapon.body.velocity.x 
+        = this.SpeedX
         baseSprite.rotation = 0
     }
     else
     {
-        this.headSprite.body.velocity.x = this.baseSprite.body.velocity.x = 0
+        this.headSprite.body.velocity.x 
+        = this.baseSprite.body.velocity.x 
+        = this.weapon.body.velocity.x 
+        = 0
     }
 
     if (this.cursor.up || this.cursor.w) {
-        this.headSprite.body.velocity.y = this.baseSprite.body.velocity.y = -this.SpeedY
+        this.headSprite.body.velocity.y 
+        = this.baseSprite.body.velocity.y 
+        = this.weapon.body.velocity.y 
+        = -this.SpeedY
         baseSprite.rotation = baseSprite.rotation==-3.14 ? -3*3.14/4 : baseSprite.rotation==0 ? -3.14/4 : -3.14/2
     }
     else if (this.cursor.down  || this.cursor.s) {
-        this.headSprite.body.velocity.y = this.baseSprite.body.velocity.y = this.SpeedY
+        this.headSprite.body.velocity.y 
+        = this.baseSprite.body.velocity.y 
+        = this.weapon.body.velocity.y 
+        = this.SpeedY
         baseSprite.rotation = baseSprite.rotation==-3.14 ? 3*3.14/4 : baseSprite.rotation==0 ? 3.14/4 : 3.14/2
     }
     else
     {
-        this.baseSprite.body.velocity.y = 0
-        this.headSprite.body.velocity.y = 0
+        this.baseSprite.body.velocity.y 
+        = this.headSprite.body.velocity.y 
+        = this.weapon.body.velocity.y = 0
     }
 
     if (this.cursor.fire)

@@ -364,7 +364,7 @@ function update () {
     //player.healthBar.setText("HP: " + player.health);
     player.hpline.scale.setTo(player.health / maxHealth, 1);
     
-    headSprite.rotation = game.physics.arcade.angleToPointer(headSprite);   
+    headSprite.rotation = game.physics.arcade.angleToPointer(headSprite); 
     //baseSprite.rotation = game.physics.arcade.angleToPointer(baseSprite); 
 
     land.tilePosition.x = -game.camera.x;
@@ -372,6 +372,7 @@ function update () {
     for (var i in charactersList)
     {
 		if (!charactersList[i]) continue;
+        charactersList[i].weapon.angle = charactersList[i].headSprite.angle + 90; // не получилось
         var curBullets = charactersList[i].bullets;
         var curVapelosions = charactersList[i].vapelosions;        
 		for (var j in charactersList)
