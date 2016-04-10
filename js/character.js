@@ -17,7 +17,8 @@ Character = function (index, game, x, y, r, g, b) {
         spell2:false,
         spell3:false,
         spell4:false,
-        spell5:false
+        spell5:false,
+        spell6:false
     }
 
     this.input = {
@@ -36,6 +37,7 @@ Character = function (index, game, x, y, r, g, b) {
         spell3:false,
         spell4:false,
         spell5:false,
+        spell6:false,
         fireType:0
     }
 
@@ -128,6 +130,7 @@ Character = function (index, game, x, y, r, g, b) {
     this.spells.Spike = new Spike()
     this.spells.ColdSphere = new ColdSphere()
     this.spells.Vape = new Vape()
+    this.spells.CloseFighting = new CloseFighting()
 
     this.recolorAura()
 
@@ -192,8 +195,8 @@ Character.prototype.update = function() {
         this.cursor.spell3 != this.input.spell3 ||
         this.cursor.spell4 != this.input.spell4 ||
         this.cursor.spell5 != this.input.spell5 || 
+        this.cursor.spell6 != this.input.spell6 ||
         this.input.fireType != this.type
-
     );
     console.log(this.input.fireType,this.type)
     var isContiniouslyFiring = (this.cursor.fire && 
@@ -229,12 +232,10 @@ Character.prototype.update = function() {
     if (this.cursor.left || this.cursor.a) {
         this.headSprite.body.velocity.x = this.baseSprite.body.velocity.x = -this.SpeedX
         baseSprite.rotation = -3.14
-        this.shouldMoveLeft   = false
     }
     else if (this.cursor.right || this.cursor.d) {
         this.headSprite.body.velocity.x = this.baseSprite.body.velocity.x = this.SpeedX
         baseSprite.rotation = 0
-        this.shouldMoveRight  = false
     }
     else
     {
@@ -244,12 +245,10 @@ Character.prototype.update = function() {
     if (this.cursor.up || this.cursor.w) {
         this.headSprite.body.velocity.y = this.baseSprite.body.velocity.y = -this.SpeedY
         baseSprite.rotation = baseSprite.rotation==-3.14 ? -3*3.14/4 : baseSprite.rotation==0 ? -3.14/4 : -3.14/2
-        this.shouldMoveTop    = false
     }
     else if (this.cursor.down  || this.cursor.s) {
         this.headSprite.body.velocity.y = this.baseSprite.body.velocity.y = this.SpeedY
         baseSprite.rotation = baseSprite.rotation==-3.14 ? 3*3.14/4 : baseSprite.rotation==0 ? 3.14/4 : 3.14/2
-        this.shouldMoveBottom = false
     }
     else
     {
@@ -289,9 +288,10 @@ Character.prototype.update = function() {
     {
         this.type=5
     }
-
-
-
+    if (this.cursor.spell6) //close-in fighting
+    {
+        this.type=6
+    }
 
 
     this.headSprite.x = this.baseSprite.x;
@@ -313,7 +313,6 @@ Character.prototype.update = function() {
 
 Character.prototype.fire = function(target,type) {
         if (!this.alive) return
-        //console.log(this.bullets.countDead());
         switch (type) {
             case 0:
                 this.spells.Fireball.cast(this)
@@ -332,6 +331,9 @@ Character.prototype.fire = function(target,type) {
             break
             case 5:
                 this.spells.Vape.cast(this)
+            break
+            case 6:
+                this.spells.CloseFighting.cast(this)
             break
         }
 }

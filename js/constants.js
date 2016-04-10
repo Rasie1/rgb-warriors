@@ -19,6 +19,8 @@ var maxGameHeight = 3000;
 var maxHealth = 30
 var basicDamage = 10
 
+var closeFightWeaponDamage = -10
+
 
 // Spells
 var healingSpellHealingPercentage = 10
