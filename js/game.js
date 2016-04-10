@@ -345,7 +345,9 @@ function bulletHit (victim, bullet) {
     if(bullet.type==0){
         if(this.id == myId){
             if(victim.health>0 && victim.key=='enemy')
-                eurecaServer.updateHP(victim.id, -10);
+            {
+                eurecaServer.updateHP(victim.id, -20);
+            }
 
         }
     }

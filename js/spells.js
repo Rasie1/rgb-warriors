@@ -45,7 +45,7 @@ HealingSpell.prototype.cast = function(character){
 
 function Fireball() {
     Spell.call(this);
-    this.cooldown = 500;
+    this.cooldown = 45;
 }
 
 Fireball.prototype = Object.create(Spell.prototype);
@@ -61,6 +61,7 @@ Fireball.prototype.cast = function(character){
         bullet.lifespan = 5000;
         bullet.type = 0;
         bullet.frame = 0;
+        //bullet.damagePower = this.spellPower;
         bullet.reset(character.headSprite.x, character.headSprite.y);
         bullet.rotation = game.physics.arcade.moveToObject(bullet, {x:character.cursor.tx,y:character.cursor.ty}, 500);
     }

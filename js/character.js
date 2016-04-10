@@ -146,7 +146,7 @@ Character = function (index, game, x, y, r, g, b) {
 
     this.spellsAvailable = [];
     for (i = 0; i < 6; ++i)
-        this.spellsAvailable[i] = false;
+        this.spellsAvailable[i] = true;//false;
     this.type = 6;
 
     this.recolorAura()
@@ -409,6 +409,7 @@ Character.prototype.pickUpItem = function(itemSprite) {
                 switch(this.inventory[1]){
                     case 1:
                         this.spells.Fireball.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Fireball.spellPower + 1);
+                        this.spells.Fireball.cooldown -= 3
                         this.spellsAvailable[0] = true;
                         break;
                     case 2:

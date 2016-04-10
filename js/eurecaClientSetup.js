@@ -33,9 +33,10 @@ var EurecaClientSetup = function() {
 	{
 		if (charactersList[id])
 		{
+			console.log(difHP);
 			charactersList[id].health = Phaser.Math.min(charactersList[id].privateHealth, charactersList[id].health + difHP);
 			if (charactersList[id].hpBar != null)
-				charactersList[id].hpBar.scale.setTo(charactersList[id].health / maxHealth, 1);
+				charactersList[id].hpBar.scale.setTo(charactersList[id].health / charactersList[id].privateHealth, 1);
 			if (charactersList[id].health <= 0 && id == player.baseSprite.id)
 			{
 				console.log('talk server about killing');
