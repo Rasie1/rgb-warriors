@@ -45,7 +45,7 @@ HealingSpell.prototype.cast = function(character){
 
 function Fireball() {
     Spell.call(this);
-    this.cooldown = 45;
+    this.cooldown = 4 * 45;
 }
 
 Fireball.prototype = Object.create(Spell.prototype);
@@ -139,10 +139,10 @@ Leap.prototype.cast = function(character){
 
 function Spike() {
     Spell.call(this);
-    this.cooldown = 2000
+    this.cooldown = 3 * 60
     this.distance = 128
     this.stayTime = 5
-    this.damage = -15
+    this.damage = -50
 }
 
 Spike.prototype = Object.create(Spell.prototype);
@@ -203,7 +203,7 @@ ColdSphere.prototype.cast = function(character){
 
 function Vape() {
     Spell.call(this);
-    this.cooldown = 300;
+    this.cooldown = 60 * 2;
 }
 
 Vape.prototype = Object.create(Spell.prototype);
