@@ -49,15 +49,28 @@ var EurecaClientSetup = function() {
 		if (charactersList[id]) charactersList[id].fire(target,type);
 	}
 
-	eurecaClient.exports.doLeap = function(id, new_x, new_y)
-	{
-		if (charactersList[id])
-		{
-			charactersList[id].baseSprite.x = new_x;
-			charactersList[id].baseSprite.y = new_y;
-			game.camera.focusOnXY(new_x, new_y);
-		}
-	}
+    eurecaClient.exports.doLeap = function(id, new_x, new_y)
+    {
+        if (charactersList[id])
+        {
+            charactersList[id].baseSprite.x = new_x;
+            charactersList[id].baseSprite.y = new_y;
+            game.camera.focusOnXY(new_x, new_y);
+        }
+    }
+
+    eurecaClient.exports.doSpike = function(x, y, time, damage)
+    {
+        console.log("121212")
+        var v = obstacles.create(x, y, 'stone')
+        v.anchor.set(0.5, 0.5)
+        v.body.immovable = true;
+        v.scale.setTo(1, 1);
+
+        // damage players
+
+        // set timer
+    }
 	
 	eurecaClient.exports.spawnEnemy = function(i, x, y, r, g, b)
 	{

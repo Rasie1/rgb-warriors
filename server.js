@@ -49,7 +49,8 @@ var eurecaServer = new Eureca.Server({allow:[
 	'pickUpItem',
 	'createObstacles',
 	'castRemoteAttack',
-	'doLeap'
+	'doLeap',
+    'doSpike'
 ]
 });
 
@@ -256,8 +257,14 @@ eurecaServer.exports.castRemoteAttack = function(id, target, type)
 
 eurecaServer.exports.doLeap = function(id, new_x, new_y)
 {
-	for (var c in clients)
-		clients[c].remote.doLeap(id, new_x, new_y);
+    for (var c in clients)
+        clients[c].remote.doLeap(id, new_x, new_y);
+}
+
+eurecaServer.exports.doSpike = function(x, y, time, damage)
+{
+    for (var c in clients)
+        clients[c].remote.doSpike(x, y, time, damage);
 }
 
 
@@ -313,7 +320,7 @@ for(i=0;i<25;i++){
 	obstaclesList[i].y = obstaclesPositions[i].y+Math.round(Math.random()*possibleOffsetY);
 	obstaclesPositions[i].occupied = true;
 }
-console.log(obstaclesPositions)
+// console.log(obstaclesPositions)
 
 //item spawn
 setInterval(function(){

@@ -28,7 +28,7 @@ HealingSpell.prototype = Object.create(Spell.prototype);
 HealingSpell.prototype.constructor = HealingSpell
 
 HealingSpell.prototype.cast = function(character){
-
+    console.log("trying to cast healing")
     this.currentCooldown = this.cooldown
  
     this.visualEffectSprite.reset(character.baseSprite.x,
@@ -50,6 +50,7 @@ Fireball.prototype = Object.create(Spell.prototype);
 Fireball.prototype.constructor = Fireball
 
 Fireball.prototype.cast = function(character){
+    console.log("trying to cast fireball")
 
     this.currentCooldown = this.cooldown
 
@@ -78,6 +79,7 @@ Leap.prototype = Object.create(Spell.prototype);
 Leap.prototype.constructor = Leap
 
 Leap.prototype.cast = function(character){
+    console.log("trying to cast leap")
 	if (this.onCooldown() == false)
 		return
 	console.log("OK")
@@ -123,7 +125,10 @@ Leap.prototype.cast = function(character){
 
 function Spike() {
     Spell.call(this);
-    this.cooldown = 50;
+    this.cooldown = 50
+    this.distance = 100
+    this.stayTime = 500
+    this.damage = 15
 }
 
 Spike.prototype = Object.create(Spell.prototype);
@@ -131,11 +136,29 @@ Spike.prototype = Object.create(Spell.prototype);
 Spike.prototype.constructor = Spike
 
 Spike.prototype.cast = function(character){
-    this.currentCooldown = this.cooldown
-                /*this.wall.reset(this.headSprite.x, this.headSprite.y)
-                this.wall.lifespan = 5000;
-                this.wall.rotation = this.game.physics.arcade.moveToObject(this.wall, target, 0)*/
+    console.log("trying to cast spike")
 
+    if (this.onCooldown() == false)
+        return
+
+    this.currentCooldown = this.cooldown
+
+    var curPos = new Phaser.Point(character.baseSprite.x, character.baseSprite.y);
+    var target = new Phaser.Point(character.cursor.tx, character.cursor.ty);
+
+
+    var dist = Phaser.Math.min(this.distance, 
+                               Phaser.Math.distance(curPos.x, 
+                                                    curPos.y, 
+                                                    target.x, 
+                                                    target.y));
+
+    var offset_x = dist * Math.cos(Phaser.Math.angleBetweenPoints(curPos, target));
+    var offset_y = dist * Math.sin(Phaser.Math.angleBetweenPoints(curPos, target));
+    target.x = curPos.x + offset_x;
+    target.y = curPos.y + offset_y;
+
+    eurecaServer.doSpike(target.x, target.y, this.stayTime, this.damage);
 };
 
 // Cold Sphere
@@ -150,6 +173,7 @@ ColdSphere.prototype = Object.create(Spell.prototype);
 ColdSphere.prototype.constructor = ColdSphere
 
 ColdSphere.prototype.cast = function(character){
+    console.log("trying to cast cold sphere")
     this.currentCooldown = this.cooldown
 
     eurecaServer.castRemoteAttack(character.id, {x: character.cursor.tx,
@@ -168,6 +192,7 @@ Vape.prototype = Object.create(Spell.prototype);
 Vape.prototype.constructor = Vape
 
 Vape.prototype.cast = function(character){
+    console.log("trying to cast vape")
     this.currentCooldown = this.cooldown
 
     eurecaServer.castRemoteAttack(character.id, {x: character.cursor.tx,
