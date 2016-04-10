@@ -103,6 +103,8 @@ Character = function (index, game, x, y, r, g, b) {
     this.baseSprite.body.immovable = false;
     this.baseSprite.body.collideWorldBounds = true;
     this.baseSprite.body.bounce.setTo(0, 0);
+    //inventory
+    this.inventory = [];
     if ((r!=-1 && r!=undefined) || (g!=-1 && g!=undefined) || (b!=-1 && b!=undefined)) {
         this.RCounter = r
         this.GCounter = g
@@ -113,11 +115,20 @@ Character = function (index, game, x, y, r, g, b) {
         this.BCounter = 0
         var randomElement = Math.round(Math.random()*2)
         if (randomElement == 1) 
+        {
             this.RCounter++
+            this.inventory.push(1);
+        }
         else if (randomElement == 2) 
+        {
             this.GCounter++
+            this.inventory.push(2);
+        }
         else if (randomElement == 3) 
+        {
             this.BCounter++
+            this.inventory.push(3);
+        }
     }
 
     // input section
@@ -148,9 +159,6 @@ Character = function (index, game, x, y, r, g, b) {
 
     //continious firing
     this.mouseAlreadyUpdated = false;
-
-    //inventory
-    this.inventory = [];
 };
 
 Character.prototype.recreate = function (x,y) {
@@ -399,39 +407,48 @@ Character.prototype.pickUpItem = function(itemSprite) {
             case 1:
                 switch(this.inventory[1]){
                     case 1:
-                        this.spells.Fireball.spellPower++;
+                        this.spells.Fireball.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Fireball.spellPower + 1);
+                        this.spellsAvailable[0] = true;
                         break;
                     case 2:
-                        this.spells.Leap.spellPower++;
+                        this.spells.Leap.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Leap.spellPower + 1);
+                        this.spellsAvailable[2] = true;
                         break;
                     case 3:
-                        this.spells.Vape.spellPower++;
+                        this.spells.Vape.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Vape.spellPower + 1);
+                        this.spellsAvailable[4] = true;
                         break;
                 };
                 break;
             case 2:
                 switch(this.inventory[1]){
                     case 1:
-                        this.spells.Leap.spellPower++;
+                        this.spells.Leap.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Leap.spellPower + 1);
+                        this.spellsAvailable[2] = true;
                         break;
                     case 2:
-                        this.spells.Spike.spellPower++;
+                        this.spells.Spike.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Spike.spellPower + 1);
+                        this.spellsAvailable[3] = true;
                         break;
                     case 3:
-                        this.spells.HealingSpell.spellPower++;
+                        this.spells.HealingSpell.spellPower = Phaser.Math.max(maxSpellsLevel, this.HealingSpell.fireball.spellPower + 1);
+                        this.spellsAvailable[1] = true;
                         break;
                 };
                 break;
             case 3:
                 switch(this.inventory[1]){
                     case 1:
-                        this.spells.Vape.spellPower++;
+                        this.spells.Vape.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Vape.spellPower + 1);
+                        this.spellsAvailable[4] = true;
                         break;
                     case 2:
-                        this.spells.HealingSpell.spellPower++;
+                        this.spells.HealingSpell.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.HealingSpell.spellPower + 1);
+                        this.spellsAvailable[1] = true;
                         break;
                     case 3:
-                        this.spells.ColdSphere.spellPower++;
+                        this.spells.ColdSphere.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.ColdSphere.spellPower + 1);
+                        this.spellsAvailable[5] = true;
                         break;
                 };
                 break;
