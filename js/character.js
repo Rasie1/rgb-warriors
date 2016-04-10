@@ -71,6 +71,8 @@ Character = function (index, game, x, y, r, g, b) {
     this.deadSprite.kill()
 
     this.wall = game.add.sprite(0, 0, 'wall');
+    this.wall.anchor.set(-0.2,0.5);
+    this.wall.enableBody = true;
     game.physics.enable(this.wall, Phaser.Physics.ARCADE);
     this.wall.kill()
 
@@ -248,10 +250,8 @@ Character.prototype.update = function() {
     }
 
     if (this.cursor.fire)
-    {   
-        console.log("this.cursor.fire");
+    {
         if (this.alive) {
-            console.log("this.alive");
             //this.fire({x:this.cursor.tx, y:this.cursor.ty});
             eurecaServer.castRemoteAttack(this.id,{x:this.cursor.tx, y:this.cursor.ty},this.type)
         }
@@ -362,30 +362,24 @@ Character.prototype.update = function() {
 Character.prototype.fire = function(target,type) {
         if (!this.alive) return
         //console.log(this.bullets.countDead());
-        console.log("Character.prototype.fire("+type+")");
         switch (type) {
             case 0:
-            case 4:
-            case 5:
-                if (this.game.time.now > this.nextFire && this.bullets.countDead() > 0) {
-                    this.mouseAlreadyUpdated = false;
-                    this.nextFire = this.game.time.now + this.fireRate;
-                    var bullet = this.bullets.getFirstDead();
-                    bullet.lifespan = 5000;
-                    bullet.reset(this.headSprite.x, this.headSprite.y);
-
-                    bullet.rotation = this.game.physics.arcade.moveToObject(bullet, target, 500);
-                }
+                this.spell0Slot.cast()
             break
-            case 1: // healing
+            case 1:
+                this.spell1Slot.cast()
             break
-            case 2: // jump
+            case 2:
+                this.spell2Slot.cast()
             break
             case 3:
-                console.log("case 3");
-                this.wall.reset(this.headSprite.x, this.headSprite.y-56)
-                this.wall.lifespan = 5000;
-                this.wall.rotation = this.game.physics.arcade.moveToObject(this.wall, target, 0)
+                this.spell3Slot.cast()
+            break
+            case 4:
+                this.spell4Slot.cast()
+            break
+            case 5:
+                this.spell5Slot.cast()
             break
 
         }

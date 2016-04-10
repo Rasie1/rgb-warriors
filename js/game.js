@@ -312,7 +312,8 @@ function update () {
     for (var i in charactersList)
     {
 		if (!charactersList[i]) continue;
-		var curBullets = charactersList[i].bullets;
+        var curBullets = charactersList[i].bullets;
+        var wall = charactersList[i].wall;
 		for (var j in charactersList)
 		{
 			if (!charactersList[j]) continue;
@@ -321,7 +322,7 @@ function update () {
 			
 				var targetCharacter = charactersList[j].baseSprite;
 				
-				//game.physics.arcade.overlap(curBullets, targetCharacter, bulletHitPlayer, null, this);
+				if (wall.alive) game.physics.arcade.collide(targetCharacter, wall, function(b,a){a.kill();eurecaServer.updateHP(j,-15)}, null, this);
 				if(
                     game.physics.arcade.overlap(targetCharacter, curBullets, bulletHitPlayer, null, this) &&
                     charactersList[i].baseSprite.id == player.baseSprite.id &&
