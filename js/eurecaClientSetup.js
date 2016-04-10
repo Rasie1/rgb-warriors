@@ -21,12 +21,8 @@ var EurecaClientSetup = function() {
 		ready = true;
 	}	
 	
-	eurecaClient.exports.kill = function(id)
-	{	
-		if (charactersList[id]) {
-			charactersList[id].kill();
-			console.log('killing ', id, charactersList[id]);
-		}
+	eurecaClient.exports.kill = function(id) {
+		if (charactersList[id]) charactersList[id].kill();
 	}	
 
 	eurecaClient.exports.updateHP = function(id, difHP)

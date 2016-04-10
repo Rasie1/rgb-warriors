@@ -120,8 +120,9 @@ function preload () {
     game.load.spritesheet('bullets', 'assets/bullets.png',54,17,3);
     game.load.image('vape', 'assets/vape.png');
     game.load.image('spike', 'assets/spike.png')
+    game.load.image('sand-decor', 'assets/sand_decor.png')
     game.load.image('button-circle', 'assets/button_circle.png');
-    game.load.image('earth', 'assets/scorched_earth.png');
+    game.load.image('earth', 'assets/desert.png');
     game.load.spritesheet('kaboom', 'assets/explosion.png', 64, 64, 23);
     game.load.spritesheet('vapelosion', 'assets/vapelosion.png', 128, 128, 23);
     game.load.spritesheet('yellow-jolt', 'assets/YellowJolt.png', 64, 64, 4);
@@ -149,6 +150,13 @@ function preload () {
     game.load.image('window_item1', 'assets/window_item2.png')
     game.load.image('window_item2', 'assets/window_item3.png')
     game.load.image('window_counter', 'assets/window_counter.png')
+    game.load.image('logoS0', 'assets/logo/logo_fire.png')
+    game.load.image('logoS1', 'assets/logo/logo_health.png')
+    game.load.image('logoS2', 'assets/logo/logo_portal.png')
+    game.load.image('logoS3', 'assets/logo/logo_spike.png')
+    game.load.image('logoS4', 'assets/logo/logo_cold.png')
+    game.load.image('logoS5', 'assets/logo/logo_smoke.png')
+    game.load.image('logoS6', 'assets/logo/logo_sword.png')
 }
 
 function initializeInput ()
@@ -195,6 +203,18 @@ function create ()
     
     //  Our tiled scrolling background
     land = game.add.tileSprite(0, 0, gameWidth, gameHeight, 'earth');
+
+     decors = game.add.group();
+ 
+     for (var i = 0; i < 16; i++)
+     {
+         var x = decors.create(mapWidth * Math.random(), 
+                               mapHeight * Math.random(), 
+                               'sand-decor');
+         var sc = 10 * Math.random()
+         x.scale.set(sc, sc)
+     }
+
 
     land.fixedToCamera = true;
     
