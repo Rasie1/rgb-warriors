@@ -61,15 +61,16 @@ var EurecaClientSetup = function() {
 
     eurecaClient.exports.doSpike = function(x, y, time, damage)
     {
-        console.log("121212")
         var v = obstacles.create(x, y, 'stone')
         v.anchor.set(0.5, 0.5)
         v.body.immovable = true;
         v.scale.setTo(1, 1);
 
-        // damage players
+        // should also damage players 
 
-        // set timer
+        game.time.events.add(Phaser.Timer.SECOND * time, 
+                             function() { obstacles.remove(v) }, 
+                             this)
     }
 	
 	eurecaClient.exports.spawnEnemy = function(i, x, y, r, g, b)

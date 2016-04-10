@@ -127,7 +127,7 @@ function Spike() {
     Spell.call(this);
     this.cooldown = 50
     this.distance = 100
-    this.stayTime = 500
+    this.stayTime = 5
     this.damage = 15
 }
 
