@@ -165,7 +165,7 @@ Character = function (index, game, x, y, r, g, b) {
 
     this.spellsAvailable = [];
     for (i = 0; i < 6; ++i)
-        this.spellsAvailable[i] = true;//false;
+        this.spellsAvailable[i] = false;//false;
     this.type = 6;
 
     this.recolorAura()
@@ -470,16 +470,19 @@ Character.prototype.pickUpItem = function(itemSprite) {
                         this.spells.Fireball.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Fireball.spellPower + 1);
                         this.spells.Fireball.cooldown -= 3
                         this.spellsAvailable[0] = true;
+                        console.log('fireball available')
                         break;
                     case 2:
                         this.spells.Leap.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Leap.spellPower + 1);
                         this.spellsAvailable[2] = true;
                         this.spells.Leap.jumpDist += 50;
                         this.spells.Leap.cooldown -= 30;
+                        console.log('leap available')
                         break;
                     case 3:
                         this.spells.Vape.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Vape.spellPower + 1);
-                        this.spellsAvailable[4] = true;
+                        this.spellsAvailable[5] = true;
+                        console.log('vape available')
                         break;
                 };
                 break;
@@ -490,15 +493,18 @@ Character.prototype.pickUpItem = function(itemSprite) {
                         this.spells.Leap.jumpDist += 50;
                         this.spells.Leap.cooldown -= 30;
                         this.spellsAvailable[2] = true;
+                        console.log('leap available')
                         break;
                     case 2:
                         this.spells.Spike.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Spike.spellPower + 1);
                         this.spellsAvailable[3] = true;
                         this.spells.Spike.cooldown -= 9;
+                        console.log('spike available')
                         break;
                     case 3:
                         this.spells.HealingSpell.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.HealingSpell.spellPower + 1);
                         this.spellsAvailable[1] = true;
+                        console.log('healing available')
                         break;
                 };
                 break;
@@ -506,15 +512,18 @@ Character.prototype.pickUpItem = function(itemSprite) {
                 switch(this.inventory[1]){
                     case 1:
                         this.spells.Vape.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Vape.spellPower + 1);
-                        this.spellsAvailable[4] = true;
+                        this.spellsAvailable[5] = true;
+                        console.log('vape available')
                         break;
                     case 2:
                         this.spells.HealingSpell.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.HealingSpell.spellPower + 1);
                         this.spellsAvailable[1] = true;
+                        console.log('healing available')
                         break;
                     case 3:
                         this.spells.ColdSphere.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.ColdSphere.spellPower + 1);
-                        this.spellsAvailable[5] = true;
+                        this.spellsAvailable[4] = true;
+                        console.log('coldsphere available')
                         break;
                 };
                 break;
