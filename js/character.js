@@ -302,7 +302,6 @@ Character.prototype.update = function() {
     if (this.shouldCastSpell1) //healing
     {
         this.shouldCastSpell1 = false
-        console.log(this.spell1Slot.currentCooldown);
         if (this.spell1Slot.onCooldown())
             this.spell1Slot.cast(this);
     }
@@ -327,7 +326,6 @@ Character.prototype.update = function() {
     if (this.shouldCastSpell5) //poison
     {
         this.shouldCastSpell5 = false
-        console.log(this.spell5Slot.currentCooldown);
         if (this.spell5Slot.onCooldown())
             this.spell5Slot.cast(this);
     }
