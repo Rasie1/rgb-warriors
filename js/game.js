@@ -475,7 +475,7 @@ function bulletHit (victim, bullet) {
             var vape = this.vapelosions.getFirstDead();
             vape.reset(bullet.x, bullet.y);
             vape.play('vapelosion', 15, true, true);
-            vape.lifespan = 1500
+            vape.lifespan = 1350
     }
 }
 function vapeHit (victim, vapelosion) {
