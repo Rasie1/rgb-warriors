@@ -16,7 +16,7 @@ Spell.prototype.onCooldown = function(character) {
 
 // Healing Spell
 
-function HealingSpell() {	
+function HealingSpell() {
     Spell.call(this);
     this.cooldown = 15 * 60;
     this.healingSpellHealing = 40;
@@ -33,10 +33,10 @@ HealingSpell.prototype.constructor = HealingSpell
 HealingSpell.prototype.cast = function(character){
     console.log("trying to cast healing")
     this.currentCooldown = this.cooldown
- 
+
     this.visualEffectSprite.reset(character.baseSprite.x,
                                   character.baseSprite.y)
-    this.visualEffectSprite.animations.play('cast', 5, false, true);   
+    this.visualEffectSprite.animations.play('cast', 5, false, true);
 
     eurecaServer.updateHP(character.id, this.healingSpellHealing + 20 * this.spellPower);
 };
@@ -101,10 +101,10 @@ Leap.prototype.cast = function(character){
         var target = new Phaser.Point(character.cursor.tx, character.cursor.ty);
 
 
-        var dist = Phaser.Math.min(this.jumpDist, 
-                                   Phaser.Math.distance(curPos.x, 
-                                                        curPos.y, 
-                                                        target.x, 
+        var dist = Phaser.Math.min(this.jumpDist,
+                                   Phaser.Math.distance(curPos.x,
+                                                        curPos.y,
+                                                        target.x,
                                                         target.y));
 
         var offset_x = dist * Math.cos(Phaser.Math.angleBetweenPoints(curPos, target));
@@ -114,10 +114,10 @@ Leap.prototype.cast = function(character){
 
         this.visualEffectSpriteBegin.reset(curPos.x,
                                            curPos.y)
-        this.visualEffectSpriteBegin.animations.play('cast', 15, false, true);   
+        this.visualEffectSpriteBegin.animations.play('cast', 15, false, true);
         this.visualEffectSpriteEnd.reset(target.x,
                                          target.y)
-        this.visualEffectSpriteEnd.animations.play('cast', 15, false, true);   
+        this.visualEffectSpriteEnd.animations.play('cast', 15, false, true);
         /*var isCollision = false;
         for (var obst in character.game.obstacles)
         {
@@ -163,10 +163,10 @@ Spike.prototype.cast = function(character){
         target.x = offset.x * this.distance + curPos.x
         target.y = offset.y * this.distance + curPos.y
         if(character.id==myId)
-            eurecaServer.doSpike(character.id, 
-                             target.x, 
-                             target.y, 
-                             this.stayTime, 
+            eurecaServer.doSpike(character.id,
+                             target.x,
+                             target.y,
+                             this.stayTime,
                              this.damage);
     }
 
@@ -203,7 +203,7 @@ ColdSphere.prototype.cast = function(character){
 
 function Vape() {
     Spell.call(this);
-    this.cooldown = 60 * 2;
+    this.cooldown = 2000;
 }
 
 Vape.prototype = Object.create(Spell.prototype);
@@ -244,4 +244,3 @@ CloseFighting.prototype.cast = function(character)
 	eurecaServer.castCloseAttack(character.id, {x: character.cursor.tx,
     											y: character.cursor.ty});
 }
-

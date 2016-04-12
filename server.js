@@ -4,12 +4,12 @@ var mapY    = 0;
 var mapHeight =  2000;
 
 var cameraDeadzoneWidth = 0.25;
-var cameraDeadzoneHeight = 0.25; 
+var cameraDeadzoneHeight = 0.25;
 
 var playerSpeedX = 300;
 var playerSpeedY = 300;
 
-var maxGameWidth = 3000; 
+var maxGameWidth = 3000;
 var maxGameHeight = 3000;
 
 var elementForDrop;
@@ -28,23 +28,23 @@ app.use(express.static(__dirname));
 
 //we'll keep clients data here
 var clients = {};
-  
+
 //get EurecaServer class
 var Eureca = require('eureca.io');
 
 //create an instance of EurecaServer
 var eurecaServer = new Eureca.Server({allow:[
-	'setId', 
-	'spawnEnemy', 
-	'getX', 
-	'getY', 
-	'getId', 
+	'setId',
+	'spawnEnemy',
+	'getX',
+	'getY',
+	'getId',
 	'kill',
 	'respawnPlayer',
 	'updateState',
 	'updateRotation',
-	'updateHP', 
-	'makeItem', 
+	'updateHP',
+	'makeItem',
 	'dropItem',
 	'pickUpItem',
 	'createObstacles',
@@ -54,7 +54,7 @@ var eurecaServer = new Eureca.Server({allow:[
 	'doLeap',
     'doSpike',
     'scaleSpeed'
-] 
+]
 });
 
 //attach eureca.io to our http server
@@ -66,12 +66,12 @@ eurecaServer.attach(server);
 //eureca.io provides events to detect clients connect/disconnect
 
 //detect client connection
-eurecaServer.onConnect(function (conn) {    
+eurecaServer.onConnect(function (conn) {
     console.log('New Client id=%s ', conn.id, conn.remoteAddress);
-	
+
 	//the getClient method provide a proxy allowing us to call remote client functions
-    var remote = eurecaServer.getClient(conn.id);    
-	
+    var remote = eurecaServer.getClient(conn.id);
+
 	//register the client
 	clients[conn.id] = {id:conn.id, remote:remote}
 
@@ -100,10 +100,10 @@ eurecaServer.onConnect(function (conn) {
 	}
 	else{
 		remote.setId(conn.id,0,0)
-	}	
+	}
 
 	if(itemsList.length){
-		for(i=0;i<itemsList.length;i++){	
+		for(i=0;i<itemsList.length;i++){
 			if(typeof itemsList[i] != 'undefined'){
 				clients[conn.id].remote.makeItem(itemsList[i].x, itemsList[i].y, itemsList[i].element,itemsList[i].id);
 			}
@@ -114,20 +114,20 @@ eurecaServer.onConnect(function (conn) {
 });
 
 //detect client disconnection
-eurecaServer.onDisconnect(function (conn) {    
+eurecaServer.onDisconnect(function (conn) {
     console.log('Client disconnected ', conn.id);
-	
+
 	var removeId = clients[conn.id].id;
-	
+
 	delete clients[conn.id];
-	
+
 	for (var c in clients)
 	{
 		var remote = clients[c].remote;
-		
+
 		//here we call kill() method defined in the client side
 		remote.kill(conn.id);
-	}	
+	}
 });
 
 
@@ -140,7 +140,7 @@ eurecaServer.exports.handshake = function(id,x,y,r,g,b)
 			var cl = clients[c]
 			enemy.remote.spawnEnemy(c,cl.lastX,cl.lastY,cl.r,cl.g,cl.b)
 		}
-	
+
 }
 
 
@@ -148,7 +148,7 @@ eurecaServer.exports.handshake = function(id,x,y,r,g,b)
 eurecaServer.exports.handleKeys = function (keys,x,y,r,g,b) {
     var conn = this.connection;
     var updatedClient = clients[conn.id];
-    
+
     for (var c in clients)
     {
         var remote = clients[c].remote;
@@ -159,14 +159,14 @@ eurecaServer.exports.handleKeys = function (keys,x,y,r,g,b) {
         clients[c].lastY = y;
         clients[c].r = r;
         clients[c].g = g;
-        clients[c].b = b;       
+        clients[c].b = b;
     }
-}   
+}
 
 eurecaServer.exports.handleTouchInput = function (input) {
     var conn = this.connection;
     var updatedClient = clients[conn.id];
-    
+
     for (var c in clients)
     {
         console.log("button0: ", input.button0)
@@ -178,18 +178,18 @@ eurecaServer.exports.handleTouchInput = function (input) {
         // clients[c].lastY = y;
         // clients[c].r = r;
         // clients[c].g = g;
-        // clients[c].b = b;       
+        // clients[c].b = b;
     }
-}   
+}
 eurecaServer.exports.handleRotation = function (keys) {
 	var conn = this.connection;
 	var updatedClient = clients[conn.id];
-	
+
 	for (var c in clients)
 	{
 		var remote = clients[c].remote;
 		remote.updateRotation(updatedClient.id, keys);
-		
+
 		//keep last known state so we can send it to new connected clients
 		clients[c].laststate = keys;
 	}
@@ -256,7 +256,7 @@ eurecaServer.exports.pickUpItem = function(itemID)
 {
 
 	for(i=0;i<itemsList.length;i++){
-		
+
 		if(typeof itemsList[i] != 'undefined'){
 			if(itemID==itemsList[i].id){
 				if(typeof itemsList[i].gridPosition !='undefined')
@@ -329,7 +329,7 @@ for (var i = 0; i < Math.round(mapWidth/200); i++) {
             x:i * 200,
             y:j * 200,
             occupied: false
-            
+
         });
     }
 };
@@ -391,7 +391,7 @@ setInterval(function(){
 		}
 		if(!outOfPlaces){
 			elementForDrop = Math.round(Math.random()*2)+1;
-			for (var c in clients){		
+			for (var c in clients){
 				clients[c].remote.makeItem(itemX, itemY, elementForDrop,itemIdCounter);
 			};
 			itemsList.push({
@@ -406,4 +406,4 @@ setInterval(function(){
 		}
 	}
 },5000)
-server.listen(8000);
+server.listen(8000, '0.0.0.0');
