@@ -138,7 +138,6 @@ eurecaServer.exports.handshake = function(id,x,y,r,g,b)
 		if (c!=id) {
 			clients[c].remote.spawnEnemy(id,x,y,r,g,b)
 			var cl = clients[c]
-			console.log("RGB=="+cl.r+cl.g+cl.b)
 			enemy.remote.spawnEnemy(c,cl.lastX,cl.lastY,cl.r,cl.g,cl.b)
 		}
 	
