@@ -31,14 +31,16 @@ HealingSpell.prototype = Object.create(Spell.prototype);
 HealingSpell.prototype.constructor = HealingSpell
 
 HealingSpell.prototype.cast = function(character){
-    console.log("trying to cast healing")
-    this.currentCooldown = this.cooldown
+    if (game.time.now > this.nextFire && character.bullets.countDead() > 0){
+        this.nextFire = game.time.now + this.cooldown;
+        this.currentCooldown = this.cooldown
 
-    this.visualEffectSprite.reset(character.baseSprite.x,
-                                  character.baseSprite.y)
-    this.visualEffectSprite.animations.play('cast', 5, false, true);
+        this.visualEffectSprite.reset(character.baseSprite.x,
+                                      character.baseSprite.y)
+        this.visualEffectSprite.animations.play('cast', 5, false, true);
 
-    eurecaServer.updateHP(character.id, this.healingSpellHealing + 20 * this.spellPower);
+        eurecaServer.updateHP(character.id, this.healingSpellHealing + 20 * this.spellPower);
+    }
 };
 
 // Fireball
@@ -203,7 +205,7 @@ ColdSphere.prototype.cast = function(character){
 
 function Vape() {
     Spell.call(this);
-    this.cooldown = 2000;
+    this.cooldown = 1000;
 }
 
 Vape.prototype = Object.create(Spell.prototype);

@@ -30,7 +30,7 @@ var EurecaClientSetup = function() {
 	{
 		var target = charactersList[id]
 		if (target && target.health >= 0) {
-			console.log(difHP);
+			//console.log(difHP);
 			target.health = Phaser.Math.min(target.privateHealth,target.health + difHP);
 			if (target.hpBar != null)
 				target.hpBar.scale.setTo(Phaser.Math.max(target.health/target.privateHealth,0), 1);
@@ -101,7 +101,7 @@ var EurecaClientSetup = function() {
         
         charactersList[id].SpeedX *= k;
         charactersList[id].SpeedY *= k;
-        console.log(charactersList[id].SpeedX)
+        //console.log(charactersList[id].SpeedX)
     }
 
     eurecaClient.exports.doLeap = function(id, new_x, new_y)
@@ -190,7 +190,7 @@ var EurecaClientSetup = function() {
 	}
 	eurecaClient.exports.makeItem = function(x,y,elementForDrop,itemID) {
 		var found = false;
-		console.log('making item');
+		//console.log('making item');
 		for (var i in items){ 
 			if (!items[i].alive && items[i].element == elementForDrop){
 				//console.log('activated');

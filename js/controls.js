@@ -25,6 +25,8 @@ TouchControls = function(character)
     this.offsetY = window.innerHeight - this.segmentSize * 3 - this.margin
 };
 
+
+
 TouchControls.prototype.init = function create(game) {
     // buttonR = game.add.button(this.offsetX + this.segmentSize, 
     //                           this.offsetY + this.segmentSize,
@@ -93,7 +95,7 @@ TouchControls.prototype.init = function create(game) {
     buttonS0.onInputUp.add(function() { this.touchInput.button0 = false }, this)
     buttonS0.onInputDown.add(function() { this.touchInput.button0 = true }, this)
     buttonS0.kill();
-    console.log("buttonS0.kill()")
+    //console.log("buttonS0.kill()")
     this.buttons[0] = buttonS0;
 
     buttonS1 = game.add.button(window.innerWidth - this.segmentSize - this.margin, 
@@ -110,7 +112,7 @@ TouchControls.prototype.init = function create(game) {
     this.buttons[1] = buttonS1;
 
     buttonS2 = game.add.button(window.innerWidth - this.segmentSize - this.margin, 
-                               this.offsetY + this.segmentSize + this.segmentSize,
+                               this.offsetY + (this.segmentSize*2),
                                'logoS2', 
                                this.spell2buttonAction, 
                                this, 
@@ -123,7 +125,7 @@ TouchControls.prototype.init = function create(game) {
     this.buttons[2] = buttonS2;
 
     buttonS3 = game.add.button(window.innerWidth - this.segmentSize - this.margin, 
-                               this.offsetY + this.segmentSize + this.segmentSize + this.segmentSize,
+                               this.offsetY + (this.segmentSize*3),
                                'logoS3', 
                                this.spell3buttonAction, 
                                this, 
@@ -136,9 +138,7 @@ TouchControls.prototype.init = function create(game) {
     this.buttons[3] = buttonS3;
 
     buttonS4 = game.add.button(window.innerWidth - this.segmentSize - this.margin, 
-                               this.offsetY + this.segmentSize + 
-                               this.segmentSize + this.segmentSize + 
-                               this.segmentSize,
+                               this.offsetY + (this.segmentSize*4),
                                'logoS4', 
                                this.spell4buttonAction, 
                                this, 
@@ -151,9 +151,7 @@ TouchControls.prototype.init = function create(game) {
     this.buttons[4] = buttonS4;
 
     buttonS5 = game.add.button(window.innerWidth - this.segmentSize - this.margin, 
-                               this.offsetY + this.segmentSize + 
-                               this.segmentSize + this.segmentSize + 
-                               this.segmentSize + this.segmentSize,
+                               this.offsetY + (this.segmentSize*5),
                                'logoS5', 
                                this.spell5buttonAction, 
                                this, 
@@ -166,9 +164,7 @@ TouchControls.prototype.init = function create(game) {
     this.buttons[5] = buttonS5;
 
     buttonS6 = game.add.button(window.innerWidth - this.segmentSize - this.margin, 
-                               this.offsetY + this.segmentSize + 
-                               this.segmentSize + this.segmentSize + 
-                               this.segmentSize + this.segmentSize + this.segmentSize,
+                               this.offsetY + (this.segmentSize*6),
                                'logoS6', 
                                this.spell5buttonAction, 
                                this, 
@@ -179,6 +175,59 @@ TouchControls.prototype.init = function create(game) {
     buttonS6.onInputDown.add(function() { this.touchInput.button6 = true }, this)
     //buttonS6.kill();
     this.buttons[6] = buttonS6;
+
+    this.buttonMapping = [];
+    this.elementReminder = [];
+
+    this.highlight = game.add.sprite(
+      window.innerWidth - this.segmentSize - this.margin, 
+      this.offsetY + (this.segmentSize*6),
+      'highlight'
+    );
+    this.highlight.fixedToCamera = true;
+    this.highlight.alpha = 0.3;
+
+    this.moveHighlight = function(itemNumber){
+      this.highlight.cameraOffset.y = this.offsetY + (this.segmentSize*itemNumber)
+    }
+
+    this.frames = [
+      [0,0], //fireball
+      [1,2], //heal
+      [0,1], //leap
+      [1,1], //spike
+      [2,2], //freeze
+      [0,2] //vape
+    ]
+    //if (game.device.desktop){
+      for(i=0;i<this.buttons.length;i++){
+        this.buttonMapping[i] = game.add.text(
+          window.innerWidth - 128, 
+          this.offsetY + (this.segmentSize*i) + 55 - 16,
+          i+1,
+          { font: "18px Arial", fill: "#ffffff", align: "left" }
+        );
+
+        if(i!=6){
+          this.elementReminder[i] = game.add.sprite(
+            window.innerWidth - this.segmentSize - this.margin*2, 
+            this.offsetY + (this.segmentSize*i),
+            'inventoryItem'
+          );
+          //this.elementReminder[i].scale.setTo(wiScale,wiScale);
+          this.elementReminder[i].fixedToCamera = true;
+          this.elementReminder[i].alpha = 0.5;
+          this.elementReminder[i].kill();
+        }
+
+
+        this.buttonMapping[i].fixedToCamera = true;
+        this.buttonMapping[i].alpha = 0;
+        this.buttons[i].alpha = 0;
+      }
+    //}
+    this.buttonMapping[6].alpha = 1;
+    this.buttons[6].alpha = 1;
 
     if (!game.device.desktop)
     {
@@ -203,11 +252,6 @@ TouchControls.prototype.init = function create(game) {
     buttonS4.fixedToCamera = true
     buttonS5.fixedToCamera = true
     buttonS6.fixedToCamera = true
-
-
-
-
-
 }
 
 

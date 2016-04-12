@@ -117,7 +117,7 @@ Character = function (index, game, x, y, r, g, b) {
 
     this.id = index;
     this.baseSprite.id = index;
-    console.log("id="+index)
+    //console.log("id="+index)
     game.physics.enable(this.baseSprite, Phaser.Physics.ARCADE);
     game.physics.enable(this.headSprite, Phaser.Physics.ARCADE);
     this.baseSprite.body.immovable = false;
@@ -142,22 +142,6 @@ Character = function (index, game, x, y, r, g, b) {
         this.RCounter = 0
         this.GCounter = 0
         this.BCounter = 0
-        var randomElement = Math.round(Math.random()*2)
-        if (randomElement == 1) 
-        {
-            this.RCounter++
-            this.inventory.push(1);
-        }
-        else if (randomElement == 2) 
-        {
-            this.GCounter++
-            this.inventory.push(2);
-        }
-        else if (randomElement == 3) 
-        {
-            this.BCounter++
-            this.inventory.push(3);
-        }
     }
 
 
@@ -204,10 +188,7 @@ Character.prototype.recreate = function (x,y) {
     this.RCounter = 0
     this.GCounter = 0
     this.BCounter = 0
-    var randomElement = Math.round(Math.random()*2)
-    if (randomElement == 1) this.RCounter++
-    else if (randomElement == 2) this.GCounter++
-    else if (randomElement == 3) this.BCounter++
+
     this.recolorAura()
     this.hpBar = null;
     if (myId != this.baseSprite.id) {
@@ -215,9 +196,7 @@ Character.prototype.recreate = function (x,y) {
         this.hpBar.anchor.set(0.5);
     }
     if (this.id==player.id) {
-        player.rItems.setText(this.RCounter+"")
-        player.gItems.setText(this.GCounter+"")
-        player.bItems.setText(this.BCounter+"")
+        inventoryItem.kill();
         player.hpline.scale.setTo(Phaser.Math.min(player.health/maxHealth,1), 1);
         player.hpline_secondary.scale.setTo(Phaser.Math.max((player.health-maxHealth)/180,0), 1);
     }
@@ -365,31 +344,38 @@ Character.prototype.update = function() {
 
     if ((this.cursor.spell0 || this.touchInput.button0) && this.spellsAvailable[0]) // fireball
     {
-        this.type=0
+        this.type=0;
+        touchControls.moveHighlight(0)
     }
     if ((this.cursor.spell1 || this.touchInput.button1)  && this.spellsAvailable[1]) //healing
     {
-        this.type=1
+        this.type=1;
+        touchControls.moveHighlight(1)
     }
     if ((this.cursor.spell2 || this.touchInput.button2)  && this.spellsAvailable[2]) //leap
     {
-        this.type=2
+        this.type=2;
+        touchControls.moveHighlight(2)
     }
     if ((this.cursor.spell3 || this.touchInput.button3)  && this.spellsAvailable[3]) //spike
     {
-        this.type=3
+        this.type=3;
+        touchControls.moveHighlight(3)
     }
     if ((this.cursor.spell4 || this.touchInput.button4)  && this.spellsAvailable[4]) //cold sphere
     {
-        this.type=4
+        this.type=4;
+        touchControls.moveHighlight(4)
     }
     if ((this.cursor.spell5 || this.touchInput.button5)  && this.spellsAvailable[5]) //vape
     {
-        this.type=5
+        this.type=5;
+        touchControls.moveHighlight(5)
     }
     if ((this.cursor.spell6 || this.touchInput.button6)) //close-in fighting
     {
-        this.type=6
+        this.type=6;
+        touchControls.moveHighlight(6)
     }
 
 
@@ -408,7 +394,7 @@ Character.prototype.update = function() {
     }
 
     game.physics.arcade.collide(this.baseSprite, obstacles);
-    game.physics.arcade.collide( obstacles,this.bullets, function(a,b){b.kill()},null,this);
+    game.physics.arcade.collide( obstacles,this.bullets, bulletHit,null,this);
     for (var c in charactersList) game.physics.arcade.collide(charactersList[c].baseSprite, this.baseSprite/* урон от столкновения: , function(){eurecaServer.updateHP(this.id,-1)},null,this*/);
 };
 
@@ -452,7 +438,17 @@ Character.prototype.kill = function() {
     this.deadSprite.lifespan = 3000;
     this.headSprite.kill();
     this.auraSprite.kill();
-    if (this.id==player.id) for (i=0;i<touchControls.buttons.length;i++) touchControls.buttons[i].kill()
+    if (this.id==player.id){
+        touchControls.moveHighlight(6);
+        for(var spell in player.spells)
+            player.spells[spell].spellPower = 0;
+        for (i=0;i<touchControls.buttons.length-1;i++){
+            touchControls.buttons[i].kill();
+            touchControls.buttons[i].alpha = 0;
+            touchControls.elementReminder[i].kill();
+            touchControls.buttonMapping[i].alpha = 0;
+        }
+    }
     this.dropItem();
 }
 
@@ -478,109 +474,197 @@ Character.prototype.recolorAura = function() {
 
 Character.prototype.pickUpItem = function(itemSprite) {
     itemSprite.kill()
-    switch (itemSprite.element) {
-        case 1:
-            this.RCounter++
-            player.rItems.setText(this.RCounter)
-            break
-        case 2:
-            this.GCounter++
-            player.gItems.setText(this.GCounter)
-            break
-        case 3:
-            this.BCounter++
-            player.bItems.setText(this.BCounter)
-            break 
+    this.addFireball = function(){
+        if(this.spells.Fireball.spellPower==0){
+            this.type=0;
+            touchControls.moveHighlight(0);
+        }
+        this.spells.Fireball.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Fireball.spellPower + 1);
+        this.spells.Fireball.cooldown -= 3
+        this.spellsAvailable[0] = true;
+        touchControls.buttons[0].reset();
+        //console.log('fireball available')
+        touchControls.buttons[0].reset();
+        touchControls.buttonMapping[0].alpha = 1;
+        touchControls.buttons[0].alpha = 1;
+    }
+    this.addLeap = function(){
+        if(this.spells.Leap.spellPower==0){
+            this.type=2;
+            touchControls.moveHighlight(2);
+        }
+        this.spells.Leap.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Leap.spellPower + 1);
+        this.spellsAvailable[2] = true;
+        this.spells.Leap.jumpDist += 50;
+        this.spells.Leap.cooldown -= 30;
+        //console.log('leap available')
+        touchControls.buttons[2].reset();
+        touchControls.buttonMapping[2].alpha = 1;
+        touchControls.buttons[2].alpha = 1;
+    }
+    this.addVape = function(){
+        if(this.spells.Vape.spellPower==0){
+            this.type=5;
+            touchControls.moveHighlight(5);
+        }
+        this.spells.Vape.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Vape.spellPower + 1);
+        this.spellsAvailable[5] = true;
+        //console.log('vape available')
+        touchControls.buttons[5].reset()
+        touchControls.buttonMapping[5].alpha = 1;
+        touchControls.buttons[5].alpha = 1;
+    }
+    this.addSpike = function(){
+        if(this.spells.Spike.spellPower==0){
+            this.type=3;
+            touchControls.moveHighlight(3);
+        }
+        this.spells.Spike.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Spike.spellPower + 1);
+        this.spellsAvailable[3] = true;
+        this.spells.Spike.cooldown -= 9;
+        //console.log('spike available')
+        touchControls.buttons[3].reset();
+        touchControls.buttonMapping[3].alpha = 1;
+        touchControls.buttons[3].alpha = 1;
+    }
+    this.addHeal = function(){
+        if(this.spells.HealingSpell.spellPower==0){
+            this.type=1;
+            touchControls.moveHighlight(1);
+        }
+        this.spells.HealingSpell.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.HealingSpell.spellPower + 1);
+        this.spellsAvailable[1] = true;
+        //console.log('healing available')
+        touchControls.buttons[1].reset();
+        touchControls.buttonMapping[1].alpha = 1;
+        touchControls.buttons[1].alpha = 1;
+    }
+    this.addFreeze = function(){
+        if(this.spells.ColdSphere.spellPower==0){
+            this.type=4;
+            touchControls.moveHighlight(4);
+        }
+        this.spells.ColdSphere.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.ColdSphere.spellPower + 1);
+        this.spellsAvailable[4] = true;
+        //console.log('coldsphere available')
+        touchControls.buttons[4].reset();
+        touchControls.buttonMapping[4].alpha = 1;
+        touchControls.buttons[4].alpha = 1;
     }
     this.inventory.push(itemSprite.element);
-    this.privateHealth += 3
+    this.privateHealth += 3;
     if(this.inventory.length>=2){
         switch(this.inventory[0]){
             case 1:
                 switch(this.inventory[1]){
                     case 1:
-                        this.spells.Fireball.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Fireball.spellPower + 1);
-                        this.spells.Fireball.cooldown -= 3
-                        this.spellsAvailable[0] = true;
-                        touchControls.buttons[0].reset();
-                        console.log('fireball available')
-                        touchControls.buttons[0].reset()
+                        this.addFireball();
                         break;
                     case 2:
-                        this.spells.Leap.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Leap.spellPower + 1);
-                        this.spellsAvailable[2] = true;
-                        this.spells.Leap.jumpDist += 50;
-                        this.spells.Leap.cooldown -= 30;
-                        console.log('leap available')
-                        touchControls.buttons[2].reset()
+                        this.addLeap();
                         break;
                     case 3:
-                        this.spells.Vape.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Vape.spellPower + 1);
-                        this.spellsAvailable[5] = true;
-                        console.log('vape available')
-                        touchControls.buttons[5].reset()
+                        this.addVape();
                         break;
                 };
                 break;
             case 2:
                 switch(this.inventory[1]){
                     case 1:
-                        this.spells.Leap.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Leap.spellPower + 1);
-                        this.spells.Leap.jumpDist += 50;
-                        this.spells.Leap.cooldown -= 30;
-                        this.spellsAvailable[2] = true;
-                        console.log('leap available');
-                        touchControls.buttons[2].reset()
+                        this.addLeap();
                         break;
                     case 2:
-                        this.spells.Spike.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Spike.spellPower + 1);
-                        this.spellsAvailable[3] = true;
-                        this.spells.Spike.cooldown -= 9;
-                        console.log('spike available')
-                        touchControls.buttons[3].reset()
+                        this.addSpike();
                         break;
                     case 3:
-                        this.spells.HealingSpell.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.HealingSpell.spellPower + 1);
-                        this.spellsAvailable[1] = true;
-                        console.log('healing available')
-                        touchControls.buttons[1].reset()
+                        this.addHeal();
                         break;
                 };
                 break;
             case 3:
                 switch(this.inventory[1]){
                     case 1:
-                        this.spells.Vape.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Vape.spellPower + 1);
-                        this.spellsAvailable[5] = true;
-                        console.log('vape available')
-                        touchControls.buttons[5].reset()
+                        this.addVape();
                         break;
                     case 2:
-                        this.spells.HealingSpell.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.HealingSpell.spellPower + 1);
-                        this.spellsAvailable[1] = true;
-                        console.log('healing available')
-                        touchControls.buttons[1].reset()
+                        this.addHeal();
                         break;
                     case 3:
-                        this.spells.ColdSphere.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.ColdSphere.spellPower + 1);
-                        this.spellsAvailable[4] = true;
-                        console.log('coldsphere available')
-                        touchControls.buttons[4].reset()
+                        this.addFreeze();
                         break;
                 };
                 break;
-        }
+        };
+        inventoryItem.kill();
         this.inventory=[];
         //console.log(this.spells);
-
+        for(i=0;i<touchControls.buttons.length;i++){
+            if(i!=6)
+                touchControls.elementReminder[i].kill();
+            if(touchControls.buttons[i].alpha == 0.3){
+                touchControls.buttons[i].kill();
+                touchControls.buttons[i].alpha = 0;
+            }
+        }
+    }
+    else{
+        switch (itemSprite.element) {
+            case 1:
+                this.RCounter++;
+                for(i=0;i<touchControls.buttons.length;i++){
+                    if(/[0,2,5]/.test(i)){
+                        if(touchControls.buttons[i].alpha != 1){
+                            touchControls.buttons[i].reset();
+                            touchControls.buttons[i].alpha = 0.3;
+                        }
+                        touchControls.elementReminder[i].reset(); 
+                        touchControls.elementReminder[i].frame = touchControls.frames[i][1]
+                    }
+                }
+                inventoryItem.reset();
+                inventoryItem.frame = 0;
+                break;
+            case 2:
+                this.GCounter++;
+                for(i=0;i<touchControls.buttons.length;i++){
+                    if(/[1,2,3]/.test(i)){
+                        if(touchControls.buttons[i].alpha != 1){
+                            touchControls.buttons[i].reset();
+                            touchControls.buttons[i].alpha = 0.3;
+                        }
+                        touchControls.elementReminder[i].reset();                        
+                        if(i==1)
+                            touchControls.elementReminder[i].frame = touchControls.frames[i][1]
+                        else
+                            touchControls.elementReminder[i].frame = touchControls.frames[i][0]
+                    }
+                }
+                inventoryItem.reset();
+                inventoryItem.frame = 1;
+                break;
+            case 3:
+                this.BCounter++;
+                for(i=0;i<touchControls.buttons.length;i++){
+                    if(/[1,4,5]/.test(i)){
+                        if(touchControls.buttons[i].alpha != 1){
+                            touchControls.buttons[i].reset();
+                            touchControls.buttons[i].alpha = 0.3;
+                        }
+                        touchControls.elementReminder[i].reset(); 
+                        touchControls.elementReminder[i].frame = touchControls.frames[i][0]
+                    }
+                }
+                inventoryItem.reset();
+                inventoryItem.frame = 2;
+                break ;
+        }
     }
     var counter = this.RCounter+this.GCounter+this.BCounter
     if (counter <= 20) {
-        this.SpeedX = playerSpeedX - counter*10
-        this.SpeedY = playerSpeedY - counter*10
+        this.SpeedX = playerSpeedX - counter*5
+        this.SpeedY = playerSpeedY - counter*5
     }
     // console.log("R="+this.RCounter+" G="+this.GCounter+" B="+this.BCounter)
     this.recolorAura()
     eurecaServer.pickUpItem(itemSprite.id);
-
 }
