@@ -35,9 +35,8 @@ var EurecaClientSetup = function() {
 			if (target.hpBar != null)
 				target.hpBar.scale.setTo(Phaser.Math.max(target.health/target.privateHealth,0), 1);
 			if (target.health <= 0) {
-				//console.log("id="+id+" attackerId="+attackerId+" player.id="+player.id)
 				if (id == player.id) player.deaths++
-				else player.kills++
+				if (attackerId == player.id) player.kills++ // так надо
 			}
 			if (target.health <= 0 && id == player.baseSprite.id) {
 				console.log('talk server about killing');

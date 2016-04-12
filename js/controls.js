@@ -93,6 +93,7 @@ TouchControls.prototype.init = function create(game) {
     buttonS0.onInputUp.add(function() { this.touchInput.button0 = false }, this)
     buttonS0.onInputDown.add(function() { this.touchInput.button0 = true }, this)
     buttonS0.kill();
+    console.log("buttonS0.kill()")
     this.buttons[0] = buttonS0;
 
     buttonS1 = game.add.button(window.innerWidth - this.segmentSize - this.margin, 

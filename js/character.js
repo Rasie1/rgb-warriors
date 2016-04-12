@@ -214,11 +214,13 @@ Character.prototype.recreate = function (x,y) {
         this.hpBar = game.add.sprite(x - 32, y - 32, 'hpBar');
         this.hpBar.anchor.set(0.5);
     }
-    player.rItems.setText(this.RCounter+"")
-    player.gItems.setText(this.GCounter+"")
-    player.bItems.setText(this.BCounter+"")
-    player.hpline.scale.setTo(Phaser.Math.min(player.health/maxHealth,1), 1);
-    player.hpline_secondary.scale.setTo(Phaser.Math.max((player.health-maxHealth)/180,0), 1);
+    if (this.id==player.id) {
+        player.rItems.setText(this.RCounter+"")
+        player.gItems.setText(this.GCounter+"")
+        player.bItems.setText(this.BCounter+"")
+        player.hpline.scale.setTo(Phaser.Math.min(player.health/maxHealth,1), 1);
+        player.hpline_secondary.scale.setTo(Phaser.Math.max((player.health-maxHealth)/180,0), 1);
+    }
 }
 
 Character.prototype.update = function() {
@@ -450,9 +452,7 @@ Character.prototype.kill = function() {
     this.deadSprite.lifespan = 3000;
     this.headSprite.kill();
     this.auraSprite.kill();
-    for(i=0;i<touchControls.buttons.length;i++){
-        touchControls.buttons[i].kill()
-    }
+    if (this.id==player.id) for (i=0;i<touchControls.buttons.length;i++) touchControls.buttons[i].kill()
     this.dropItem();
 }
 
