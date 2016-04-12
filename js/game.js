@@ -462,14 +462,14 @@ function bulletHit (victim, bullet) {
     bullet.kill();
     if(bullet.type==0){
         if(this.id == myId){
-            if(victim.health>0 && victim.key=='enemy') {
+            if(victim.health>0) {
                 eurecaServer.updateHP(victim.id, -20, player.id);
             }
         }
     }
     if(bullet.type==5){
         if(this.id == myId && victim.key=='enemy')
-            eurecaServer.castFreeze(victim.id, 1.0)
+            eurecaServer.castFreeze(victim.id, 3)
     }
     if(bullet.type==6){
             var vape = this.vapelosions.getFirstDead();
@@ -480,6 +480,6 @@ function bulletHit (victim, bullet) {
 }
 function vapeHit (victim, vapelosion) {
    if (victim.health>0 && this.id == myId)
-        eurecaServer.updateHP(victim.id, -15, player.id);
+        eurecaServer.updateHP(victim.id, -0.5, player.id);
 }
 function render () {}

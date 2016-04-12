@@ -408,7 +408,7 @@ Character.prototype.update = function() {
     }
 
     game.physics.arcade.collide(this.baseSprite, obstacles);
-    game.physics.arcade.collide( obstacles,this.bullets, bulletHit,null,this);
+    game.physics.arcade.collide( obstacles,this.bullets, function(a,b){b.kill()},null,this);
     for (var c in charactersList) game.physics.arcade.collide(charactersList[c].baseSprite, this.baseSprite/* урон от столкновения: , function(){eurecaServer.updateHP(this.id,-1)},null,this*/);
 };
 

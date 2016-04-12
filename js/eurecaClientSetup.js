@@ -101,7 +101,7 @@ var EurecaClientSetup = function() {
         
         charactersList[id].SpeedX *= k;
         charactersList[id].SpeedY *= k;
-        // console.log(charactersList[id].SpeedX)
+        console.log(charactersList[id].SpeedX)
     }
 
     eurecaClient.exports.doLeap = function(id, new_x, new_y)
