@@ -405,5 +405,5 @@ setInterval(function(){
 			//console.log(itemsList,itemIdCounter);
 		}
 	}
-},5000)
+},1000)
 server.listen(8000, '0.0.0.0');

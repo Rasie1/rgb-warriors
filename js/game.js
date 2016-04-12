@@ -59,7 +59,8 @@ else {
 };
 
 var itemTimer = 0
-var items = []
+var items = [];
+var itemsGroup;
 
 
 var game = new Phaser.Game(
@@ -72,6 +73,8 @@ var game = new Phaser.Game(
 
 var bdm;
 var ice;
+
+var inventoryItem;
 
 var onScreenChange = function() {
 	if(game.renderType==2) {
@@ -146,10 +149,8 @@ function preload () {
     game.load.image('window_health_1', 'assets/window_health_1.png')
     game.load.image('window_health_2', 'assets/window_health_2.png')
     game.load.image('window_health_3', 'assets/window_health_3.png')
+    game.load.spritesheet('inventoryItem', 'assets/items.png', 61, 61, 3);
     game.load.image('window_health_secondary', 'assets/window_health_secondary.png')
-    game.load.image('window_item0', 'assets/window_item1.png')
-    game.load.image('window_item1', 'assets/window_item2.png')
-    game.load.image('window_item2', 'assets/window_item3.png')
     game.load.image('window_counter', 'assets/window_counter.png')
     game.load.image('logoS0', 'assets/logo/logo_fire.png')
     game.load.image('logoS1', 'assets/logo/logo_health.png')
@@ -158,6 +159,7 @@ function preload () {
     game.load.image('logoS4', 'assets/logo/logo_cold.png')
     game.load.image('logoS5', 'assets/logo/logo_smoke.png')
     game.load.image('logoS6', 'assets/logo/logo_sword.png')
+    game.load.image('highlight', 'assets/logo/highlight.png')
 }
 
 function initializeInput ()
@@ -221,6 +223,8 @@ function create ()
     
     charactersList = {};
 
+    itemsGroup = game.add.group();
+
 	obstacles = game.add.group();
 	obstacles.enableBody = true;
 
@@ -256,19 +260,15 @@ function create ()
     player.HUD.add(player.hpline_glass)
 
     var wiScale = 0.7
-    var window_item0 = game.add.sprite(10, 80, 'window_item0')
-    window_item0.scale.setTo(wiScale,wiScale)
-    window_item0.fixedToCamera = true
-    player.HUD.add(window_item0)
-    var window_item1 = game.add.sprite(10, 130, 'window_item1')
-    window_item1.scale.setTo(wiScale,wiScale)
-    window_item1.fixedToCamera = true
-    player.HUD.add(window_item1)
-    var window_item2 = game.add.sprite(10, 180, 'window_item2')
-    window_item2.scale.setTo(wiScale,wiScale)
-    window_item2.fixedToCamera = true
-    player.HUD.add(window_item2)
-    player.rItems = game.add.text(30, 88, player.RCounter+"",
+
+    inventoryItem = game.add.sprite(10, 80, 'inventoryItem');
+    inventoryItem.frame = 0;
+    inventoryItem.scale.setTo(wiScale,wiScale);
+    inventoryItem.fixedToCamera = true;
+    inventoryItem.kill();
+    player.HUD.add(inventoryItem);
+
+    /*player.rItems = game.add.text(30, 88, player.RCounter+"",
         { font: "24px Arial", fill: "#000000", align: "center" })
     player.rItems.fixedToCamera = true
     player.rItems.anchor.setTo(0.5,0)
@@ -282,7 +282,7 @@ function create ()
         { font: "24px Arial", fill: "#000000", align: "center" })
     player.bItems.fixedToCamera = true
     player.bItems.anchor.setTo(0.5,0)
-    player.HUD.add(player.bItems)
+    player.HUD.add(player.bItems)*/
 
     var window_counter_circle_secondary = game.add.sprite(60, 10, 'window_counter')
     window_counter_circle_secondary.scale.setTo(wiScale,wiScale)
@@ -359,6 +359,8 @@ createItem = function(x, y, elementForDrop,itemID)
 	item.element = elementForDrop;
 	item.id = itemID;
 	items[items.length] = item;
+    itemsGroup.add(item);
+    itemsGroup.sendToBack(itemsGroup);
 }
 
 activateItem = function(index, x, y,itemID)
@@ -462,14 +464,14 @@ function bulletHit (victim, bullet) {
     bullet.kill();
     if(bullet.type==0){
         if(this.id == myId){
-            if(victim.health>0 && victim.key=='enemy') {
+            if(victim.health>0) {
                 eurecaServer.updateHP(victim.id, -20, player.id);
             }
         }
     }
     if(bullet.type==5){
         if(this.id == myId && victim.key=='enemy')
-            eurecaServer.castFreeze(victim.id, 1.0)
+            eurecaServer.castFreeze(victim.id, 3)
     }
     if(bullet.type==6){
             var vape = this.vapelosions.getFirstDead();
@@ -480,6 +482,6 @@ function bulletHit (victim, bullet) {
 }
 function vapeHit (victim, vapelosion) {
    if (victim.health>0 && this.id == myId)
-        eurecaServer.updateHP(victim.id, -15, player.id);
+        eurecaServer.updateHP(victim.id, -0.5, player.id);
 }
 function render () {}
