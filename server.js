@@ -169,7 +169,6 @@ eurecaServer.exports.handleTouchInput = function (input) {
 
     for (var c in clients)
     {
-        console.log("button0: ", input.button0)
         // var remote = clients[c].remote;
         // remote.updateState(updatedClient.id, keys);
         // //keep last known state so we can send it to new connected clients
@@ -259,10 +258,11 @@ eurecaServer.exports.pickUpItem = function(itemID)
 
 		if(typeof itemsList[i] != 'undefined'){
 			if(itemID==itemsList[i].id){
+				//console.log('List lenght: ',itemsList.length,'; Item id: ',itemID,';List: ',itemsList)
 				if(typeof itemsList[i].gridPosition !='undefined')
 					itemsList[i].gridPosition.occupied = false;
 				index = itemsList.indexOf(itemsList[i]);
-				itemsList = itemsList.slice(1,index).concat(itemsList.slice(index+1,itemsList.length));
+				itemsList = itemsList.slice(0,index).concat(itemsList.slice(index+1,itemsList.length));
 			}
 		}
 		//console.log(itemsList)
@@ -392,6 +392,7 @@ setInterval(function(){
 		if(!outOfPlaces){
 			elementForDrop = Math.round(Math.random()*2)+1;
 			for (var c in clients){
+				console.log(itemIdCounter,itemsList.length);
 				clients[c].remote.makeItem(itemX, itemY, elementForDrop,itemIdCounter);
 			};
 			itemsList.push({
@@ -402,7 +403,7 @@ setInterval(function(){
 				gridPosition:gridPosition
 			})
 			itemIdCounter++;
-			//console.log(itemsList,itemIdCounter);
+			
 		}
 	}
 },1000)

@@ -189,17 +189,17 @@ var EurecaClientSetup = function() {
 		}
 	}
 	eurecaClient.exports.makeItem = function(x,y,elementForDrop,itemID) {
-		var found = false;
 		//console.log('making item');
+		found = false;
 		for (var i in items){ 
 			if (!items[i].alive && items[i].element == elementForDrop){
-				//console.log('activated');
+				console.log('activated '+itemID);
 				activateItem(i, x, y,itemID);
 			}
+			if (found) break;
 		}
-
-		if (!found && items.length < 30){
-			//console.log('created');
+		if (!found){
+			console.log('created '+itemID);
 			createItem(x, y, elementForDrop,itemID);
 		}
 

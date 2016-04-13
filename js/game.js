@@ -76,6 +76,8 @@ var ice;
 
 var inventoryItem;
 
+var found = false;
+
 var onScreenChange = function() {
 	if(game.renderType==2) {
 		widthDiff = screenWidth-window.innerWidth;
@@ -370,6 +372,7 @@ activateItem = function(index, x, y,itemID)
 		var item = items[index];
 		item.x = x;
 		item.y = y;
+        item.id = itemID;
 		item.alive = true;
 		found = true
 	}

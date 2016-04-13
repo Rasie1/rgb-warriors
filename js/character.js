@@ -473,7 +473,8 @@ Character.prototype.recolorAura = function() {
 }
 
 Character.prototype.pickUpItem = function(itemSprite) {
-    itemSprite.kill()
+    itemSprite.kill();
+    console.log(itemSprite.id)
     this.addFireball = function(){
         if(this.spells.Fireball.spellPower==0){
             this.type=0;
@@ -665,6 +666,7 @@ Character.prototype.pickUpItem = function(itemSprite) {
         this.SpeedY = playerSpeedY - counter*5
     }
     // console.log("R="+this.RCounter+" G="+this.GCounter+" B="+this.BCounter)
-    this.recolorAura()
-    eurecaServer.pickUpItem(itemSprite.id);
+    this.recolorAura();
+    if(this.baseSprite.id==myId)
+        eurecaServer.pickUpItem(itemSprite.id);
 }

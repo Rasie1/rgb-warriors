@@ -185,7 +185,7 @@ TouchControls.prototype.init = function create(game) {
       'highlight'
     );
     this.highlight.fixedToCamera = true;
-    this.highlight.alpha = 0.3;
+    this.highlight.alpha = 1;
 
     this.moveHighlight = function(itemNumber){
       this.highlight.cameraOffset.y = this.offsetY + (this.segmentSize*itemNumber)
