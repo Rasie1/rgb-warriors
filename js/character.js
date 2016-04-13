@@ -477,6 +477,7 @@ Character.prototype.fire = function(target,fireType) {
 
 
 Character.prototype.kill = function() {
+    console.log('killed')
     this.alive = false;
     this.baseSprite.kill();
     if (this.hpBar != null) {
@@ -537,7 +538,8 @@ Character.prototype.pickUpItem = function(itemSprite) {
         else{
             touchControls.spellPowerCounter[spellId].setText('lvl '+this.spells[alias].spellPower);
             touchControls.levelup[spellId].alpha = 1;
-            game.add.tween(touchControls.levelup[spellId]).to( { alpha: 0 }, 500, Phaser.Easing.Linear.None, true);  
+            game.add.tween(touchControls.levelup[spellId]).to( { alpha: 0 }, 500, Phaser.Easing.Linear.None, true); 
+            this.spells[alias].levelup(); 
         }
         this.spells[alias].spellPower = Phaser.Math.min(maxSpellsLevel, this.spells[alias].spellPower + 1);
         this.spellsAvailable[spellId] = true;

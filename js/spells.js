@@ -8,7 +8,7 @@ Spell.prototype.cast = function(character) {
 
 }
 
-Spell.prototype.castProjectile = function(character,bulletType,bulletFrame,bulletSpeed,spellId){
+Spell.prototype.castProjectile = function(character,bulletType,bulletFrame,bulletSpeed,bulletDamage,spellPowerBoost,spellId){
     if (game.time.now > this.nextFire && game.time.now > character.nextFire && character.bullets.countDead() > 0){
         character.mouseAlreadyUpdated = false;
         this.nextFire = game.time.now + this.cooldown;
@@ -16,8 +16,11 @@ Spell.prototype.castProjectile = function(character,bulletType,bulletFrame,bulle
         this.displayCooldowns(character,spellId);
         var bullet = character.bullets.getFirstDead();
         bullet.lifespan = 5000;
+        bullet.damage = bulletDamage;
         bullet.type = bulletType;
         bullet.frame = bulletFrame;
+        bullet.spellPower = this.spellPower;
+        bullet.spellPowerBoost = spellPowerBoost * this.spellPower;
         //bullet.damagePower = this.spellPower;
         bullet.reset(character.headSprite.x, character.headSprite.y);
         bullet.rotation = game.physics.arcade.moveToObject(bullet, {x:character.cursor.tx,y:character.cursor.ty}, bulletSpeed);
@@ -35,6 +38,9 @@ Spell.prototype.displayCooldowns = function(character,spellId){
             }
         }
     }
+}
+Spell.prototype.levelup = function(){
+
 }
 
 // Healing Spell
@@ -80,7 +86,7 @@ Fireball.prototype = Object.create(Spell.prototype);
 Fireball.prototype.constructor = Fireball
 
 Fireball.prototype.cast = function(character){
-    this.castProjectile(character,0,0,this.bulletSpeed,0)
+    this.castProjectile(character,0,0,this.bulletSpeed,-15,5,0)
 };
 
 // Cold Sphere
@@ -98,7 +104,7 @@ ColdSphere.prototype = Object.create(Spell.prototype);
 ColdSphere.prototype.constructor = ColdSphere
 
 ColdSphere.prototype.cast = function(character){
-    this.castProjectile(character,5,2,this.bulletSpeed,4)
+    this.castProjectile(character,5,2,this.bulletSpeed,-10,2,4)
 };
 
 // Vape
@@ -111,7 +117,7 @@ function Vape() {
 Vape.prototype = Object.create(Spell.prototype);
 Vape.prototype.constructor = Vape;
 Vape.prototype.cast = function(character){
-    this.castProjectile(character,6,1,this.bulletSpeed,5)
+    this.castProjectile(character,6,1,this.bulletSpeed,-5,1,5)
 };
 
 // Leap
@@ -148,7 +154,7 @@ Leap.prototype.cast = function(character){
         var target = new Phaser.Point(character.cursor.tx, character.cursor.ty);
 
 
-        var dist = Phaser.Math.min(this.jumpDist,
+        var dist = Phaser.Math.min(this.jumpDist + this.spellPower * 50,
                                    Phaser.Math.distance(curPos.x,
                                                         curPos.y,
                                                         target.x,
@@ -181,6 +187,9 @@ Leap.prototype.cast = function(character){
     	   eurecaServer.doLeap(character.id, target.x, target.y);
     }
 };
+Leap.prototype.levelup = function(){
+    this.cooldown = 1000 - 100*this.spellPower
+}
 
 // Spike
 function Spike() {
@@ -242,4 +251,33 @@ CloseFighting.prototype.cast = function(character)
     	   eurecaServer.castCloseAttack(character.id, {x: character.cursor.tx,
         											y: character.cursor.ty});
     }
+}
+
+//Projectiles hit
+function bulletHit (victim, bullet) {
+    bullet.kill();
+    if(this.id == myId && bullet.damage!=0){
+        if(victim.health>0) {
+            eurecaServer.updateHP(victim.id, bullet.damage - bullet.spellPowerBoost, player.id);
+        }
+    }
+    if(bullet.type==0){
+
+    }
+    if(bullet.type==5){
+        if(this.id == myId && victim.key=='enemy')
+            eurecaServer.castFreeze(victim.id, 3)
+    }
+    if(bullet.type==6){
+            var vape = this.vapelosions.getFirstDead();
+            vape.reset(bullet.x, bullet.y);
+            vape.play('vapelosion', 15, true, true);
+            vape.lifespan = 1350
+    }
+}
+
+//Vape cloud hit
+function vapeHit (victim, vapelosion,spellPowerBoost) {
+   if (victim.health>0 && this.id == myId)
+        eurecaServer.updateHP(victim.id, -0.5 - 0.1*this.spells.Vape.spellPower, player.id);
 }

@@ -448,32 +448,4 @@ function update () {
     };
 }
 
-//Projectiles hit
-function bulletHit (victim, bullet) {
-    bullet.kill();
-    if(bullet.type==0){
-        if(this.id == myId){
-            if(victim.health>0) {
-                eurecaServer.updateHP(victim.id, -20, player.id);
-            }
-        }
-    }
-    if(bullet.type==5){
-        if(this.id == myId && victim.key=='enemy')
-            eurecaServer.castFreeze(victim.id, 3)
-    }
-    if(bullet.type==6){
-            var vape = this.vapelosions.getFirstDead();
-            vape.reset(bullet.x, bullet.y);
-            vape.play('vapelosion', 15, true, true);
-            vape.lifespan = 1350
-    }
-}
-
-//Vape cloud hit
-function vapeHit (victim, vapelosion) {
-   if (victim.health>0 && this.id == myId)
-        eurecaServer.updateHP(victim.id, -0.5, player.id);
-}
-
 function render () {}
