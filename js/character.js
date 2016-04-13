@@ -127,6 +127,8 @@ Character = function (index, game, x, y, r, g, b) {
     game.physics.enable(this.weapon, Phaser.Physics.ARCADE);
     this.weapon.enableBody = true;
     this.weapon.physicsBodyType = Phaser.Physics.ARCADE;
+    this.weapon.scale.setTo(0.4, 0.4);
+    this.weapon.anchor.set(0.3,1);
     this.weapon.checkWorldBounds = true;
     this.weapon.kill()
 
