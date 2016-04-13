@@ -227,6 +227,9 @@ Character.prototype.recreate = function (x,y) {
         player.hpline.scale.setTo(Phaser.Math.min(player.health/maxHealth,1), 1);
         player.hpline_secondary.scale.setTo(Phaser.Math.max((player.health-maxHealth)/180,0), 1);
     }
+
+    for (i = 0; i <= 5; ++i)
+        this.spellsAvailable[i] = false;  
 }
 
 Character.prototype.update = function() {
@@ -348,6 +351,10 @@ Character.prototype.update = function() {
     //Firing
     if (this.cursor.fire)
     {
+        if(!this.spellsAvailable[this.fireType]){
+            this.fireType=6;
+            touchControls.moveHighlight(6)
+        }
         this.mouseAlreadyUpdated = false;
         this.fire({x:this.cursor.tx, y:this.cursor.ty},this.fireType);
     }
@@ -445,8 +452,10 @@ Character.prototype.update = function() {
     //Collisions
     game.physics.arcade.collide(this.baseSprite, obstacles);
     game.physics.arcade.collide( obstacles,this.bullets, bulletHit,null,this);
-    for (var c in charactersList) 
+    for (var c in charactersList){
         game.physics.arcade.collide(charactersList[c].baseSprite, this.baseSprite);
+        game.physics.arcade.collide(charactersList[c].bullets,this.bullets, bulletHit,null,this);
+    }
 };
 
 
@@ -503,6 +512,7 @@ Character.prototype.kill = function() {
             touchControls.spellPowerCounter[i].alpha = 0;
         }
     }
+
     this.dropItem();
 }
 
