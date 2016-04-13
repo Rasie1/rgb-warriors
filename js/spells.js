@@ -10,6 +10,7 @@ Spell.prototype.cast = function(character) {
 
 Spell.prototype.castProjectile = function(character,bulletType,bulletFrame,bulletSpeed,spellId){
     if (game.time.now > this.nextFire && game.time.now > character.nextFire && character.bullets.countDead() > 0){
+        character.mouseAlreadyUpdated = false;
         this.nextFire = game.time.now + this.cooldown;
         character.nextFire = game.time.now + character.fireRate;
         this.displayCooldowns(character,spellId);
@@ -53,6 +54,7 @@ HealingSpell.prototype.constructor = HealingSpell
 
 HealingSpell.prototype.cast = function(character){
     if (game.time.now > this.nextFire && game.time.now > character.nextFire){
+        character.mouseAlreadyUpdated = false;
         this.nextFire = game.time.now + this.cooldown;
         character.nextFire = game.time.now + character.fireRate; 
         this.displayCooldowns(character,1);
@@ -139,6 +141,7 @@ Leap.prototype.constructor = Leap
 Leap.prototype.cast = function(character){
 
     if (game.time.now > this.nextFire && game.time.now > character.nextFire){
+        character.mouseAlreadyUpdated = false;
         this.nextFire = game.time.now + this.cooldown;
         character.nextFire = game.time.now + character.fireRate;     
         this.displayCooldowns(character,2);
@@ -197,6 +200,7 @@ Spike.prototype.constructor = Spike
 Spike.prototype.cast = function(character){
 
     if (game.time.now > this.nextFire && game.time.now > character.nextFire){
+        character.mouseAlreadyUpdated = false;
         this.nextFire = game.time.now + this.cooldown;
         character.nextFire = game.time.now + character.fireRate; 
         this.displayCooldowns(character,3);
@@ -232,7 +236,7 @@ CloseFighting.prototype.constructor = CloseFighting
 CloseFighting.prototype.cast = function(character)
 {
     if (game.time.now > this.nextFire && game.time.now > character.nextFire){
-        console.log('casting')
+        character.mouseAlreadyUpdated = false;
         this.nextFire = game.time.now + this.cooldown;
         character.nextFire = game.time.now + character.fireRate; 
         this.displayCooldowns(character,6);

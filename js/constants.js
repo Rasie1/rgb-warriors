@@ -12,8 +12,8 @@ var mapHeight =  2000;
 var cameraDeadzoneWidth = 0.25;
 var cameraDeadzoneHeight = 0.25; 
 
-var playerSpeedX = 300;
-var playerSpeedY = 300;
+var playerSpeedX = 200;
+var playerSpeedY = 200;
 
 var maxGameWidth = 3000; 
 var maxGameHeight = 3000;

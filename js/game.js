@@ -201,18 +201,7 @@ function handleInput(player)
 
 })(window,document);
 
-window.addEventListener('wheel',function(d){
-    if(player){
-        if(d.deltaY>0){
-            player.cursor.mouseUp = true;
-            player.cursor.mouseDown = false;
-        }
-        if(d.deltaY<0){
-            player.cursor.mouseDown = true;
-            player.cursor.mouseUp = false;
-        }
-    }
-})
+
 
 function create () 
 {

@@ -344,7 +344,7 @@ for(i=0;i<25;i++){
 // console.log(obstaclesPositions)
 
 //item spawn
-setInterval(function(){
+function spawnAnItem(){
 	if(itemsList.length<30){
 		shuffle(obstaclesPositions);
 		var isOccupied = true;
@@ -387,5 +387,11 @@ setInterval(function(){
 			
 		}
 	}
-},1000)
+}
+for(i=0;i<10;i++)
+	spawnAnItem()
+setInterval(function(){
+	spawnAnItem();
+	spawnAnItem();
+},5000)
 server.listen(8000, '0.0.0.0');
