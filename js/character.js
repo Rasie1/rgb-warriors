@@ -122,6 +122,12 @@ Character = function (index, game, x, y, r, g, b) {
     this.alive = true;
     this.hasDied = false;
 
+    //Shadow
+    this.shadow = game.add.sprite(x, y, 'player-head');
+    this.shadow.anchor.set(0.5);
+    this.shadow.tint = 0x000000;
+    this.shadow.alpha = 0.4;
+
     //Sprites
     this.auraSprite = game.add.sprite(x, y, 'aura');
     
@@ -426,12 +432,20 @@ Character.prototype.update = function() {
     //Set player position
     this.headSprite.x
     = this.weapon.x
-    = this.auraSprite.x
+    = this.auraSprite.x 
+    = this.shadow.x
     = this.baseSprite.x;
     this.headSprite.y
     = this.weapon.y
     = this.auraSprite.y
+    = this.shadow.y
     = this.baseSprite.y;
+
+    this.shadow.x = this.baseSprite.x+3;
+    this.shadow.y = this.baseSprite.y+10;    
+
+
+    this.shadow.rotation = this.headSprite.rotation;
 
     //Set hp bar
     if (this.hpBar != null) {
@@ -571,6 +585,7 @@ Character.prototype.pickUpItem = function(itemSprite) {
     }
 
     itemSprite.kill();
+    itemSprite.shadow.kill();
     this.inventory.push(itemSprite.element);
     this.privateHealth += 3;    //Heal on item pickup
     if(this.id == myId){

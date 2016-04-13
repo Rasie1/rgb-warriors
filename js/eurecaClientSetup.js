@@ -210,6 +210,11 @@ var EurecaClientSetup = function() {
 			var v = obstacles.create(obstaclesList[i].x,obstaclesList[i].y, obstaclesList[i].spriteType)
 			v.body.immovable = true;
 			v.scale.setTo(1, 1);
+			v.shadow = game.add.sprite(obstaclesList[i].x+3, obstaclesList[i].y+10, obstaclesList[i].spriteType);
+		    v.shadow.anchor.set(0);
+		    v.shadow.tint = 0x000000;
+		    v.shadow.alpha = 0.4;
+		    console.log(v.shadow)
 	    }
 	} 
 }

@@ -330,7 +330,7 @@ for(i=0;i<25;i++){
 			possibleOffsetX=200-66;
 			possibleOffsetY=200-67;
 		}
-		obstaclesList[i].spriteType = 'cactus'+spriteKind;
+		obstaclesList[i].spriteType = 'cactus'+1;//spriteKind;
 	}
 	else{
 		possibleOffsetX=200-143;

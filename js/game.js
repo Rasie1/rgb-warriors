@@ -232,6 +232,7 @@ function create ()
 
     //Rocks and cactuses
 	obstacles = game.add.group();
+    obstaclesShadows = game.add.group();
 	obstacles.enableBody = true;
 
     //Players will go here
@@ -345,8 +346,14 @@ createItem = function(x, y, elementForDrop,itemID)
 	item.element = elementForDrop;
 	item.id = itemID;
 	items[items.length] = item;
+    item.shadow = game.add.sprite(x+3, y+10, 'item'+elementForDrop);
+    item.shadow.anchor.set(0);
+    item.shadow.tint = 0x000000;
+    item.shadow.alpha = 0.4;
     itemsGroup.add(item);
+    itemsGroup.add(item.shadow);    
     itemsGroup.sendToBack(itemsGroup);
+    itemsGroup.sendToBack(item.shadow)
 }
 
 activateItem = function(index, x, y,itemID)
@@ -355,6 +362,7 @@ activateItem = function(index, x, y,itemID)
 	{
 		var item = items[index];
 		item.reset(x,y);
+        item.shadow.reset(x,y);
         item.id = itemID;
 		item.alive = true;
 		found = true
