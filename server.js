@@ -378,7 +378,7 @@ setInterval(function(){
 		}
 		if(!outOfPlaces){
 			elementForDrop = (itemIdCounter+1)%3+1;
-			console.log(elementForDrop)
+			//console.log(elementForDrop)
 			for (var c in clients){
 				//console.log(itemIdCounter,itemsList.length);
 				clients[c].remote.makeItem(itemX, itemY, elementForDrop,itemIdCounter);

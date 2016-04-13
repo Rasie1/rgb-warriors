@@ -183,6 +183,7 @@ var EurecaClientSetup = function() {
 	eurecaClient.exports.updateRotation = function(id, state)
 	{
 		if (charactersList[id])  {
+			//console.log('updating')
 			charactersList[id].cursor = state;
 			charactersList[id].update();
 		}

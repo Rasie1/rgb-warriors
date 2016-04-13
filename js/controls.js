@@ -84,6 +84,7 @@ TouchControls.prototype.init = function create(game) {
     this.buttonMapping = [];
     this.spellPowerCounter = [];
     this.elementReminder = [];
+    this.reload = [];
     this.buttonsGroup = game.add.group(); 
 
     this.segmentSize = this.segmentSize / 2;
@@ -128,6 +129,16 @@ TouchControls.prototype.init = function create(game) {
       );
       this.buttonMapping[i].fixedToCamera = true;
       this.buttonMapping[i].alpha = 0;
+
+      //Colldown display
+      this.reload[i] = game.add.sprite(
+        window.innerWidth - this.segmentSize - this.margin, 
+        this.offsetY + (this.segmentSize*i),
+        'reload'
+      );
+      this.reload[i].alpha = 0.8;
+      this.reload[i].scale.y = 0;
+      this.reload[i].fixedToCamera = true;
 
       if(i!=6){
         //Element reminder for spells

@@ -20,7 +20,9 @@ Character = function (index, game, x, y, r, g, b) {
         spell3:false,
         spell4:false,
         spell5:false,
-        spell6:false
+        spell6:false,
+        mouseUp:false,
+        mouseDown:false
     }
 
     this.input = {
@@ -40,7 +42,9 @@ Character = function (index, game, x, y, r, g, b) {
         spell4:false,
         spell5:false,
         spell6:false,
-        fireType:0
+        fireType:0,
+        mouseUp:false,
+        mouseDown:false
     }
 
     
@@ -173,7 +177,8 @@ Character = function (index, game, x, y, r, g, b) {
     //Spells availability
     this.spellsAvailable = [];
     for (i = 0; i < 6; ++i)
-        this.spellsAvailable[i] = false;    
+        this.spellsAvailable[i] = false;   
+    this.spellsAvailable[6] = true;
 
     //HP bar
     if (myId != this.baseSprite.id)
@@ -343,6 +348,7 @@ Character.prototype.update = function() {
     //Firing
     if (this.cursor.fire)
     {
+        this.mouseAlreadyUpdated = false;
         this.fire({x:this.cursor.tx, y:this.cursor.ty},this.fireType);
     }
 
@@ -381,6 +387,43 @@ Character.prototype.update = function() {
     {
         this.fireType=6;
         touchControls.moveHighlight(6)
+    }
+
+    var stopScrolling = false;
+    var previouslySelected = this.fireType;
+    if(this.cursor.mouseUp){
+        var checkingWeapon = this.fireType;
+        this.cursor.mouseUp = false;        
+        while(!stopScrolling){
+            if(checkingWeapon<6)
+                checkingWeapon = checkingWeapon+1
+            else
+                checkingWeapon = 0;
+            if(this.spellsAvailable[checkingWeapon]){
+                touchControls.moveHighlight(checkingWeapon);
+                this.fireType = checkingWeapon;
+                stopScrolling = true;
+            }
+            if(checkingWeapon == previouslySelected)
+                stopScrolling = true;
+        }
+    }
+    if(this.cursor.mouseDown){
+        var checkingWeapon = this.fireType;
+        this.cursor.mouseUp = false;        
+        while(!stopScrolling){
+            if(checkingWeapon>0)
+                checkingWeapon = checkingWeapon-1
+            else
+                checkingWeapon = 6;
+            if(this.spellsAvailable[checkingWeapon]){
+                touchControls.moveHighlight(checkingWeapon);
+                this.fireType = checkingWeapon;
+                stopScrolling = true;
+            }
+            if(checkingWeapon == previouslySelected)
+                stopScrolling = true;
+        }
     }
 
     //Set player position

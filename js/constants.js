@@ -24,8 +24,8 @@ var maxSpellsLevel = 10
 
 
 // Spells
-var closeFightWeaponDamage = -20
-var healingSpellHealingPercentage = 40
+var closeFightWeaponDamage = -20;
+var healingSpellHealingPercentage = 10;
 
 //Assets
 function preload () {
@@ -72,4 +72,5 @@ function preload () {
     game.load.image('logoS5', 'assets/logo/logo_smoke.png')
     game.load.image('logoS6', 'assets/logo/logo_sword.png')
     game.load.image('highlight', 'assets/logo/highlight.png')
+    game.load.image('reload', 'assets/logo/fill.png')
 }

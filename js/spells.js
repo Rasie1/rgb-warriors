@@ -8,10 +8,11 @@ Spell.prototype.cast = function(character) {
 
 }
 
-Spell.prototype.castProjectile = function(character,bulletType,bulletFrame,bulletSpeed){
+Spell.prototype.castProjectile = function(character,bulletType,bulletFrame,bulletSpeed,spellId){
     if (game.time.now > this.nextFire && game.time.now > character.nextFire && character.bullets.countDead() > 0){
         this.nextFire = game.time.now + this.cooldown;
-        character.nextFire = game.time.now + character.fireRate;        
+        character.nextFire = game.time.now + character.fireRate;
+        this.displayCooldowns(character,spellId);
         var bullet = character.bullets.getFirstDead();
         bullet.lifespan = 5000;
         bullet.type = bulletType;
@@ -22,14 +23,27 @@ Spell.prototype.castProjectile = function(character,bulletType,bulletFrame,bulle
     }
 }
 
+Spell.prototype.displayCooldowns = function(character,spellId){
+    if(character.id == myId){
+        touchControls.reload[spellId].scale.y = 1;
+        game.add.tween(touchControls.reload[spellId].scale).to( { x: 1, y: 0 }, this.cooldown, Phaser.Easing.Linear.None, true);  
+        for(i=0;i<touchControls.reload.length;i++){
+            if(character.spellsAvailable[i] && i != spellId && touchControls.reload[i].scale.y == 0){
+                touchControls.reload[i].scale.y = 1;
+                game.add.tween(touchControls.reload[i].scale).to( { x: 1, y: 0 }, character.fireRate, Phaser.Easing.Linear.None, true);  
+            }
+        }
+    }
+}
+
 // Healing Spell
 function HealingSpell() {
     Spell.call(this);
-    this.cooldown = 1000;
-    this.healingSpellHealing = 40;
+    this.cooldown = 2000;
+    this.healingSpellHealing = 10;
     this.visualEffectSprite = game.add.sprite(0, 0, 'yellow-jolt')
     this.visualEffectSprite.animations.add('cast');
-    this.visualEffectSprite.anchor.set(0.5, 0.5)
+    this.visualEffectSprite.anchor.set(0.5, 0.5);
     this.visualEffectSprite.kill()
 }
 
@@ -41,12 +55,13 @@ HealingSpell.prototype.cast = function(character){
     if (game.time.now > this.nextFire && game.time.now > character.nextFire){
         this.nextFire = game.time.now + this.cooldown;
         character.nextFire = game.time.now + character.fireRate; 
+        this.displayCooldowns(character,1);
 
         this.visualEffectSprite.reset(character.baseSprite.x,
                                       character.baseSprite.y)
         this.visualEffectSprite.animations.play('cast', 5, false, true);
 
-        eurecaServer.updateHP(character.id, this.healingSpellHealing + 20 * this.spellPower);
+        eurecaServer.updateHP(character.id, this.healingSpellHealing + 5 * this.spellPower);
     }
 };
 
@@ -54,7 +69,7 @@ HealingSpell.prototype.cast = function(character){
 // Fireball
 function Fireball() {
     Spell.call(this);
-    this.cooldown = 750;
+    this.cooldown = 500;
     this.bulletSpeed = 750;
 }
 
@@ -63,7 +78,7 @@ Fireball.prototype = Object.create(Spell.prototype);
 Fireball.prototype.constructor = Fireball
 
 Fireball.prototype.cast = function(character){
-    this.castProjectile(character,0,0,this.bulletSpeed)
+    this.castProjectile(character,0,0,this.bulletSpeed,0)
 };
 
 // Cold Sphere
@@ -81,7 +96,7 @@ ColdSphere.prototype = Object.create(Spell.prototype);
 ColdSphere.prototype.constructor = ColdSphere
 
 ColdSphere.prototype.cast = function(character){
-    this.castProjectile(character,5,2,this.bulletSpeed)
+    this.castProjectile(character,5,2,this.bulletSpeed,4)
 };
 
 // Vape
@@ -96,7 +111,7 @@ Vape.prototype = Object.create(Spell.prototype);
 Vape.prototype.constructor = Vape
 
 Vape.prototype.cast = function(character){
-    this.castProjectile(character,6,1,this.bulletSpeed)
+    this.castProjectile(character,6,1,this.bulletSpeed,5)
 };
 
 // Leap
@@ -126,6 +141,7 @@ Leap.prototype.cast = function(character){
     if (game.time.now > this.nextFire && game.time.now > character.nextFire){
         this.nextFire = game.time.now + this.cooldown;
         character.nextFire = game.time.now + character.fireRate;     
+        this.displayCooldowns(character,2);
 
         var curPos = new Phaser.Point(character.baseSprite.x, character.baseSprite.y);
         var target = new Phaser.Point(character.cursor.tx, character.cursor.ty);
@@ -183,6 +199,7 @@ Spike.prototype.cast = function(character){
     if (game.time.now > this.nextFire && game.time.now > character.nextFire){
         this.nextFire = game.time.now + this.cooldown;
         character.nextFire = game.time.now + character.fireRate; 
+        this.displayCooldowns(character,3);
 
         var curPos = new Phaser.Point(character.baseSprite.x, character.baseSprite.y);
         var target = new Phaser.Point(character.cursor.tx, character.cursor.ty);
@@ -217,6 +234,7 @@ CloseFighting.prototype.cast = function(character)
     if (game.time.now > this.nextFire && game.time.now > character.nextFire){
         this.nextFire = game.time.now + this.cooldown;
         character.nextFire = game.time.now + character.fireRate; 
+        this.displayCooldowns(character,6);
 
     	eurecaServer.castCloseAttack(character.id, {x: character.cursor.tx,
         											y: character.cursor.ty});
