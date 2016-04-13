@@ -51,7 +51,8 @@ var EurecaClientSetup = function() {
 	}
 
 	eurecaClient.exports.castCloseAttack = function(id, target) {
-		var attacker = charactersList[id]
+		var attacker = charactersList[id];
+		console.log(id);
 		if (!attacker) return
 
 		var dist = 64;
@@ -59,16 +60,11 @@ var EurecaClientSetup = function() {
 											 attacker.baseSprite.y,
 											 target.x, 
 											 target.y);
-		var weapon = game.add.sprite(attacker.baseSprite.x + dist * Math.cos(angle),
-									 attacker.baseSprite.y + dist * Math.sin(angle),
-									 'weapon_');
-		weapon.enableBody = true;
-    	weapon.physicsBodyType = Phaser.Physics.ARCADE;
-    	weapon.checkWorldBounds = true;
-    	weapon.scale.setTo(0.5, 0.5)
-    	weapon.anchor.set(0.5,1.5)
-		weapon.lifespan = 100;
-		weapon.angle = Phaser.Math.radToDeg(angle);
+    	attacker.weapon.physicsBodyType = Phaser.Physics.ARCADE;
+	    attacker.weapon.scale.setTo(0.4, 0.4)
+	    attacker.weapon.anchor.set(0.3,1)
+		attacker.weapon.lifespan = 100;
+		attacker.weapon.angle = Phaser.Math.radToDeg(angle);
 		//console.log(angle, weapon.angle)
 		attacker.weapon.reset(attacker.baseSprite.x, attacker.baseSprite.y);
 		attacker.weapon.lifespan = 100;
@@ -77,7 +73,7 @@ var EurecaClientSetup = function() {
 		if (player.id == id)
 			for (var i in charactersList)
 				if (i != id) {
-				var a = new Phaser.Rectangle(weapon.x - 32, weapon.y - 32, 32, 32);
+				var a = new Phaser.Rectangle(attacker.weapon.x - 32, attacker.weapon.y - 32, 32, 32);
 				var b = new Phaser.Rectangle(charactersList[i].baseSprite.x - 32,
 											 charactersList[i].baseSprite.y - 32,
 											 64, 64);

@@ -128,8 +128,6 @@ Character = function (index, game, x, y, r, g, b) {
     this.weapon.enableBody = true;
     this.weapon.physicsBodyType = Phaser.Physics.ARCADE;
     this.weapon.checkWorldBounds = true;
-    this.weapon.scale.setTo(0.4, 0.4)
-    this.weapon.anchor.set(0.3,1)
     this.weapon.kill()
 
     this.baseSprite.anchor.set(0.5);
@@ -454,7 +452,6 @@ Character.prototype.update = function() {
     game.physics.arcade.collide( obstacles,this.bullets, bulletHit,null,this);
     for (var c in charactersList){
         game.physics.arcade.collide(charactersList[c].baseSprite, this.baseSprite);
-        game.physics.arcade.collide(charactersList[c].bullets,this.bullets, bulletHit,null,this);
     }
 };
 

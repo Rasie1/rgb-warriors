@@ -263,13 +263,6 @@ eurecaServer.exports.castCloseAttack = function(id, target)
 	for (var c in clients)
 		clients[c].remote.castCloseAttack(id, target);
 }
-
-eurecaServer.exports.castCloseAttack = function(id, target)
-{
-	for (var c in clients)
-		clients[c].remote.castCloseAttack(id, target);
-}
-
 eurecaServer.exports.castFreeze = function(id, time)
 {
     for (var c in clients) {

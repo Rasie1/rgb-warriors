@@ -232,11 +232,12 @@ CloseFighting.prototype.constructor = CloseFighting
 CloseFighting.prototype.cast = function(character)
 {
     if (game.time.now > this.nextFire && game.time.now > character.nextFire){
+        console.log('casting')
         this.nextFire = game.time.now + this.cooldown;
         character.nextFire = game.time.now + character.fireRate; 
         this.displayCooldowns(character,6);
-
-    	eurecaServer.castCloseAttack(character.id, {x: character.cursor.tx,
+        if(character.id==myId)
+    	   eurecaServer.castCloseAttack(character.id, {x: character.cursor.tx,
         											y: character.cursor.ty});
     }
 }
