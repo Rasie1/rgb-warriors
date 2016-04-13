@@ -20,7 +20,7 @@ TouchControls = function(character)
     this.touchedJoystick = false
 
     this.margin = 75;
-    this.segmentSize = 200;
+    this.segmentSize = 150;
     this.offsetX = this.margin;
     this.offsetY = window.innerHeight - this.segmentSize * 3 - this.margin;
 };
@@ -85,6 +85,7 @@ TouchControls.prototype.init = function create(game) {
     this.spellPowerCounter = [];
     this.elementReminder = [];
     this.reload = [];
+    this.levelup = [];
     this.buttonsGroup = game.add.group(); 
 
     this.segmentSize = this.segmentSize / 2;
@@ -122,8 +123,8 @@ TouchControls.prototype.init = function create(game) {
 
       //Keys for buttons
       this.buttonMapping[i] = game.add.text(
-        window.innerWidth - 128, 
-        this.offsetY + (this.segmentSize*i) + 55 - 16,
+        window.innerWidth - 128 + 26, 
+        this.offsetY + (this.segmentSize*i) + 55 - 15,
         i+1,
         { font: "18px Arial", fill: "#ffffff", align: "left" }
       );
@@ -143,7 +144,7 @@ TouchControls.prototype.init = function create(game) {
       if(i!=6){
         //Element reminder for spells
         this.elementReminder[i] = game.add.sprite(
-          window.innerWidth - this.segmentSize - this.margin*2, 
+          window.innerWidth - this.segmentSize, 
           this.offsetY + (this.segmentSize*i),
           'inventoryItem'
         );
@@ -161,6 +162,15 @@ TouchControls.prototype.init = function create(game) {
         );
         this.spellPowerCounter[i].fixedToCamera = true;
         this.spellPowerCounter[i].alpha = 0;
+
+        //Level up icon
+        this.levelup[i] = game.add.sprite(
+        window.innerWidth - this.segmentSize - this.margin, 
+        this.offsetY + (this.segmentSize*i),
+        'levelup'
+        );
+        this.levelup[i].alpha = 0;
+        this.levelup[i].fixedToCamera = true;
       }
     }    
     this.buttons[6].reset();

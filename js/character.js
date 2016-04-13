@@ -309,14 +309,14 @@ Character.prototype.update = function() {
         this.headSprite.body.velocity.x 
         = this.baseSprite.body.velocity.x 
         = -this.SpeedX;
-        baseSprite.rotation = -3.14;
+        this.baseSprite.rotation = -3.14;
         shouldAnim = true
     }
     else if (this.cursor.right || this.cursor.d || touchControls.touchInput.joystickX > 0.5) {
         this.headSprite.body.velocity.x 
         = this.baseSprite.body.velocity.x 
         = this.SpeedX;
-        baseSprite.rotation = 0;
+        this.baseSprite.rotation = 0;
         shouldAnim = true
     }
     else
@@ -331,14 +331,14 @@ Character.prototype.update = function() {
         this.headSprite.body.velocity.y 
         = this.baseSprite.body.velocity.y 
         = -this.SpeedY;
-        baseSprite.rotation = baseSprite.rotation==-3.14 ? -3*3.14/4 : baseSprite.rotation==0 ? -3.14/4 : -3.14/2
+        this.baseSprite.rotation = this.baseSprite.rotation==-3.14 ? -3*3.14/4 : this.baseSprite.rotation==0 ? -3.14/4 : -3.14/2
         shouldAnim = true
     }
     else if (this.cursor.down  || this.cursor.s || touchControls.touchInput.joystickY > 0.5) {
         this.headSprite.body.velocity.y 
         = this.baseSprite.body.velocity.y 
         = this.SpeedY;
-        baseSprite.rotation = baseSprite.rotation==-3.14 ? 3*3.14/4 : baseSprite.rotation==0 ? 3.14/4 : 3.14/2
+        this.baseSprite.rotation = this.baseSprite.rotation==-3.14 ? 3*3.14/4 : this.baseSprite.rotation==0 ? 3.14/4 : 3.14/2
         shouldAnim = true
     }
     else
@@ -370,42 +370,14 @@ Character.prototype.update = function() {
     }
 
     //Spell select
-    if ((this.cursor.spell0 || this.touchInput.button0) && this.spellsAvailable[0]) // fireball
-    {
-        this.fireType=0;
-        touchControls.moveHighlight(0)
-    }
-    if ((this.cursor.spell1 || this.touchInput.button1)  && this.spellsAvailable[1]) //healing
-    {
-        this.fireType=1;
-        touchControls.moveHighlight(1)
-    }
-    if ((this.cursor.spell2 || this.touchInput.button2)  && this.spellsAvailable[2]) //leap
-    {
-        this.fireType=2;
-        touchControls.moveHighlight(2)
-    }
-    if ((this.cursor.spell3 || this.touchInput.button3)  && this.spellsAvailable[3]) //spike
-    {
-        this.fireType=3;
-        touchControls.moveHighlight(3)
-    }
-    if ((this.cursor.spell4 || this.touchInput.button4)  && this.spellsAvailable[4]) //cold sphere
-    {
-        this.fireType=4;
-        touchControls.moveHighlight(4)
-    }
-    if ((this.cursor.spell5 || this.touchInput.button5)  && this.spellsAvailable[5]) //vape
-    {
-        this.fireType=5;
-        touchControls.moveHighlight(5)
-    }
-    if ((this.cursor.spell6 || this.touchInput.button6)) //close-in fighting
-    {
-        this.fireType=6;
-        touchControls.moveHighlight(6)
+    for(k=0;k<7;k++){
+        if ((this.cursor['spell'+k] || this.touchInput['button'+k]) && this.spellsAvailable[k]){
+            this.fireType=k;
+            touchControls.moveHighlight(k)
+        }
     }
 
+    //Mousewheel spell
     if(this.baseSprite.id == myId){
         var dis = this;
         window.addEventListener('wheel',function(d){
@@ -563,7 +535,9 @@ Character.prototype.pickUpItem = function(itemSprite) {
             touchControls.spellPowerCounter[spellId].alpha = 1;
         }
         else{
-            touchControls.spellPowerCounter[spellId].setText('lvl '+this.spells[alias].spellPower)
+            touchControls.spellPowerCounter[spellId].setText('lvl '+this.spells[alias].spellPower);
+            touchControls.levelup[spellId].alpha = 1;
+            game.add.tween(touchControls.levelup[spellId]).to( { alpha: 0 }, 500, Phaser.Easing.Linear.None, true);  
         }
         this.spells[alias].spellPower = Phaser.Math.min(maxSpellsLevel, this.spells[alias].spellPower + 1);
         this.spellsAvailable[spellId] = true;

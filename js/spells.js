@@ -109,9 +109,7 @@ function Vape() {
 }
 
 Vape.prototype = Object.create(Spell.prototype);
-
-Vape.prototype.constructor = Vape
-
+Vape.prototype.constructor = Vape;
 Vape.prototype.cast = function(character){
     this.castProjectile(character,6,1,this.bulletSpeed,5)
 };

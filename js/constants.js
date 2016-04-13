@@ -73,4 +73,5 @@ function preload () {
     game.load.image('logoS6', 'assets/logo/logo_sword.png')
     game.load.image('highlight', 'assets/logo/highlight.png')
     game.load.image('reload', 'assets/logo/fill.png')
+    game.load.image('levelup', 'assets/logo/levelup.png')
 }
