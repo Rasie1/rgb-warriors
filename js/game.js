@@ -244,8 +244,6 @@ function create ()
     charactersList[myId] = player;
     baseSprite = player.baseSprite;
     headSprite = player.headSprite;
-    baseSprite.x = player.baseSprite.x;
-    baseSprite.y = player.baseSprite.y;
     bullets = player.bullets;
 
     //baseSprite.bringToTop();
