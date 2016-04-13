@@ -1,16 +1,5 @@
-var mapX   = 0;
 var mapWidth  =  2000;
-var mapY    = 0;
 var mapHeight =  2000;
-
-var cameraDeadzoneWidth = 0.25;
-var cameraDeadzoneHeight = 0.25;
-
-var playerSpeedX = 300;
-var playerSpeedY = 300;
-
-var maxGameWidth = 3000;
-var maxGameHeight = 3000;
 
 var elementForDrop;
 
@@ -48,7 +37,6 @@ var eurecaServer = new Eureca.Server({allow:[
 	'dropItem',
 	'pickUpItem',
 	'createObstacles',
-	'castRemoteAttack',
 	'castCloseAttack',
 	'castFreeze',
 	'doLeap',
@@ -369,8 +357,7 @@ setInterval(function(){
 		var isOccupied = true;
 		var i = 0;
 		var gridPosition;
-		var outOfPlaces=false;
-
+		var outOfPlaces=false;	
 		var itemX,itemY;
 
 		while(isOccupied==true && !outOfPlaces){
@@ -378,8 +365,8 @@ setInterval(function(){
 			if(typeof obstaclesPositions[i] != 'undefined'){
 				if(!obstaclesPositions[i].occupied){
 					isOccupied=false;
-					itemX = obstaclesPositions[i].x;
-					itemY = obstaclesPositions[i].y;
+					itemX = obstaclesPositions[i].x+Math.round(Math.random()*139);
+					itemY = obstaclesPositions[i].y+Math.round(Math.random()*139);
 					obstaclesPositions[i].occupied = true;
 					gridPosition = obstaclesPositions[i];
 				}
@@ -390,9 +377,10 @@ setInterval(function(){
 			}
 		}
 		if(!outOfPlaces){
-			elementForDrop = Math.round(Math.random()*2)+1;
+			elementForDrop = (itemIdCounter+1)%3+1;
+			console.log(elementForDrop)
 			for (var c in clients){
-				console.log(itemIdCounter,itemsList.length);
+				//console.log(itemIdCounter,itemsList.length);
 				clients[c].remote.makeItem(itemX, itemY, elementForDrop,itemIdCounter);
 			};
 			itemsList.push({

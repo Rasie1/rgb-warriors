@@ -1,5 +1,7 @@
-var character
-var headSprite
+var character,
+    headSprite,
+    baseSprite,
+    headSprite;
 
 Character = function (index, game, x, y, r, g, b) {
     this.cursor = {
@@ -57,17 +59,19 @@ Character = function (index, game, x, y, r, g, b) {
     this.game = game;
     this.privateHealth = maxHealth;
     this.health = this.privateHealth;
-    this.SpeedX = playerSpeedX
-    this.SpeedY = playerSpeedY
+    this.SpeedX = playerSpeedX;
+    this.SpeedY = playerSpeedY;
 
+    //Fireballs, freeze bolts and vape projectiles
     this.bullets = game.add.group();
     this.bullets.enableBody = true;
     this.bullets.physicsBodyType = Phaser.Physics.ARCADE;
     this.bullets.createMultiple(20, 'bullets', 0, false);
     this.bullets.setAll('anchor.x', 0.5);
     this.bullets.setAll('anchor.y', 0.5);
-    //this.bullets.setAll('checkWorldBounds', true); 
+    this.bullets.setAll('checkWorldBounds', true); 
 
+    //Unused right now
     this.explosions = game.add.group();
     this.explosions.enableBody = true;
     this.explosions.physicsBodyType = Phaser.Physics.ARCADE;
@@ -78,6 +82,7 @@ Character = function (index, game, x, y, r, g, b) {
         explosion.animations.add('kaboom');
     },this)
 
+    //Gas from vape projectiles
     this.vapelosions = game.add.group();
     this.vapelosions.enableBody = true;
     this.vapelosions.physicsBodyType = Phaser.Physics.ARCADE;
@@ -89,14 +94,20 @@ Character = function (index, game, x, y, r, g, b) {
         explosion.animations.add('vapelosion');
     },this)
 
-    this.currentSpeed =0;
+    //Weapon properties
     this.fireRate = 500;
     this.nextFire = 0;
-    this.alive = true;
-    this.type = 0
-    this.deaths = 0
-    this.kills = 0
+    this.fireType = 6;
 
+    //Personal statistics
+    this.deaths = 0;
+    this.kills = 0;
+
+    //Alive status
+    this.alive = true;
+    this.hasDied = false;
+
+    //Sprites
     this.auraSprite = game.add.sprite(x, y, 'aura');
     
     this.baseSprite = game.add.sprite(x, y, 'player-base');
@@ -108,32 +119,36 @@ Character = function (index, game, x, y, r, g, b) {
     this.deadSprite = game.add.sprite(x, y, 'dead');
     this.deadSprite.kill()
 
-    this.baseSprite.anchor.set(0.5);
-    this.auraSprite.anchor.set(0.5);
-    this.headSprite.anchor.set(0.5, 0.5);
-
-    this.auraSprite.scale.setTo(10, 10);
-    this.recolorAura()
-
-    this.id = index;
-    this.baseSprite.id = index;
-    //console.log("id="+index)
-    game.physics.enable(this.baseSprite, Phaser.Physics.ARCADE);
-    game.physics.enable(this.headSprite, Phaser.Physics.ARCADE);
-    this.baseSprite.body.immovable = false;
-    this.baseSprite.body.collideWorldBounds = true;
-    this.baseSprite.body.bounce.setTo(0, 0);
-
     this.weapon = game.add.sprite(0,0,'weapon');
     game.physics.enable(this.weapon, Phaser.Physics.ARCADE);
     this.weapon.enableBody = true;
     this.weapon.physicsBodyType = Phaser.Physics.ARCADE;
     this.weapon.checkWorldBounds = true;
-    this.weapon.scale.setTo(0.5, 0.5)
-    this.weapon.anchor.set(0.5,1.5)
+    this.weapon.scale.setTo(0.4, 0.4)
+    this.weapon.anchor.set(0.3,1)
     this.weapon.kill()
-    //inventory
+
+    this.baseSprite.anchor.set(0.5);
+    this.auraSprite.anchor.set(0.5);
+    this.headSprite.anchor.set(0.5, 0.5);
+
+    this.auraSprite.scale.setTo(10, 10);
+
+    //Applying player ID
+    this.id = index;
+    this.baseSprite.id = index;
+
+    //Physics
+    game.physics.enable(this.baseSprite, Phaser.Physics.ARCADE);
+    game.physics.enable(this.headSprite, Phaser.Physics.ARCADE);
+
+    this.baseSprite.body.immovable = false;
+    this.baseSprite.body.collideWorldBounds = true;
+    this.baseSprite.body.bounce.setTo(0, 0);
+
+    //Inventory
     this.inventory = [];
+
     if ((r!=-1 && r!=undefined) || (g!=-1 && g!=undefined) || (b!=-1 && b!=undefined)) {
         this.RCounter = r
         this.GCounter = g
@@ -143,8 +158,9 @@ Character = function (index, game, x, y, r, g, b) {
         this.GCounter = 0
         this.BCounter = 0
     }
+    this.recolorAura()
 
-
+    //Spells
     this.spells = {};
     this.spells.Fireball = new Fireball()
     this.spells.HealingSpell = new HealingSpell()
@@ -154,47 +170,53 @@ Character = function (index, game, x, y, r, g, b) {
     this.spells.Vape = new Vape()
     this.spells.CloseFighting = new CloseFighting()
 
+    //Spells availability
     this.spellsAvailable = [];
     for (i = 0; i < 6; ++i)
-        this.spellsAvailable[i] = false;//false;
-    this.type = 6;
+        this.spellsAvailable[i] = false;    
 
-    this.recolorAura()
-
-    this.hpBar = null;
+    //HP bar
     if (myId != this.baseSprite.id)
     {
         this.hpBar = game.add.sprite(x - 32, y - 32, 'hpBar');
         this.hpBar.anchor.set(0.5);
     };
 
-    //continious firing
+    //Continious firing (needs to be re-implemented)
     this.mouseAlreadyUpdated = false;
+
+    //Put players behind the HUD (doesn't work properly??)
+    playersGroup.add(this.baseSprite);
+    playersGroup.add(this.weapon)
+    playersGroup.sendToBack(playersGroup)
+    playersGroup.sendToBack(this.weapon)
 };
 
 Character.prototype.recreate = function (x,y) {
 
     this.health = 100;
-    this.SpeedX = playerSpeedX
-    this.SpeedY = playerSpeedY
-    this.baseSprite.reset(x,y)
-    this.headSprite.reset(x,y)
+    this.SpeedX = playerSpeedX;
+    this.SpeedY = playerSpeedY;
+    this.baseSprite.reset(x,y);
+    this.headSprite.reset(x,y);
     
-    this.currentSpeed =0;
     this.fireRate = 500;
     this.nextFire = 0;
+
     this.alive = true;
+    this.hasDied = false;
 
-    this.RCounter = 0
-    this.GCounter = 0
-    this.BCounter = 0
+    this.RCounter = 0;
+    this.GCounter = 0;
+    this.BCounter = 0;
 
-    this.recolorAura()
-    this.hpBar = null;
+    this.recolorAura();
+
     if (myId != this.baseSprite.id) {
         this.hpBar = game.add.sprite(x - 32, y - 32, 'hpBar');
         this.hpBar.anchor.set(0.5);
     }
+
     if (this.id==player.id) {
         inventoryItem.kill();
         player.hpline.scale.setTo(Phaser.Math.min(player.health/maxHealth,1), 1);
@@ -203,54 +225,38 @@ Character.prototype.recreate = function (x,y) {
 }
 
 Character.prototype.update = function() {
- 
-    var inputChanged = (
-        this.cursor.left   != this.input.left ||
-        this.cursor.right  != this.input.right ||
-        this.cursor.up     != this.input.up ||
-        this.cursor.down   != this.input.down ||
-        this.cursor.w      != this.input.w ||
-        this.cursor.a      != this.input.a ||
-        this.cursor.s      != this.input.s ||
-        this.cursor.d      != this.input.d ||
-        this.cursor.fire   != this.input.fire ||
-        this.cursor.spell0 != this.input.spell0 ||
-        this.cursor.spell1 != this.input.spell1 ||
-        this.cursor.spell2 != this.input.spell2 ||
-        this.cursor.spell3 != this.input.spell3 ||
-        this.cursor.spell4 != this.input.spell4 ||
-        this.cursor.spell5 != this.input.spell5 || 
-        this.cursor.spell6 != this.input.spell6 ||
-        this.input.fireType != this.type
-    );
-    var touchInputChanged = (
-        touchControls.touchInput.joystickX != this.touchInput.joystickX ||
-        touchControls.touchInput.joystickY != this.touchInput.joystickY ||
-        touchControls.touchInput.button0 != this.touchInput.button0 ||
-        touchControls.touchInput.button1 != this.touchInput.button1 ||
-        touchControls.touchInput.button2 != this.touchInput.button2 ||
-        touchControls.touchInput.button3 != this.touchInput.button3 ||
-        touchControls.touchInput.button4 != this.touchInput.button4 ||
-        touchControls.touchInput.button5 != this.touchInput.button5 ||
-        touchControls.touchInput.button6 != this.touchInput.button6
-    );
-    var isContiniouslyFiring = (this.cursor.fire && 
-                                this.game.time.now+50 >= this.nextFire && 
-                                !this.mouseAlreadyUpdated);
+
+    //Checks difference between current input and last saved
+    function checkInputChange(set1,set2,additional){
+        var changed = false;
+        for(var button in set1)
+            if(typeof set1[button] == 'boolean' && typeof set2[button] == 'boolean')
+                if(set1[button] != set2[button]){
+                    changed = true;
+                }
+        if(typeof additional == 'object')
+            for(i=0;i<additional.length;i++)
+                if(set1[additional[i]] != set2[additional[i]]){
+                    changed = true;
+                }
+        return changed;
+    }
+    var inputChanged = checkInputChange(this.cursor,this.input);
+    if(this.input.fireType != this.fireType)
+        inputChanged = true;
+    var touchInputChanged = checkInputChange(touchControls.touchInput,this.touchInput,['joystickX','joystickY']);
+
     if (inputChanged || touchInputChanged)
-    {
-        //Handle input change here
-        //send new values to the server     
+    {    
         if (this.baseSprite.id == myId)
         {
             // send latest valid state to the server
             this.input.x = this.baseSprite.x;
             this.input.y = this.baseSprite.y;
             this.input.rot = this.headSprite.rotation;
-            this.input.fireType = this.type;
+            this.input.fireType = this.fireType;
             this.input.speedX = this.SpeedX;
             this.input.speedY = this.SpeedY;
-
 
             eurecaServer.handleKeys(this.input,this.baseSprite.x,this.baseSprite.y,this.RCounter,this.GCounter,this.BCounter);
 
@@ -262,57 +268,57 @@ Character.prototype.update = function() {
             
         }
     }
+
+    //Checks if player is firing without releasing the mouse button to update direction
+    var isContiniouslyFiring = (this.cursor.fire && 
+                                this.game.time.now+50 >= this.nextFire && 
+                                !this.mouseAlreadyUpdated);
     if (isContiniouslyFiring){
         if (this.baseSprite.id == myId){
             this.mouseAlreadyUpdated = true;
             eurecaServer.handleRotation(this.input);
         }
     }
-    //cursor value is now updated by eurecaClient.exports.updateState method
-    
-    var shouldAnim = false
+
+    //cursor value is now updated by eurecaClient.exports.updateState method       
 
     // commit movement
+    var shouldAnim = false
+
+    //Left and right movement
     if (this.cursor.left || this.cursor.a  || touchControls.touchInput.joystickX < -0.5) {
         this.headSprite.body.velocity.x 
         = this.baseSprite.body.velocity.x 
-        = this.weapon.body.velocity.x 
-        = -this.SpeedX
-        baseSprite.rotation = -3.14
+        = -this.SpeedX;
+        baseSprite.rotation = -3.14;
         shouldAnim = true
     }
     else if (this.cursor.right || this.cursor.d || touchControls.touchInput.joystickX > 0.5) {
         this.headSprite.body.velocity.x 
         = this.baseSprite.body.velocity.x 
-        = this.weapon.body.velocity.x 
-        = this.SpeedX
-        baseSprite.rotation = 0
+        = this.SpeedX;
+        baseSprite.rotation = 0;
         shouldAnim = true
     }
     else
     {
         this.headSprite.body.velocity.x 
         = this.baseSprite.body.velocity.x 
-        = this.weapon.body.velocity.x 
         = 0
-
-        this.baseSprite.animations.stop();
-        this.headSprite.animations.stop();
     }
 
+    //Up and down movement
     if (this.cursor.up || this.cursor.w || touchControls.touchInput.joystickY < -0.5) {
         this.headSprite.body.velocity.y 
         = this.baseSprite.body.velocity.y 
-        = this.weapon.body.velocity.y 
-        = -this.SpeedY
+        = -this.SpeedY;
         baseSprite.rotation = baseSprite.rotation==-3.14 ? -3*3.14/4 : baseSprite.rotation==0 ? -3.14/4 : -3.14/2
         shouldAnim = true
     }
     else if (this.cursor.down  || this.cursor.s || touchControls.touchInput.joystickY > 0.5) {
         this.headSprite.body.velocity.y 
         = this.baseSprite.body.velocity.y 
-        = this.weapon.body.velocity.y 
-        = this.SpeedY
+        = this.SpeedY;
         baseSprite.rotation = baseSprite.rotation==-3.14 ? 3*3.14/4 : baseSprite.rotation==0 ? 3.14/4 : 3.14/2
         shouldAnim = true
     }
@@ -320,9 +326,10 @@ Character.prototype.update = function() {
     {
         this.baseSprite.body.velocity.y 
         = this.headSprite.body.velocity.y 
-        = this.weapon.body.velocity.y = 0
+        = 0
     }
 
+    //Player animation
     if (shouldAnim) {
         this.baseSprite.animations.play('move', 10, true); 
         this.headSprite.animations.play('move', 10, true); 
@@ -333,75 +340,76 @@ Character.prototype.update = function() {
         this.headSprite.animations.stop();
     }
 
-
+    //Firing
     if (this.cursor.fire)
     {
-        //console.log(this.type,this.spells.Fireball)
-        if (this.alive) {
-            this.fire({x:this.cursor.tx, y:this.cursor.ty},this.type);
-        }
+        this.fire({x:this.cursor.tx, y:this.cursor.ty},this.fireType);
     }
 
+    //Spell select
     if ((this.cursor.spell0 || this.touchInput.button0) && this.spellsAvailable[0]) // fireball
     {
-        this.type=0;
+        this.fireType=0;
         touchControls.moveHighlight(0)
     }
     if ((this.cursor.spell1 || this.touchInput.button1)  && this.spellsAvailable[1]) //healing
     {
-        this.type=1;
+        this.fireType=1;
         touchControls.moveHighlight(1)
     }
     if ((this.cursor.spell2 || this.touchInput.button2)  && this.spellsAvailable[2]) //leap
     {
-        this.type=2;
+        this.fireType=2;
         touchControls.moveHighlight(2)
     }
     if ((this.cursor.spell3 || this.touchInput.button3)  && this.spellsAvailable[3]) //spike
     {
-        this.type=3;
+        this.fireType=3;
         touchControls.moveHighlight(3)
     }
     if ((this.cursor.spell4 || this.touchInput.button4)  && this.spellsAvailable[4]) //cold sphere
     {
-        this.type=4;
+        this.fireType=4;
         touchControls.moveHighlight(4)
     }
     if ((this.cursor.spell5 || this.touchInput.button5)  && this.spellsAvailable[5]) //vape
     {
-        this.type=5;
+        this.fireType=5;
         touchControls.moveHighlight(5)
     }
     if ((this.cursor.spell6 || this.touchInput.button6)) //close-in fighting
     {
-        this.type=6;
+        this.fireType=6;
         touchControls.moveHighlight(6)
     }
 
-
+    //Set player position
     this.headSprite.x
+    = this.weapon.x
     = this.auraSprite.x
-    = this.weapon.x         // на самом деле
     = this.baseSprite.x;
     this.headSprite.y
+    = this.weapon.y
     = this.auraSprite.y
-    = this.weapon.y         // не обязательно
     = this.baseSprite.y;
 
+    //Set hp bar
     if (this.hpBar != null) {
         this.hpBar.x = this.baseSprite.x;
         this.hpBar.y = this.baseSprite.y - 42;    
     }
 
+    //Collisions
     game.physics.arcade.collide(this.baseSprite, obstacles);
     game.physics.arcade.collide( obstacles,this.bullets, bulletHit,null,this);
-    for (var c in charactersList) game.physics.arcade.collide(charactersList[c].baseSprite, this.baseSprite/* урон от столкновения: , function(){eurecaServer.updateHP(this.id,-1)},null,this*/);
+    for (var c in charactersList) 
+        game.physics.arcade.collide(charactersList[c].baseSprite, this.baseSprite);
 };
 
 
-Character.prototype.fire = function(target,type) {
+Character.prototype.fire = function(target,fireType) {
         if (!this.alive) return
-        switch (type) {
+        switch (fireType) {
             case 0:
                 this.spells.Fireball.cast(this)
             break
@@ -432,21 +440,24 @@ Character.prototype.kill = function() {
     this.baseSprite.kill();
     if (this.hpBar != null) {
         this.hpBar.kill();
-        this.hpBar = null;
     }
     this.deadSprite.reset(this.headSprite.x-32,this.headSprite.y-32);
     this.deadSprite.lifespan = 3000;
     this.headSprite.kill();
     this.auraSprite.kill();
+
     if (this.id==player.id){
-        touchControls.moveHighlight(6);
-        for(var spell in player.spells)
-            player.spells[spell].spellPower = 0;
+        touchControls.moveHighlight(6); //Reset to default weapon
+        for(var spell in player.spells) 
+            player.spells[spell].spellPower = 0; //Reset spellpower
+
+        //Reset inventory helper
         for (i=0;i<touchControls.buttons.length-1;i++){
             touchControls.buttons[i].kill();
             touchControls.buttons[i].alpha = 0;
             touchControls.elementReminder[i].kill();
             touchControls.buttonMapping[i].alpha = 0;
+            touchControls.spellPowerCounter[i].alpha = 0;
         }
     }
     this.dropItem();
@@ -473,200 +484,132 @@ Character.prototype.recolorAura = function() {
 }
 
 Character.prototype.pickUpItem = function(itemSprite) {
-    itemSprite.kill();
-    console.log(itemSprite.id)
-    this.addFireball = function(){
-        if(this.spells.Fireball.spellPower==0){
-            this.type=0;
-            touchControls.moveHighlight(0);
+
+    //Add a new spell or upgrade already existing
+    this.spellsAddSpell = function(spellId,alias){
+        if(this.spells[alias].spellPower==0){
+            this.fireType=spellId;
+            touchControls.moveHighlight(spellId);
+            touchControls.spellPowerCounter[spellId].alpha = 1;
         }
-        this.spells.Fireball.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Fireball.spellPower + 1);
-        this.spells.Fireball.cooldown -= 3
-        this.spellsAvailable[0] = true;
-        touchControls.buttons[0].reset();
-        //console.log('fireball available')
-        touchControls.buttons[0].reset();
-        touchControls.buttonMapping[0].alpha = 1;
-        touchControls.buttons[0].alpha = 1;
-    }
-    this.addLeap = function(){
-        if(this.spells.Leap.spellPower==0){
-            this.type=2;
-            touchControls.moveHighlight(2);
+        else{
+            touchControls.spellPowerCounter[spellId].setText('lvl '+this.spells[alias].spellPower)
         }
-        this.spells.Leap.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Leap.spellPower + 1);
-        this.spellsAvailable[2] = true;
-        this.spells.Leap.jumpDist += 50;
-        this.spells.Leap.cooldown -= 30;
-        //console.log('leap available')
-        touchControls.buttons[2].reset();
-        touchControls.buttonMapping[2].alpha = 1;
-        touchControls.buttons[2].alpha = 1;
-    }
-    this.addVape = function(){
-        if(this.spells.Vape.spellPower==0){
-            this.type=5;
-            touchControls.moveHighlight(5);
-        }
-        this.spells.Vape.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Vape.spellPower + 1);
-        this.spellsAvailable[5] = true;
-        //console.log('vape available')
-        touchControls.buttons[5].reset()
-        touchControls.buttonMapping[5].alpha = 1;
-        touchControls.buttons[5].alpha = 1;
-    }
-    this.addSpike = function(){
-        if(this.spells.Spike.spellPower==0){
-            this.type=3;
-            touchControls.moveHighlight(3);
-        }
-        this.spells.Spike.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.Spike.spellPower + 1);
-        this.spellsAvailable[3] = true;
-        this.spells.Spike.cooldown -= 9;
-        //console.log('spike available')
-        touchControls.buttons[3].reset();
-        touchControls.buttonMapping[3].alpha = 1;
-        touchControls.buttons[3].alpha = 1;
-    }
-    this.addHeal = function(){
-        if(this.spells.HealingSpell.spellPower==0){
-            this.type=1;
-            touchControls.moveHighlight(1);
-        }
-        this.spells.HealingSpell.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.HealingSpell.spellPower + 1);
-        this.spellsAvailable[1] = true;
-        //console.log('healing available')
-        touchControls.buttons[1].reset();
-        touchControls.buttonMapping[1].alpha = 1;
-        touchControls.buttons[1].alpha = 1;
-    }
-    this.addFreeze = function(){
-        if(this.spells.ColdSphere.spellPower==0){
-            this.type=4;
-            touchControls.moveHighlight(4);
-        }
-        this.spells.ColdSphere.spellPower = Phaser.Math.max(maxSpellsLevel, this.spells.ColdSphere.spellPower + 1);
-        this.spellsAvailable[4] = true;
-        //console.log('coldsphere available')
-        touchControls.buttons[4].reset();
-        touchControls.buttonMapping[4].alpha = 1;
-        touchControls.buttons[4].alpha = 1;
-    }
-    this.inventory.push(itemSprite.element);
-    this.privateHealth += 3;
-    if(this.inventory.length>=2){
-        switch(this.inventory[0]){
-            case 1:
-                switch(this.inventory[1]){
-                    case 1:
-                        this.addFireball();
-                        break;
-                    case 2:
-                        this.addLeap();
-                        break;
-                    case 3:
-                        this.addVape();
-                        break;
-                };
-                break;
-            case 2:
-                switch(this.inventory[1]){
-                    case 1:
-                        this.addLeap();
-                        break;
-                    case 2:
-                        this.addSpike();
-                        break;
-                    case 3:
-                        this.addHeal();
-                        break;
-                };
-                break;
-            case 3:
-                switch(this.inventory[1]){
-                    case 1:
-                        this.addVape();
-                        break;
-                    case 2:
-                        this.addHeal();
-                        break;
-                    case 3:
-                        this.addFreeze();
-                        break;
-                };
-                break;
-        };
-        inventoryItem.kill();
-        this.inventory=[];
-        //console.log(this.spells);
+        this.spells[alias].spellPower = Phaser.Math.min(maxSpellsLevel, this.spells[alias].spellPower + 1);
+        this.spellsAvailable[spellId] = true;
+        touchControls.buttons[spellId].reset();
+        touchControls.buttonMapping[spellId].alpha = 1;
+        touchControls.buttons[spellId].alpha = 1;
+    };
+
+    //Handles inventory when picking up items
+    function inventorySwitch(spellsRegEx,frame,reminderFrame){
         for(i=0;i<touchControls.buttons.length;i++){
-            if(i!=6)
-                touchControls.elementReminder[i].kill();
-            if(touchControls.buttons[i].alpha == 0.3){
-                touchControls.buttons[i].kill();
-                touchControls.buttons[i].alpha = 0;
+            if(spellsRegEx.test(i)){
+                if(touchControls.buttons[i].alpha != 1){
+                    touchControls.buttons[i].reset();
+                    touchControls.buttons[i].alpha = 0.3;
+                }
+                touchControls.elementReminder[i].reset();
+                if(typeof reminderFrame == 'boolean' && reminderFrame)                       
+                    if(i==1)
+                        touchControls.elementReminder[i].frame = touchControls.frames[i][1]
+                    else
+                        touchControls.elementReminder[i].frame = touchControls.frames[i][0]
+                else
+                    touchControls.elementReminder[i].frame = touchControls.frames[i][reminderFrame]
+            }
+        }
+        inventoryItem.reset();
+        inventoryItem.frame = frame;
+    }
+
+    itemSprite.kill();
+    this.inventory.push(itemSprite.element);
+    this.privateHealth += 3;    //Heal on item pickup
+    if(this.id == myId){
+        if(this.inventory.length>=2){
+            switch(this.inventory[0]){
+                case 1:
+                    switch(this.inventory[1]){
+                        case 1:
+                            this.spellsAddSpell(0,'Fireball')
+                            break;
+                        case 2:
+                            this.spellsAddSpell(2,'Leap')
+                            break;
+                        case 3:
+                            this.spellsAddSpell(5,'Vape')
+                            break;
+                    };
+                    break;
+                case 2:
+                    switch(this.inventory[1]){
+                        case 1:
+                            this.spellsAddSpell(2,'Leap')
+                            break;
+                        case 2:
+                            this.spellsAddSpell(3,'Spike')
+                            break;
+                        case 3:
+                            this.spellsAddSpell(1,'HealingSpell')
+                            break;
+                    };
+                    break;
+                case 3:
+                    switch(this.inventory[1]){
+                        case 1:
+                            this.spellsAddSpell(5,'Vape')
+                            break;
+                        case 2:
+                            this.spellsAddSpell(1,'HealingSpell')
+                            break;
+                        case 3:
+                            this.spellsAddSpell(4,'ColdSphere')
+                            break;
+                    };
+                    break;
+            };
+            inventoryItem.kill();
+            this.inventory=[];
+
+            //Reset inventory helper
+            for(i=0;i<touchControls.buttons.length;i++){
+                if(i!=6)
+                    touchControls.elementReminder[i].kill();
+                if(touchControls.buttons[i].alpha == 0.3){
+                    touchControls.buttons[i].kill();
+                    touchControls.buttons[i].alpha = 0;
+                }
+            }
+        }
+        else{
+            switch (itemSprite.element) {
+                case 1:
+                    this.RCounter++;
+                    inventorySwitch(/[0,2,5]/,0,1);
+                    break;
+                case 2:
+                    this.GCounter++;
+                    inventorySwitch(/[1,2,3]/,1,true);
+                    break;
+                case 3:
+                    this.BCounter++;
+                    inventorySwitch(/[1,4,5]/,2,0);
+                    break ;
             }
         }
     }
-    else{
-        switch (itemSprite.element) {
-            case 1:
-                this.RCounter++;
-                for(i=0;i<touchControls.buttons.length;i++){
-                    if(/[0,2,5]/.test(i)){
-                        if(touchControls.buttons[i].alpha != 1){
-                            touchControls.buttons[i].reset();
-                            touchControls.buttons[i].alpha = 0.3;
-                        }
-                        touchControls.elementReminder[i].reset(); 
-                        touchControls.elementReminder[i].frame = touchControls.frames[i][1]
-                    }
-                }
-                inventoryItem.reset();
-                inventoryItem.frame = 0;
-                break;
-            case 2:
-                this.GCounter++;
-                for(i=0;i<touchControls.buttons.length;i++){
-                    if(/[1,2,3]/.test(i)){
-                        if(touchControls.buttons[i].alpha != 1){
-                            touchControls.buttons[i].reset();
-                            touchControls.buttons[i].alpha = 0.3;
-                        }
-                        touchControls.elementReminder[i].reset();                        
-                        if(i==1)
-                            touchControls.elementReminder[i].frame = touchControls.frames[i][1]
-                        else
-                            touchControls.elementReminder[i].frame = touchControls.frames[i][0]
-                    }
-                }
-                inventoryItem.reset();
-                inventoryItem.frame = 1;
-                break;
-            case 3:
-                this.BCounter++;
-                for(i=0;i<touchControls.buttons.length;i++){
-                    if(/[1,4,5]/.test(i)){
-                        if(touchControls.buttons[i].alpha != 1){
-                            touchControls.buttons[i].reset();
-                            touchControls.buttons[i].alpha = 0.3;
-                        }
-                        touchControls.elementReminder[i].reset(); 
-                        touchControls.elementReminder[i].frame = touchControls.frames[i][0]
-                    }
-                }
-                inventoryItem.reset();
-                inventoryItem.frame = 2;
-                break ;
-        }
-    }
+
+    //Elements counter for Aura
     var counter = this.RCounter+this.GCounter+this.BCounter
     if (counter <= 20) {
         this.SpeedX = playerSpeedX - counter*5
         this.SpeedY = playerSpeedY - counter*5
     }
-    // console.log("R="+this.RCounter+" G="+this.GCounter+" B="+this.BCounter)
     this.recolorAura();
+
+    //Send information to server if local player
     if(this.baseSprite.id==myId)
         eurecaServer.pickUpItem(itemSprite.id);
 }

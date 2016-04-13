@@ -1,3 +1,7 @@
+var eurecaServer;
+var ready = false;
+var found = false;
+
 var EurecaClientSetup = function() {
 	//create an instance of eureca.io client
 
@@ -34,21 +38,16 @@ var EurecaClientSetup = function() {
 			target.health = Phaser.Math.min(target.privateHealth,target.health + difHP);
 			if (target.hpBar != null)
 				target.hpBar.scale.setTo(Phaser.Math.max(target.health/target.privateHealth,0), 1);
-			if (target.health <= 0) {
-				if (id == player.id) player.deaths++
-				if (attackerId == player.id) player.kills++ // так надо
+			if (target.health <= 0 &&  !target.hasDied) {
+				target.hasDied = true
+				if (id == myId) player.deaths++
+				if (attackerId == myId && id != myId) player.kills++;
+				if (attackerId == myId && id == myId) player.kills--;
 			}
 			if (target.health <= 0 && id == player.baseSprite.id) {
-				console.log('talk server about killing');
 				eurecaServer.killPlayer(id);
 			}
 		}
-	}
-
-	eurecaClient.exports.castRemoteAttack = function(id, target, type)
-	{
-		if (charactersList[id])
-		 charactersList[id].fire(target,type);
 	}
 
 	eurecaClient.exports.castCloseAttack = function(id, target) {
@@ -78,12 +77,12 @@ var EurecaClientSetup = function() {
 		if (player.id == id)
 			for (var i in charactersList)
 				if (i != id) {
-				var a = new Phaser.Rectangle(weapon.x - 32, weapon.y - 32, 64, 64);
+				var a = new Phaser.Rectangle(weapon.x - 32, weapon.y - 32, 32, 32);
 				var b = new Phaser.Rectangle(charactersList[i].baseSprite.x - 32,
 											 charactersList[i].baseSprite.y - 32,
 											 64, 64);
 				if (Phaser.Rectangle.intersects(a, b))
-					eurecaServer.updateHP(charactersList[i].baseSprite.id, closeFightWeaponDamage);
+					eurecaServer.updateHP(charactersList[i].baseSprite.id, closeFightWeaponDamage,myId);
 			}
 	}
 
@@ -137,7 +136,7 @@ var EurecaClientSetup = function() {
                                                                   charactersList[i].baseSprite.y))
                 if (dist < 64)
                 {
-                    eurecaServer.updateHP(charactersList[i].baseSprite.id, damage);
+                    eurecaServer.updateHP(charactersList[i].baseSprite.id, damage,myId);
                 }
             }
     }
@@ -174,7 +173,7 @@ var EurecaClientSetup = function() {
 			charactersList[id].baseSprite.y = state.y;
 
 			if(id!=myId)
-				charactersList[id].type = state.fireType;
+				charactersList[id].fireType = state.fireType;
 
 			charactersList[id].headSprite.rotation = state.rot;
 			if(id!=myId)
@@ -193,13 +192,13 @@ var EurecaClientSetup = function() {
 		found = false;
 		for (var i in items){ 
 			if (!items[i].alive && items[i].element == elementForDrop){
-				console.log('activated '+itemID);
+				//console.log('activated '+itemID);
 				activateItem(i, x, y,itemID);
 			}
 			if (found) break;
 		}
 		if (!found){
-			console.log('created '+itemID);
+			//console.log('created '+itemID);
 			createItem(x, y, elementForDrop,itemID);
 		}
 

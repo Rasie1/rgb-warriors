@@ -1,21 +1,28 @@
 Spell = function() {
     this.cooldown = 0
-    this.currentCooldown = 0
     this.spellPower = 0;
     this.nextFire = 0;
 };
 
 Spell.prototype.cast = function(character) {
-    this.currentCooldown = this.cooldown
-    console.log("Casting spell")
+
 }
 
-Spell.prototype.onCooldown = function(character) {
-    return this.currentCooldown <= 0;
+Spell.prototype.castProjectile = function(character,bulletType,bulletFrame,bulletSpeed){
+    if (game.time.now > this.nextFire && game.time.now > character.nextFire && character.bullets.countDead() > 0){
+        this.nextFire = game.time.now + this.cooldown;
+        character.nextFire = game.time.now + character.fireRate;        
+        var bullet = character.bullets.getFirstDead();
+        bullet.lifespan = 5000;
+        bullet.type = bulletType;
+        bullet.frame = bulletFrame;
+        //bullet.damagePower = this.spellPower;
+        bullet.reset(character.headSprite.x, character.headSprite.y);
+        bullet.rotation = game.physics.arcade.moveToObject(bullet, {x:character.cursor.tx,y:character.cursor.ty}, bulletSpeed);
+    }
 }
 
 // Healing Spell
-
 function HealingSpell() {
     Spell.call(this);
     this.cooldown = 1000;
@@ -31,9 +38,9 @@ HealingSpell.prototype = Object.create(Spell.prototype);
 HealingSpell.prototype.constructor = HealingSpell
 
 HealingSpell.prototype.cast = function(character){
-    if (game.time.now > this.nextFire && character.bullets.countDead() > 0){
+    if (game.time.now > this.nextFire && game.time.now > character.nextFire){
         this.nextFire = game.time.now + this.cooldown;
-        this.currentCooldown = this.cooldown
+        character.nextFire = game.time.now + character.fireRate; 
 
         this.visualEffectSprite.reset(character.baseSprite.x,
                                       character.baseSprite.y)
@@ -43,11 +50,12 @@ HealingSpell.prototype.cast = function(character){
     }
 };
 
-// Fireball
 
+// Fireball
 function Fireball() {
     Spell.call(this);
-    this.cooldown = 1000;
+    this.cooldown = 750;
+    this.bulletSpeed = 750;
 }
 
 Fireball.prototype = Object.create(Spell.prototype);
@@ -55,23 +63,43 @@ Fireball.prototype = Object.create(Spell.prototype);
 Fireball.prototype.constructor = Fireball
 
 Fireball.prototype.cast = function(character){
-    //console.log(this.bullets.countDead());
-    if (game.time.now > this.nextFire && character.bullets.countDead() > 0){
-        this.nextFire = game.time.now + this.cooldown;
-        this.currentCooldown = this.cooldown;
-        var bullet = character.bullets.getFirstDead();
-        bullet.lifespan = 5000;
-        bullet.type = 0;
-        bullet.frame = 0;
-        //bullet.damagePower = this.spellPower;
-        bullet.reset(character.headSprite.x, character.headSprite.y);
-        bullet.rotation = game.physics.arcade.moveToObject(bullet, {x:character.cursor.tx,y:character.cursor.ty}, 500);
-    }
+    this.castProjectile(character,0,0,this.bulletSpeed)
+};
 
+// Cold Sphere
+function ColdSphere() {
+    Spell.call(this);
+    this.cooldown = 1000;
+    this.bulletSpeed = 600;
+    this.visualEffectSpriteEnd = game.add.sprite(0, 0, 'ice')
+    this.visualEffectSpriteEnd.anchor.set(0.5, 0.5)
+    this.visualEffectSpriteEnd.kill()
+}
+
+ColdSphere.prototype = Object.create(Spell.prototype);
+
+ColdSphere.prototype.constructor = ColdSphere
+
+ColdSphere.prototype.cast = function(character){
+    this.castProjectile(character,5,2,this.bulletSpeed)
+};
+
+// Vape
+function Vape() {
+    Spell.call(this);
+    this.cooldown = 1000;
+    this.bulletSpeed = 500;
+}
+
+Vape.prototype = Object.create(Spell.prototype);
+
+Vape.prototype.constructor = Vape
+
+Vape.prototype.cast = function(character){
+    this.castProjectile(character,6,1,this.bulletSpeed)
 };
 
 // Leap
-
 function Leap() {
     Spell.call(this);
 
@@ -95,9 +123,9 @@ Leap.prototype.constructor = Leap
 
 Leap.prototype.cast = function(character){
 
-    if (game.time.now > this.nextFire){
+    if (game.time.now > this.nextFire && game.time.now > character.nextFire){
         this.nextFire = game.time.now + this.cooldown;
-        this.currentCooldown = this.cooldown;
+        character.nextFire = game.time.now + character.fireRate;     
 
         var curPos = new Phaser.Point(character.baseSprite.x, character.baseSprite.y);
         var target = new Phaser.Point(character.cursor.tx, character.cursor.ty);
@@ -138,7 +166,6 @@ Leap.prototype.cast = function(character){
 };
 
 // Spike
-
 function Spike() {
     Spell.call(this);
     this.cooldown = 1000
@@ -153,9 +180,9 @@ Spike.prototype.constructor = Spike
 
 Spike.prototype.cast = function(character){
 
-    if (game.time.now > this.nextFire){
+    if (game.time.now > this.nextFire && game.time.now > character.nextFire){
         this.nextFire = game.time.now + this.cooldown;
-        this.currentCooldown = this.cooldown;
+        character.nextFire = game.time.now + character.fireRate; 
 
         var curPos = new Phaser.Point(character.baseSprite.x, character.baseSprite.y);
         var target = new Phaser.Point(character.cursor.tx, character.cursor.ty);
@@ -174,59 +201,7 @@ Spike.prototype.cast = function(character){
 
 };
 
-// Cold Sphere
-
-function ColdSphere() {
-    Spell.call(this);
-    this.cooldown = 1000;
-    this.visualEffectSpriteEnd = game.add.sprite(0, 0, 'ice')
-    this.visualEffectSpriteEnd.anchor.set(0.5, 0.5)
-    this.visualEffectSpriteEnd.kill()
-}
-
-ColdSphere.prototype = Object.create(Spell.prototype);
-
-ColdSphere.prototype.constructor = ColdSphere
-
-ColdSphere.prototype.cast = function(character){
-    if (game.time.now > this.nextFire && character.bullets.countDead() > 0){
-        this.nextFire = game.time.now + this.cooldown;
-        this.currentCooldown = this.cooldown;
-        var bullet = character.bullets.getFirstDead();
-        bullet.lifespan = 5000;
-        bullet.type = 5;
-        bullet.frame = 2;
-        bullet.reset(character.headSprite.x, character.headSprite.y);
-        bullet.rotation = game.physics.arcade.moveToObject(bullet, {x:character.cursor.tx,y:character.cursor.ty}, 500);
-    }
-};
-
-// Vape
-
-function Vape() {
-    Spell.call(this);
-    this.cooldown = 1000;
-}
-
-Vape.prototype = Object.create(Spell.prototype);
-
-Vape.prototype.constructor = Vape
-
-Vape.prototype.cast = function(character){
-    if (game.time.now > this.nextFire && character.bullets.countDead() > 0){
-        this.nextFire = game.time.now + this.cooldown;
-        this.currentCooldown = this.cooldown;
-        var bullet = character.bullets.getFirstDead();
-        bullet.lifespan = 5000;
-        bullet.type = 6;
-        bullet.frame = 1;
-        bullet.reset(character.headSprite.x, character.headSprite.y);
-        bullet.rotation = game.physics.arcade.moveToObject(bullet, {x:character.cursor.tx,y:character.cursor.ty}, 500);
-    }
-};
-
 //close-in fighting
-
 function CloseFighting()
 {
 	Spell.call(this);
@@ -239,9 +214,9 @@ CloseFighting.prototype.constructor = CloseFighting
 
 CloseFighting.prototype.cast = function(character)
 {
-	if (game.time.now > this.nextFire){
-    	this.nextFire = game.time.now + this.cooldown;
-        this.currentCooldown = this.cooldown;
+    if (game.time.now > this.nextFire && game.time.now > character.nextFire){
+        this.nextFire = game.time.now + this.cooldown;
+        character.nextFire = game.time.now + character.fireRate; 
 
     	eurecaServer.castCloseAttack(character.id, {x: character.cursor.tx,
         											y: character.cursor.ty});

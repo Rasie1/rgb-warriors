@@ -19,10 +19,10 @@ TouchControls = function(character)
 
     this.touchedJoystick = false
 
-    this.margin = 75
-    this.segmentSize = 200
-    this.offsetX = this.margin
-    this.offsetY = window.innerHeight - this.segmentSize * 3 - this.margin
+    this.margin = 75;
+    this.segmentSize = 200;
+    this.offsetX = this.margin;
+    this.offsetY = window.innerHeight - this.segmentSize * 3 - this.margin;
 };
 
 
@@ -81,115 +81,12 @@ TouchControls.prototype.init = function create(game) {
 
     // spell buttons
     this.buttons = [];
-    
-    this.segmentSize = this.segmentSize / 2
-
-    buttonS0 = game.add.button(window.innerWidth - this.segmentSize - this.margin, 
-                               this.offsetY,
-                               'logoS0', 
-                               this.spell0buttonAction, 
-                               this, 
-                               0, 0, 0);
-    buttonS0.scale.x = 1
-    buttonS0.scale.y = 1
-    buttonS0.onInputUp.add(function() { this.touchInput.button0 = false }, this)
-    buttonS0.onInputDown.add(function() { this.touchInput.button0 = true }, this)
-    buttonS0.kill();
-    //console.log("buttonS0.kill()")
-    this.buttons[0] = buttonS0;
-
-    buttonS1 = game.add.button(window.innerWidth - this.segmentSize - this.margin, 
-                               this.offsetY + this.segmentSize,
-                              'logoS1', 
-                               this.spell1buttonAction, 
-                               this, 
-                               0, 0, 0);
-    buttonS1.scale.x = 1
-    buttonS1.scale.y = 1
-    buttonS1.onInputUp.add(function() { this.touchInput.button1 = false }, this)
-    buttonS1.onInputDown.add(function() { this.touchInput.button1 = true }, this)
-    buttonS1.kill();
-    this.buttons[1] = buttonS1;
-
-    buttonS2 = game.add.button(window.innerWidth - this.segmentSize - this.margin, 
-                               this.offsetY + (this.segmentSize*2),
-                               'logoS2', 
-                               this.spell2buttonAction, 
-                               this, 
-                               0, 0, 0);
-    buttonS2.scale.x = 1
-    buttonS2.scale.y = 1
-    buttonS2.onInputUp.add(function() { this.touchInput.button2 = false }, this)
-    buttonS2.onInputDown.add(function() { this.touchInput.button2 = true }, this)
-    buttonS2.kill();
-    this.buttons[2] = buttonS2;
-
-    buttonS3 = game.add.button(window.innerWidth - this.segmentSize - this.margin, 
-                               this.offsetY + (this.segmentSize*3),
-                               'logoS3', 
-                               this.spell3buttonAction, 
-                               this, 
-                               0, 0, 0);
-    buttonS3.scale.x = 1
-    buttonS3.scale.y = 1
-    buttonS3.onInputUp.add(function() { this.touchInput.button3 = false }, this)
-    buttonS3.onInputDown.add(function() { this.touchInput.button3 = true }, this)
-    buttonS3.kill();
-    this.buttons[3] = buttonS3;
-
-    buttonS4 = game.add.button(window.innerWidth - this.segmentSize - this.margin, 
-                               this.offsetY + (this.segmentSize*4),
-                               'logoS4', 
-                               this.spell4buttonAction, 
-                               this, 
-                               0, 0, 0);
-    buttonS4.scale.x = 1
-    buttonS4.scale.y = 1
-    buttonS4.onInputUp.add(function() { this.touchInput.button4 = false }, this)
-    buttonS4.onInputDown.add(function() { this.touchInput.button4 = true }, this)
-    buttonS4.kill();
-    this.buttons[4] = buttonS4;
-
-    buttonS5 = game.add.button(window.innerWidth - this.segmentSize - this.margin, 
-                               this.offsetY + (this.segmentSize*5),
-                               'logoS5', 
-                               this.spell5buttonAction, 
-                               this, 
-                               0, 0, 0);
-    buttonS5.scale.x = 1
-    buttonS5.scale.y = 1
-    buttonS5.onInputUp.add(function() { this.touchInput.button5 = false }, this)
-    buttonS5.onInputDown.add(function() { this.touchInput.button5 = true }, this)
-    buttonS5.kill();
-    this.buttons[5] = buttonS5;
-
-    buttonS6 = game.add.button(window.innerWidth - this.segmentSize - this.margin, 
-                               this.offsetY + (this.segmentSize*6),
-                               'logoS6', 
-                               this.spell5buttonAction, 
-                               this, 
-                               0, 0, 0);
-    buttonS6.scale.x = 1
-    buttonS6.scale.y = 1
-    buttonS6.onInputUp.add(function() { this.touchInput.button6 = false }, this)
-    buttonS6.onInputDown.add(function() { this.touchInput.button6 = true }, this)
-    //buttonS6.kill();
-    this.buttons[6] = buttonS6;
-
     this.buttonMapping = [];
+    this.spellPowerCounter = [];
     this.elementReminder = [];
+    this.buttonsGroup = game.add.group(); 
 
-    this.highlight = game.add.sprite(
-      window.innerWidth - this.segmentSize - this.margin, 
-      this.offsetY + (this.segmentSize*6),
-      'highlight'
-    );
-    this.highlight.fixedToCamera = true;
-    this.highlight.alpha = 1;
-
-    this.moveHighlight = function(itemNumber){
-      this.highlight.cameraOffset.y = this.offsetY + (this.segmentSize*itemNumber)
-    }
+    this.segmentSize = this.segmentSize / 2;
 
     this.frames = [
       [0,0], //fireball
@@ -200,58 +97,92 @@ TouchControls.prototype.init = function create(game) {
       [0,2] //vape
     ]
     //if (game.device.desktop){
-      for(i=0;i<this.buttons.length;i++){
-        this.buttonMapping[i] = game.add.text(
-          window.innerWidth - 128, 
-          this.offsetY + (this.segmentSize*i) + 55 - 16,
-          i+1,
-          { font: "18px Arial", fill: "#ffffff", align: "left" }
-        );
-
-        if(i!=6){
-          this.elementReminder[i] = game.add.sprite(
-            window.innerWidth - this.segmentSize - this.margin*2, 
-            this.offsetY + (this.segmentSize*i),
-            'inventoryItem'
-          );
-          //this.elementReminder[i].scale.setTo(wiScale,wiScale);
-          this.elementReminder[i].fixedToCamera = true;
-          this.elementReminder[i].alpha = 0.5;
-          this.elementReminder[i].kill();
-        }
-
-
-        this.buttonMapping[i].fixedToCamera = true;
-        this.buttonMapping[i].alpha = 0;
-        this.buttons[i].alpha = 0;
-      }
     //}
-    this.buttonMapping[6].alpha = 1;
+
+    //Make buttons
+    for(i=0;i<=6;i++){
+      //Spell buttons
+      this.buttons[i] = game.add.button(
+        window.innerWidth - this.segmentSize - this.margin, 
+        this.offsetY + (this.segmentSize*i),
+        'logoS'+i, 
+        this['spell'+i+'buttonAction'], 
+        this, 
+        0, 0, 0
+      );
+      this.buttons[i].scale.x = 1
+      this.buttons[i].scale.y = 1
+      this.buttons[i].onInputUp.add(function() {this.touchInput['button'+i] = false }, this)
+      this.buttons[i].onInputDown.add(function() {this.touchInput['button'+i] = true }, this)
+      this.buttons[i].fixedToCamera = true
+      this.buttons[i].kill();
+      this.buttons[i].alpha = 0;
+      this.buttonsGroup.add(this.buttons[i]);
+
+      //Keys for buttons
+      this.buttonMapping[i] = game.add.text(
+        window.innerWidth - 128, 
+        this.offsetY + (this.segmentSize*i) + 55 - 16,
+        i+1,
+        { font: "18px Arial", fill: "#ffffff", align: "left" }
+      );
+      this.buttonMapping[i].fixedToCamera = true;
+      this.buttonMapping[i].alpha = 0;
+
+      if(i!=6){
+        //Element reminder for spells
+        this.elementReminder[i] = game.add.sprite(
+          window.innerWidth - this.segmentSize - this.margin*2, 
+          this.offsetY + (this.segmentSize*i),
+          'inventoryItem'
+        );
+        //this.elementReminder[i].scale.setTo(wiScale,wiScale);
+        this.elementReminder[i].fixedToCamera = true;
+        this.elementReminder[i].alpha = 0.5;
+        this.elementReminder[i].kill();
+
+        //Spell power counter for spells
+        this.spellPowerCounter[i] = game.add.text(
+          window.innerWidth - this.segmentSize - this.margin + 8, 
+          this.offsetY + (this.segmentSize*i) + 6,
+          'lvl 0',
+          { font: "14px Arial", fill: "#ffffff", align: "left" }
+        );
+        this.spellPowerCounter[i].fixedToCamera = true;
+        this.spellPowerCounter[i].alpha = 0;
+      }
+    }    
+    this.buttons[6].reset();
     this.buttons[6].alpha = 1;
+    this.buttonMapping[6].alpha = 1;
 
-    if (!game.device.desktop)
-    {
-        joystick = game.add.button(this.margin, 
-                                   this.offsetY,
-                                   'button-circle', 
-                                   this.joystickButtonAction, 
-                                   this, 
-                                   0, 0, 0);
-        joystick.scale.x = 3
-        joystick.scale.y = 3
-        joystick.onInputUp.add(this.joystickUp, this)
-        joystick.onInputDown.add(this.joystickDown, this)
-        joystick.fixedToCamera = true
+    //Current spell highlight
+    this.highlight = game.add.sprite(
+      window.innerWidth - this.segmentSize - this.margin, 
+      this.offsetY + (this.segmentSize*6),
+      'highlight'
+    );
+    this.highlight.fixedToCamera = true;
+    this.highlight.alpha = 1;
+    this.moveHighlight = function(itemNumber){
+      this.highlight.cameraOffset.y = this.offsetY + (this.segmentSize*itemNumber)
     }
-
-
-    buttonS0.fixedToCamera = true
-    buttonS1.fixedToCamera = true
-    buttonS2.fixedToCamera = true
-    buttonS3.fixedToCamera = true
-    buttonS4.fixedToCamera = true
-    buttonS5.fixedToCamera = true
-    buttonS6.fixedToCamera = true
+    
+    if (!game.device.desktop){
+      joystick = game.add.button(
+        this.margin, 
+        this.offsetY,
+        'button-circle', 
+        this.joystickButtonAction, 
+        this, 
+        0, 0, 0
+      );
+      joystick.scale.x = 3
+      joystick.scale.y = 3
+      joystick.onInputUp.add(this.joystickUp, this)
+      joystick.onInputDown.add(this.joystickDown, this)
+      joystick.fixedToCamera = true
+    }
 }
 
 
