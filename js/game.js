@@ -362,7 +362,7 @@ activateItem = function(index, x, y,itemID)
 	{
 		var item = items[index];
 		item.reset(x,y);
-        item.shadow.reset(x,y);
+        item.shadow.reset(x+3,y+10);
         item.id = itemID;
 		item.alive = true;
 		found = true
