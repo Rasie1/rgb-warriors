@@ -109,7 +109,8 @@ var EurecaClientSetup = function() {
         {
             charactersList[id].baseSprite.x = new_x;
             charactersList[id].baseSprite.y = new_y;
-            game.camera.focusOnXY(new_x, new_y);
+            if(id == myId)
+            	game.camera.focusOnXY(new_x, new_y);
         }
     }
 
