@@ -14,7 +14,10 @@ var colors = [
     0x9AFFEA,
     0xA9C2FF,
     0xE492FF
-]
+];
+
+var botCounter = 0;
+var bots = {};
 
 var express = require('express')
   , app = express(app)
@@ -53,7 +56,8 @@ var Server = new Eureca.Server({allow:[
 	'doLeap',
     'doSpike',
     'scaleSpeed',
-    'freezePlayer'
+    'freezePlayer',
+    'spawnBot'
 ]
 });
 
@@ -99,10 +103,10 @@ Server.onConnect(function (conn) {
 	}
 
 	if(!outOfPlaces){
-		remote.setId(conn.id,x,y,color)
+		remote.setId(conn.id,x,y)
 	}
 	else{
-		remote.setId(conn.id,0,0,color)
+		remote.setId(conn.id,0,0)
 	}
 
 	if(itemsList.length){
@@ -113,6 +117,10 @@ Server.onConnect(function (conn) {
 		}
 	};
 	clients[conn.id].remote.createObstacles(obstaclesList);
+	for(b in bots){
+		var bot = bots[b];
+		remote.spawnBot(bot.id,bot.x,bot.y,bot.ownerId)
+	}
 
 });
 
@@ -122,14 +130,28 @@ Server.onDisconnect(function (conn) {
 
 	var removeId = clients[conn.id].id;
 
-	delete clients[conn.id];
+	var botsToKill = [];
+	for(b in bots){
+		if(bots[b].ownerId == conn.id){
+			botsToKill.push(bots[b].id)
+			delete bots[b]
+		}
+	}
+	console.log('Killing bots: ',botsToKill);
 
+	delete clients[conn.id];
 	for (var c in clients)
 	{
 		var remote = clients[c].remote;
 
 		//here we call kill() method defined in the client side
 		remote.kill(conn.id);
+
+		//kill bots
+		
+		for(i=0;i<botsToKill.length;i++){
+			remote.kill(botsToKill[i]);
+		}
 	}
 });
 
@@ -305,7 +327,57 @@ Server.exports.doSpike = function(id, x, y, time, damage)
     for (var c in clients)
         clients[c].remote.doSpike(id, x, y, time, damage);
 }
+Server.exports.addbots = function(owner,num){
+	for(j=0;j<num;j++){
+		bots[owner+'bot'+botCounter] = {
+			ownerId:owner,
+			botId:botCounter,
+			id:owner+'bot'+botCounter,
+			velocityX:0,
+			velocityY:0
+		}
 
+		shuffle(obstaclesPositions);
+		var isOccupied = true;
+		var i = 0;
+		var x,y;
+		var outOfPlaces=false;
+		while(isOccupied==true && !outOfPlaces){
+			if(typeof obstaclesPositions[i] != 'undefined'){
+				if(!obstaclesPositions[i].occupied){
+					isOccupied=false;
+					x = obstaclesPositions[i].x;
+					y = obstaclesPositions[i].y;
+				}
+				i++
+			}
+			else{
+				outOfPlaces = true;
+			};
+		}
+
+		for (var c in clients){
+			if(!outOfPlaces){
+				clients[c].remote.spawnBot(owner+'bot'+botCounter,x,y,owner)
+			}
+			else{
+				clients[c].remote.spawnBot(owner+'bot'+botCounter,0,0,owner)
+			}
+		}
+		if(!outOfPlaces){
+			bots[owner+'bot'+botCounter].x = x;
+			bots[owner+'bot'+botCounter].y = y;
+
+		}
+		else{
+			bots[owner+'bot'+botCounter].x = 0;
+			bots[owner+'bot'+botCounter].y = 0;
+		}
+		botCounter++;
+
+	}
+
+}
 
 
 //obstacles

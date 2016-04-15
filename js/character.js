@@ -14,7 +14,7 @@ var spellAliases = [
     'Vape',
     'CloseFighting'
 ]
-Character = function (index, game, x, y, r, g, b,color) {
+Character = function (index, game, x, y, r, g, b,color,isBot,owner) {
     this.cursor = {
         left:false,
         right:false,
@@ -70,6 +70,14 @@ Character = function (index, game, x, y, r, g, b,color) {
     this.game = game;
     this.privateHealth = maxHealth;
     this.health = this.privateHealth;
+
+    //Bots
+    if(typeof isBot == 'undefined')
+        var isBot = false;
+    if(typeof owner == 'undefined')
+        var owner = null;
+    this.isBot = isBot;
+    this.owner = owner;
 
     //Player speed
     this.SpeedX = playerSpeedX;
@@ -237,6 +245,7 @@ Character.prototype.recreate = function (x,y) {
 
     this.baseSprite.reset(x,y);
     this.headSprite.reset(x,y);
+    this.shadow.reset(x,y);
     
     this.fireRate = 500;
     this.nextFire = 0;
@@ -490,7 +499,7 @@ Character.prototype.fire = function(target,fireType) {
 
 
 Character.prototype.kill = function() {
-    console.log('killed')
+    //console.log('killed')
     this.alive = false;
     this.baseSprite.kill();
     if (this.hpBar != null) {
@@ -500,8 +509,9 @@ Character.prototype.kill = function() {
     this.deadSprite.lifespan = 3000;
     this.headSprite.kill();
     this.auraSprite.kill();
+    this.shadow.kill();
 
-    if (this.id==myid){
+    if (this.id==myId){
         touchControls.moveHighlight(6); //Reset to default weapon
         for(var spell in player.spells) 
             player.spells[spell].spellPower = 0; //Reset spellpower

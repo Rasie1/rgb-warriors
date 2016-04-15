@@ -457,3 +457,7 @@ function update () {
 }
 
 function render () {}
+
+function addbots (num){
+    Server.addbots(myId,num);
+}

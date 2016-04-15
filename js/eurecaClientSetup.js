@@ -24,6 +24,10 @@ var EurecaClientSetup = function() {
 		Server.handshake(id,initialSpawnLocationX,initialSpawnLocationY);
 		ready = true;
 	}	
+	Client.exports.spawnBot = function(id,x,y,owner){
+		console.log(id)
+		charactersList[id] = new Character(id, game, x, y, -1, -1, -1,false,true,owner);
+	}
 	
 	Client.exports.kill = function(id)
 	{	
@@ -228,7 +232,6 @@ var EurecaClientSetup = function() {
 		    v.shadow.anchor.set(0);
 		    v.shadow.tint = 0x000000;
 		    v.shadow.alpha = 0.4;
-		    console.log(v.shadow)
 	    }
 	} 
 }
