@@ -335,30 +335,42 @@ Character.prototype.update = function() {
     // commit movement
     var shouldAnim = false
 
-    var speed = 0;
+    
     //Left and right movement
-    if ((this.cursor.left || this.cursor.a  || touchControls.touchInput.joystickX < -0.5) && this.canMove) {
-        if(
-            this.cursor.up || this.cursor.w || touchControls.touchInput.joystickY < -0.5 || 
-            this.cursor.down  || this.cursor.s || touchControls.touchInput.joystickY > 0.5
-        )
-            speed = -this.SpeedX/1.5*this.speedMultiplier
-        else
-            speed = -this.SpeedX*this.speedMultiplier;
+    var up = false;
+    var down = false;
+    var left = false;
+    var right = false;
+    if(this.cursor.up || this.cursor.w || touchControls.touchInput.joystickY < -0.5)
+        up = true;
+    if(this.cursor.down  || this.cursor.s || touchControls.touchInput.joystickY > 0.5)
+        down = true;
+    if(this.cursor.left || this.cursor.a  || touchControls.touchInput.joystickX < -0.5)
+        left = true;
+    if(this.cursor.right || this.cursor.d || touchControls.touchInput.joystickX > 0.5)
+        right = true;
+
+    var speed;
+    if(
+        (up && left || up && right) ||
+        (down && left || down && right) ||
+        (left && up || left && down) ||
+        (right && up || up && down)
+    ){
+        speed = Math.sqrt(Math.pow(this.SpeedX,2)+Math.pow(this.SpeedY,2))/2*this.speedMultiplier
+    }
+    else{
+        speed = this.SpeedX;
+    };
+
+    if (left && this.canMove) {
         this.headSprite.body.velocity.x 
         = this.baseSprite.body.velocity.x 
-        = speed;
+        = -speed;
         this.baseSprite.rotation = -3.14;
         shouldAnim = true
     }
-    else if ((this.cursor.right || this.cursor.d || touchControls.touchInput.joystickX > 0.5) && this.canMove) {
-        if(
-            this.cursor.up || this.cursor.w || touchControls.touchInput.joystickY < -0.5 || 
-            this.cursor.down  || this.cursor.s || touchControls.touchInput.joystickY > 0.5
-        )
-            speed = this.SpeedX/1.5*this.speedMultiplier
-        else
-            speed = this.SpeedX*this.speedMultiplier;
+    else if (right && this.canMove) {
         this.headSprite.body.velocity.x 
         = this.baseSprite.body.velocity.x 
         = speed;
@@ -373,28 +385,14 @@ Character.prototype.update = function() {
     }
 
     //Up and down movement
-    if ((this.cursor.up || this.cursor.w || touchControls.touchInput.joystickY < -0.5) && this.canMove) {
-        if(
-            this.cursor.left || this.cursor.a  || touchControls.touchInput.joystickX < -0.5 || 
-            this.cursor.right || this.cursor.d || touchControls.touchInput.joystickX > 0.5
-        )
-            speed = -this.SpeedX/1.5*this.speedMultiplier
-        else
-            speed = -this.SpeedX*this.speedMultiplier;
+    if (up && this.canMove) {
         this.headSprite.body.velocity.y 
         = this.baseSprite.body.velocity.y 
-        = speed;
+        = -speed;
         this.baseSprite.rotation = this.baseSprite.rotation==-3.14 ? -3*3.14/4 : this.baseSprite.rotation==0 ? -3.14/4 : -3.14/2
         shouldAnim = true
     }
-    else if ((this.cursor.down  || this.cursor.s || touchControls.touchInput.joystickY > 0.5) && this.canMove) {
-        if(
-            this.cursor.left || this.cursor.a  || touchControls.touchInput.joystickX < -0.5 || 
-            this.cursor.right || this.cursor.d || touchControls.touchInput.joystickX > 0.5
-        )
-            speed = this.SpeedX/1.5*this.speedMultiplier
-        else
-            speed = this.SpeedX*this.speedMultiplier;
+    else if (down && this.canMove) {
         this.headSprite.body.velocity.y 
         = this.baseSprite.body.velocity.y 
         = speed;
