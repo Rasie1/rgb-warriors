@@ -1,3 +1,5 @@
+var mouseWheel;
+
 var character,
     headSprite,
     baseSprite,
@@ -218,7 +220,7 @@ Character = function (index, game, x, y, r, g, b,color) {
     //mousewheel detection
     if(this.baseSprite.id == myId){
         var dis = this;
-        var mouseWheel = function(d){dis.mouseWheel(d)}
+        mouseWheel = function(d){dis.mouseWheel(d)}
         window.addEventListener('wheel',mouseWheel);
     }
 
@@ -499,7 +501,7 @@ Character.prototype.kill = function() {
     this.headSprite.kill();
     this.auraSprite.kill();
 
-    if (this.id==player.id){
+    if (this.id==myid){
         touchControls.moveHighlight(6); //Reset to default weapon
         for(var spell in player.spells) 
             player.spells[spell].spellPower = 0; //Reset spellpower
@@ -512,10 +514,10 @@ Character.prototype.kill = function() {
             touchControls.buttonMapping[i].alpha = 0;
             touchControls.spellPowerCounter[i].alpha = 0;
         }
+        window.removeEventListener('wheel',mouseWheel);
     }
 
     this.dropItem();
-    window.removeEventListener('wheel',mouseWheel);
 }
 
 Character.prototype.dropItem = function() {
