@@ -281,15 +281,14 @@ Server.exports.castCloseAttack = function(id, target)
 	for (var c in clients)
 		clients[c].remote.castCloseAttack(id, target);
 }
-Server.exports.castFreeze = function(id, time)
+Server.exports.castFreeze = function(id, time,speedMultiplier)
 {
     for (var c in clients) {
-        clients[c].remote.freezePlayer(id,false)
+        clients[c].remote.freezePlayer(id,0.5)
     }
-    console.log(time);
     setTimeout(function() {
             for (var c in clients) {
-                 clients[c].remote.freezePlayer(id,true)
+                 clients[c].remote.freezePlayer(id,1)
             }
         },
         time * 1000)

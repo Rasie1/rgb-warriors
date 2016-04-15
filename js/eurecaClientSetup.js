@@ -113,8 +113,8 @@ var EurecaClientSetup = function() {
         charactersList[id].SpeedY *= k;
         //console.log(charactersList[id].SpeedX)
     }
-    Client.exports.freezePlayer = function(id,canMove){
-    	charactersList[id].canMove = canMove;
+    Client.exports.freezePlayer = function(id,speedMultiplier){
+    	charactersList[id].speedMultiplier = speedMultiplier;
     }
 
     Client.exports.doLeap = function(id, new_x, new_y)

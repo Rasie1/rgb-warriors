@@ -68,8 +68,12 @@ Character = function (index, game, x, y, r, g, b,color) {
     this.game = game;
     this.privateHealth = maxHealth;
     this.health = this.privateHealth;
+
+    //Player speed
     this.SpeedX = playerSpeedX;
     this.SpeedY = playerSpeedY;
+    this.speedMultiplier = 1;
+    this.canMove = true;
 
     //Fireballs, freeze bolts and vape projectiles
     this.bullets = game.add.group();
@@ -117,8 +121,6 @@ Character = function (index, game, x, y, r, g, b,color) {
     //Alive status
     this.alive = true;
     this.hasDied = false;
-
-    this.canMove = true;
 
     //Shadow
     this.shadow = game.add.sprite(x, y, 'player-head');
@@ -217,8 +219,12 @@ Character = function (index, game, x, y, r, g, b,color) {
 Character.prototype.recreate = function (x,y) {
 
     this.health = 100;
+
     this.SpeedX = playerSpeedX;
     this.SpeedY = playerSpeedY;
+    this.canMove = true;
+    this.speedMultiplier = 1;
+
     this.baseSprite.reset(x,y);
     this.headSprite.reset(x,y);
     
@@ -227,8 +233,6 @@ Character.prototype.recreate = function (x,y) {
 
     this.alive = true;
     this.hasDied = false;
-
-    this.canMove = true;
 
     this.RCounter = 0;
     this.GCounter = 0;
@@ -312,18 +316,33 @@ Character.prototype.update = function() {
     // commit movement
     var shouldAnim = false
 
+    var speed = 0;
     //Left and right movement
     if ((this.cursor.left || this.cursor.a  || touchControls.touchInput.joystickX < -0.5) && this.canMove) {
+        if(
+            this.cursor.up || this.cursor.w || touchControls.touchInput.joystickY < -0.5 || 
+            this.cursor.down  || this.cursor.s || touchControls.touchInput.joystickY > 0.5
+        )
+            speed = -this.SpeedX/1.5*this.speedMultiplier
+        else
+            speed = -this.SpeedX*this.speedMultiplier;
         this.headSprite.body.velocity.x 
         = this.baseSprite.body.velocity.x 
-        = -this.SpeedX;
+        = speed;
         this.baseSprite.rotation = -3.14;
         shouldAnim = true
     }
     else if ((this.cursor.right || this.cursor.d || touchControls.touchInput.joystickX > 0.5) && this.canMove) {
+        if(
+            this.cursor.up || this.cursor.w || touchControls.touchInput.joystickY < -0.5 || 
+            this.cursor.down  || this.cursor.s || touchControls.touchInput.joystickY > 0.5
+        )
+            speed = this.SpeedX/1.5*this.speedMultiplier
+        else
+            speed = this.SpeedX*this.speedMultiplier;
         this.headSprite.body.velocity.x 
         = this.baseSprite.body.velocity.x 
-        = this.SpeedX;
+        = speed;
         this.baseSprite.rotation = 0;
         shouldAnim = true
     }
@@ -336,16 +355,30 @@ Character.prototype.update = function() {
 
     //Up and down movement
     if ((this.cursor.up || this.cursor.w || touchControls.touchInput.joystickY < -0.5) && this.canMove) {
+        if(
+            this.cursor.left || this.cursor.a  || touchControls.touchInput.joystickX < -0.5 || 
+            this.cursor.right || this.cursor.d || touchControls.touchInput.joystickX > 0.5
+        )
+            speed = -this.SpeedX/1.5*this.speedMultiplier
+        else
+            speed = -this.SpeedX*this.speedMultiplier;
         this.headSprite.body.velocity.y 
         = this.baseSprite.body.velocity.y 
-        = -this.SpeedY;
+        = speed;
         this.baseSprite.rotation = this.baseSprite.rotation==-3.14 ? -3*3.14/4 : this.baseSprite.rotation==0 ? -3.14/4 : -3.14/2
         shouldAnim = true
     }
     else if ((this.cursor.down  || this.cursor.s || touchControls.touchInput.joystickY > 0.5) && this.canMove) {
+        if(
+            this.cursor.left || this.cursor.a  || touchControls.touchInput.joystickX < -0.5 || 
+            this.cursor.right || this.cursor.d || touchControls.touchInput.joystickX > 0.5
+        )
+            speed = this.SpeedX/1.5*this.speedMultiplier
+        else
+            speed = this.SpeedX*this.speedMultiplier;
         this.headSprite.body.velocity.y 
         = this.baseSprite.body.velocity.y 
-        = this.SpeedY;
+        = speed;
         this.baseSprite.rotation = this.baseSprite.rotation==-3.14 ? 3*3.14/4 : this.baseSprite.rotation==0 ? 3.14/4 : 3.14/2
         shouldAnim = true
     }
