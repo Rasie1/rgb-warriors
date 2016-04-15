@@ -390,7 +390,7 @@ Character.prototype.update = function() {
                 if(d.deltaY != 0){
                     var stopScrolling = false;
                     var previouslySelected = dis.fireType;
-                    var checkingWeapon = dis.fireType;
+                    var checkingWeapon = dis.fireType; 
                     if(d.deltaY>0){      
                         while(!stopScrolling){
                             if(checkingWeapon<6)
