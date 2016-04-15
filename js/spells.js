@@ -180,7 +180,7 @@ function Spike() {
     this.cooldown = 1000
     this.distance = 128
     this.stayTime = 5
-    this.damage = -50
+    this.damage = -15
 }
 
 Spike.prototype = Object.create(Spell.prototype);

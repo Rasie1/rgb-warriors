@@ -560,9 +560,10 @@ Character.prototype.pickUpItem = function(itemSprite) {
     //Add a new spell or upgrade already existing
     this.spellsAddSpell = function(spellId,alias){
         if(this.spells[alias].spellPower==0){
-            this.fireType=spellId;
-            if(spellId > 2)
+            if(spellId > 2){
+                this.fireType=spellId;            
                 touchControls.moveHighlight(spellId);
+            }
             touchControls.spellPowerCounter[spellId].alpha = 1;
         }
         else{
