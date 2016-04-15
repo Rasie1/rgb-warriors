@@ -118,6 +118,8 @@ Character = function (index, game, x, y, r, g, b,color) {
     this.alive = true;
     this.hasDied = false;
 
+    this.canMove = true;
+
     //Shadow
     this.shadow = game.add.sprite(x, y, 'player-head');
     this.shadow.anchor.set(0.5);
@@ -226,6 +228,8 @@ Character.prototype.recreate = function (x,y) {
     this.alive = true;
     this.hasDied = false;
 
+    this.canMove = true;
+
     this.RCounter = 0;
     this.GCounter = 0;
     this.BCounter = 0;
@@ -309,14 +313,14 @@ Character.prototype.update = function() {
     var shouldAnim = false
 
     //Left and right movement
-    if (this.cursor.left || this.cursor.a  || touchControls.touchInput.joystickX < -0.5) {
+    if ((this.cursor.left || this.cursor.a  || touchControls.touchInput.joystickX < -0.5) && this.canMove) {
         this.headSprite.body.velocity.x 
         = this.baseSprite.body.velocity.x 
         = -this.SpeedX;
         this.baseSprite.rotation = -3.14;
         shouldAnim = true
     }
-    else if (this.cursor.right || this.cursor.d || touchControls.touchInput.joystickX > 0.5) {
+    else if ((this.cursor.right || this.cursor.d || touchControls.touchInput.joystickX > 0.5) && this.canMove) {
         this.headSprite.body.velocity.x 
         = this.baseSprite.body.velocity.x 
         = this.SpeedX;
@@ -331,14 +335,14 @@ Character.prototype.update = function() {
     }
 
     //Up and down movement
-    if (this.cursor.up || this.cursor.w || touchControls.touchInput.joystickY < -0.5) {
+    if ((this.cursor.up || this.cursor.w || touchControls.touchInput.joystickY < -0.5) && this.canMove) {
         this.headSprite.body.velocity.y 
         = this.baseSprite.body.velocity.y 
         = -this.SpeedY;
         this.baseSprite.rotation = this.baseSprite.rotation==-3.14 ? -3*3.14/4 : this.baseSprite.rotation==0 ? -3.14/4 : -3.14/2
         shouldAnim = true
     }
-    else if (this.cursor.down  || this.cursor.s || touchControls.touchInput.joystickY > 0.5) {
+    else if ((this.cursor.down  || this.cursor.s || touchControls.touchInput.joystickY > 0.5) && this.canMove) {
         this.headSprite.body.velocity.y 
         = this.baseSprite.body.velocity.y 
         = this.SpeedY;

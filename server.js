@@ -52,7 +52,8 @@ var Server = new Eureca.Server({allow:[
 	'castFreeze',
 	'doLeap',
     'doSpike',
-    'scaleSpeed'
+    'scaleSpeed',
+    'freezePlayer'
 ]
 });
 
@@ -283,11 +284,12 @@ Server.exports.castCloseAttack = function(id, target)
 Server.exports.castFreeze = function(id, time)
 {
     for (var c in clients) {
-        clients[c].remote.scaleSpeed(id, 0.01)
+        clients[c].remote.freezePlayer(id,false)
     }
+    console.log(time);
     setTimeout(function() {
             for (var c in clients) {
-                 clients[c].remote.scaleSpeed(id, 100.0)
+                 clients[c].remote.freezePlayer(id,true)
             }
         },
         time * 1000)

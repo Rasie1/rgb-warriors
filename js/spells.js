@@ -257,8 +257,8 @@ function bulletHit (victim, bullet) {
 
     }
     if(bullet.type==5){
-        if(this.id == myId && victim.key=='enemy')
-            Server.castFreeze(victim.id, 3)
+        if(this.id == myId)
+            Server.castFreeze(victim.id, 1)
     }
     if(bullet.type==6){
             var vape = this.vapelosions.getFirstDead();
