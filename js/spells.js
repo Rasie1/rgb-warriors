@@ -55,7 +55,7 @@ HealingSpell.prototype.cast = function(character){
         character.mouseAlreadyUpdated = false;
         this.nextFire = game.time.now + this.cooldown;
         character.nextFire = game.time.now + character.fireRate; 
-        this.displayCooldowns(character,1);
+        this.displayCooldowns(character,0);
 
         Server.updateHP(character.id, this.healingSpellHealing + 5 * this.spellPower,null,true);
     }
@@ -74,7 +74,7 @@ Fireball.prototype = Object.create(Spell.prototype);
 Fireball.prototype.constructor = Fireball
 
 Fireball.prototype.cast = function(character){
-    this.castProjectile(character,0,0,this.bulletSpeed,-15,5,0)
+    this.castProjectile(character,0,0,this.bulletSpeed,-15,5,3)
 };
 
 // Cold Sphere
@@ -136,7 +136,7 @@ Leap.prototype.cast = function(character){
         character.mouseAlreadyUpdated = false;
         this.nextFire = game.time.now + this.cooldown;
         character.nextFire = game.time.now + character.fireRate;     
-        this.displayCooldowns(character,2);
+        this.displayCooldowns(character,1);
 
         var curPos = new Phaser.Point(character.baseSprite.x, character.baseSprite.y);
         var target = new Phaser.Point(character.cursor.tx, character.cursor.ty);
@@ -193,7 +193,7 @@ Spike.prototype.cast = function(character){
         character.mouseAlreadyUpdated = false;
         this.nextFire = game.time.now + this.cooldown;
         character.nextFire = game.time.now + character.fireRate; 
-        this.displayCooldowns(character,3);
+        this.displayCooldowns(character,2);
 
         var curPos = new Phaser.Point(character.baseSprite.x, character.baseSprite.y);
         var target = new Phaser.Point(character.cursor.tx, character.cursor.ty);
@@ -244,7 +244,7 @@ function bulletHit (victim, bullet) {
             Server.updateHP(victim.id, bullet.damage - bullet.spellPowerBoost, player.id);
         }
     }
-    if(bullet.type==0){
+    if(bullet.type==3){
 
     }
     if(bullet.type==5){

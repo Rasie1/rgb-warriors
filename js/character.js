@@ -6,10 +6,10 @@ var character,
     headSprite;
 
 var spellAliases = [
-    'Fireball',
     'HealingSpell',
     'Leap',
     'Spike',
+    'Fireball',
     'ColdSphere',
     'Vape',
     'CloseFighting'
@@ -430,7 +430,7 @@ Character.prototype.update = function() {
     //Spell select
     for(k=0;k<7;k++){
         if ((this.cursor['spell'+k] || this.touchInput['button'+k]) && this.spellsAvailable[k]){
-            if(/[1,2,3]/.test(k)){
+            if(/[0,1,2]/.test(k)){
                 if(this.spellsAvailable[this.fireType] && this.id == myId){
                     this.fire({x:this.cursor.tx, y:this.cursor.ty},k);
                 }
@@ -479,16 +479,16 @@ Character.prototype.fire = function(target,fireType) {
         if (!this.alive) return
         switch (fireType) {
             case 0:
-                this.spells.Fireball.cast(this)
-            break
-            case 1:
                 this.spells.HealingSpell.cast(this)
             break
-            case 2:
+            case 1:
                 this.spells.Leap.cast(this)
             break
-            case 3:
+            case 2:
                 this.spells.Spike.cast(this)
+            break
+            case 3:
+                this.spells.Fireball.cast(this)
             break
             case 4:
                 this.spells.ColdSphere.cast(this)
@@ -530,9 +530,9 @@ Character.prototype.kill = function() {
             touchControls.spellPowerCounter[i].alpha = 0;
         }
         window.removeEventListener('wheel',mouseWheel);
+        this.dropItem();
     }
-
-    this.dropItem();
+        
 }
 
 Character.prototype.dropItem = function() {
@@ -561,7 +561,8 @@ Character.prototype.pickUpItem = function(itemSprite) {
     this.spellsAddSpell = function(spellId,alias){
         if(this.spells[alias].spellPower==0){
             this.fireType=spellId;
-            touchControls.moveHighlight(spellId);
+            if(spellId > 2)
+                touchControls.moveHighlight(spellId);
             touchControls.spellPowerCounter[spellId].alpha = 1;
         }
         else{
@@ -588,9 +589,9 @@ Character.prototype.pickUpItem = function(itemSprite) {
                 touchControls.elementReminder[i].reset();
                 if(typeof reminderFrame == 'boolean' && reminderFrame)                       
                     if(i==1)
-                        touchControls.elementReminder[i].frame = touchControls.frames[i][1]
-                    else
                         touchControls.elementReminder[i].frame = touchControls.frames[i][0]
+                    else
+                        touchControls.elementReminder[i].frame = touchControls.frames[i][1]
                 else
                     touchControls.elementReminder[i].frame = touchControls.frames[i][reminderFrame]
             }
@@ -609,10 +610,10 @@ Character.prototype.pickUpItem = function(itemSprite) {
                 case 1:
                     switch(this.inventory[1]){
                         case 1:
-                            this.spellsAddSpell(0,'Fireball')
+                            this.spellsAddSpell(3,'Fireball')
                             break;
                         case 2:
-                            this.spellsAddSpell(2,'Leap')
+                            this.spellsAddSpell(1,'Leap')
                             break;
                         case 3:
                             this.spellsAddSpell(5,'Vape')
@@ -622,13 +623,13 @@ Character.prototype.pickUpItem = function(itemSprite) {
                 case 2:
                     switch(this.inventory[1]){
                         case 1:
-                            this.spellsAddSpell(2,'Leap')
+                            this.spellsAddSpell(1,'Leap')
                             break;
                         case 2:
-                            this.spellsAddSpell(3,'Spike')
+                            this.spellsAddSpell(2,'Spike')
                             break;
                         case 3:
-                            this.spellsAddSpell(1,'HealingSpell')
+                            this.spellsAddSpell(0,'HealingSpell')
                             break;
                     };
                     break;
@@ -638,7 +639,7 @@ Character.prototype.pickUpItem = function(itemSprite) {
                             this.spellsAddSpell(5,'Vape')
                             break;
                         case 2:
-                            this.spellsAddSpell(1,'HealingSpell')
+                            this.spellsAddSpell(0,'HealingSpell')
                             break;
                         case 3:
                             this.spellsAddSpell(4,'ColdSphere')
@@ -663,15 +664,15 @@ Character.prototype.pickUpItem = function(itemSprite) {
             switch (itemSprite.element) {
                 case 1:
                     this.RCounter++;
-                    inventorySwitch(/[0,2,5]/,0,1);
+                    inventorySwitch(/[3,1,5]/,0,1);
                     break;
                 case 2:
                     this.GCounter++;
-                    inventorySwitch(/[1,2,3]/,1,true);
+                    inventorySwitch(/[0,1,2]/,1,true);
                     break;
                 case 3:
                     this.BCounter++;
-                    inventorySwitch(/[1,4,5]/,2,0);
+                    inventorySwitch(/[0,4,5]/,2,0);
                     break ;
             }
         }
@@ -702,7 +703,7 @@ Character.prototype.mouseWheel = function(d){
                     if(checkingWeapon<6)
                         checkingWeapon = checkingWeapon+1
                     else
-                        checkingWeapon = 0;
+                        checkingWeapon = 3;
                     if(this.spellsAvailable[checkingWeapon]){
                         touchControls.moveHighlight(checkingWeapon);
                         this.fireType = checkingWeapon;
@@ -715,7 +716,7 @@ Character.prototype.mouseWheel = function(d){
             }
             else{
                 while(!stopScrolling){
-                    if(checkingWeapon>0)
+                    if(checkingWeapon>3)
                         checkingWeapon = checkingWeapon-1
                     else
                         checkingWeapon = 6;

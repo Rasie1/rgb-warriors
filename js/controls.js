@@ -91,12 +91,21 @@ TouchControls.prototype.init = function create(game) {
     this.segmentSize = this.segmentSize / 2;
 
     this.frames = [
-      [0,0], //fireball
-      [1,2], //heal
+      [1,2], //heal      
       [0,1], //leap
       [1,1], //spike
+      [0,0], //fireball
       [2,2], //freeze
       [0,2] //vape
+    ]
+    this.buttonMap = [
+      'E',
+      '_',
+      'Q',
+      1,
+      2,
+      3,
+      4
     ]
     //if (game.device.desktop){
     //}
@@ -116,17 +125,17 @@ TouchControls.prototype.init = function create(game) {
       this.buttons[i].scale.y = 1
       this.buttons[i].onInputUp.add(function() {this.touchInput['button'+i] = false }, this)
       this.buttons[i].onInputDown.add(function() {this.touchInput['button'+i] = true }, this)
-      this.buttons[i].fixedToCamera = true
+      this.buttons[i].fixedToCamera = true;
       this.buttons[i].kill();
       this.buttons[i].alpha = 0;
       this.buttonsGroup.add(this.buttons[i]);
 
       //Keys for buttons
       this.buttonMapping[i] = game.add.text(
-        window.innerWidth - 128 + 26, 
-        this.offsetY + (this.segmentSize*i) + 55 - 15,
-        i+1,
-        { font: "18px Arial", fill: "#ffffff", align: "left" }
+        window.innerWidth - 132 + 26, 
+        this.offsetY + (this.segmentSize*i) + 55 - 19,
+        this.buttonMap[i],
+        { font: "18px monospace", fill: "#ffffff", align: "left" }
       );
       this.buttonMapping[i].fixedToCamera = true;
       this.buttonMapping[i].alpha = 0;

@@ -125,13 +125,13 @@ function handleInput(player)
 
     cursors.fire = game.input.keyboard.addKey(Phaser.Mouse.LEFT_BUTTON)
     
-    cursors.spell0 = game.input.keyboard.addKey(Phaser.Keyboard.ONE)
-    cursors.spell1 = game.input.keyboard.addKey(Phaser.Keyboard.TWO)
-    cursors.spell2 = game.input.keyboard.addKey(Phaser.Keyboard.THREE)
-    cursors.spell3 = game.input.keyboard.addKey(Phaser.Keyboard.FOUR)
-    cursors.spell4 = game.input.keyboard.addKey(Phaser.Keyboard.FIVE)
-    cursors.spell5 = game.input.keyboard.addKey(Phaser.Keyboard.SIX)
-    cursors.spell6 = game.input.keyboard.addKey(Phaser.Keyboard.SEVEN)
+    cursors.spell0 = game.input.keyboard.addKey(Phaser.Keyboard.E)
+    cursors.spell1 = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR)
+    cursors.spell2 = game.input.keyboard.addKey(Phaser.Keyboard.Q)
+    cursors.spell3 = game.input.keyboard.addKey(Phaser.Keyboard.ONE)
+    cursors.spell4 = game.input.keyboard.addKey(Phaser.Keyboard.TWO)
+    cursors.spell5 = game.input.keyboard.addKey(Phaser.Keyboard.THREE)
+    cursors.spell6 = game.input.keyboard.addKey(Phaser.Keyboard.FOUR)
 
     this.touchControls.processInput(player);
     touchCursors = touchControls.touchInput
