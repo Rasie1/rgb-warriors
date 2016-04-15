@@ -12,7 +12,7 @@ var spellAliases = [
     'Vape',
     'CloseFighting'
 ]
-Character = function (index, game, x, y, r, g, b) {
+Character = function (index, game, x, y, r, g, b,color) {
     this.cursor = {
         left:false,
         right:false,
@@ -29,9 +29,7 @@ Character = function (index, game, x, y, r, g, b) {
         spell3:false,
         spell4:false,
         spell5:false,
-        spell6:false,
-        mouseUp:false,
-        mouseDown:false
+        spell6:false
     }
 
     this.input = {
@@ -51,9 +49,7 @@ Character = function (index, game, x, y, r, g, b) {
         spell4:false,
         spell5:false,
         spell6:false,
-        fireType:0,
-        mouseUp:false,
-        mouseDown:false
+        fireType:0
     }
 
     
@@ -136,6 +132,8 @@ Character = function (index, game, x, y, r, g, b) {
 
     this.headSprite = game.add.sprite(x, y, 'player-head');
     this.headSprite.animations.add('move');
+    if(color)
+        this.headSprite.tint = color;
     
     this.deadSprite = game.add.sprite(x, y, 'dead');
     this.deadSprite.kill()
@@ -283,11 +281,11 @@ Character.prototype.update = function() {
             this.input.speedX = this.SpeedX;
             this.input.speedY = this.SpeedY;
 
-           eurecaServer.handleKeys(this.input,this.baseSprite.x,this.baseSprite.y,this.RCounter,this.GCounter,this.BCounter);
+           Server.handleKeys(this.input,this.baseSprite.x,this.baseSprite.y,this.RCounter,this.GCounter,this.BCounter);
 
             if (touchInputChanged)
             {
-                eurecaServer.handleTouchInput(this.touchInput)
+                Server.handleTouchInput(this.touchInput)
 
             }
             
@@ -301,7 +299,7 @@ Character.prototype.update = function() {
     if (isContiniouslyFiring){
         if (this.baseSprite.id == myId){
             this.mouseAlreadyUpdated = true;
-            eurecaServer.handleRotation(this.input);
+            Server.handleRotation(this.input);
         }
     }
 
@@ -368,7 +366,7 @@ Character.prototype.update = function() {
     //Firing
     if (this.cursor.fire)
     {
-        if(!this.spellsAvailable[this.fireType]){
+        if(!this.spellsAvailable[this.fireType] && this.id == myId){
             this.fireType=6;
             touchControls.moveHighlight(6)
         }
@@ -387,7 +385,7 @@ Character.prototype.update = function() {
     if(this.baseSprite.id == myId){
         var dis = this;
         window.addEventListener('wheel',function(d){
-            if (game.time.now > dis.reMouseWheel){
+            if (game.time.now > dis.reMouseWheel && dis.id == myId){
                 dis.reMouseWheel = game.time.now + 10;
                 if(d.deltaY != 0){
                     var stopScrolling = false;
@@ -521,7 +519,7 @@ Character.prototype.kill = function() {
 }
 
 Character.prototype.dropItem = function() {
-    eurecaServer.dropItem(this.baseSprite.x,this.baseSprite.y)
+    Server.dropItem(this.baseSprite.x,this.baseSprite.y)
 }
 
 Character.prototype.recolorAura = function() {
@@ -672,5 +670,5 @@ Character.prototype.pickUpItem = function(itemSprite) {
 
     //Send information to server if local player
     if(this.baseSprite.id==myId)
-        eurecaServer.pickUpItem(itemSprite.id);
+        Server.pickUpItem(itemSprite.id);
 }

@@ -14,16 +14,8 @@ Spell.prototype.castProjectile = function(character,bulletType,bulletFrame,bulle
         this.nextFire = game.time.now + this.cooldown;
         character.nextFire = game.time.now + character.fireRate;
         this.displayCooldowns(character,spellId);
-        var bullet = character.bullets.getFirstDead();
-        bullet.lifespan = 5000;
-        bullet.damage = bulletDamage;
-        bullet.type = bulletType;
-        bullet.frame = bulletFrame;
-        bullet.spellPower = this.spellPower;
-        bullet.spellPowerBoost = spellPowerBoost * this.spellPower;
-        //bullet.damagePower = this.spellPower;
-        bullet.reset(character.headSprite.x, character.headSprite.y);
-        bullet.rotation = game.physics.arcade.moveToObject(bullet, {x:character.cursor.tx,y:character.cursor.ty}, bulletSpeed);
+        if(character.id==myId)
+            Server.castProjectile(character.id,bulletType,bulletFrame,bulletSpeed,bulletDamage,spellPowerBoost,spellId,this.spellPower)
     }
 }
 
@@ -69,7 +61,7 @@ HealingSpell.prototype.cast = function(character){
                                       character.baseSprite.y)
         this.visualEffectSprite.animations.play('cast', 5, false, true);
 
-        eurecaServer.updateHP(character.id, this.healingSpellHealing + 5 * this.spellPower);
+        Server.updateHP(character.id, this.healingSpellHealing + 5 * this.spellPower);
     }
 };
 
@@ -184,7 +176,7 @@ Leap.prototype.cast = function(character){
         }
         if (!isCollision)*/
         if(character.id==myId)
-    	   eurecaServer.doLeap(character.id, target.x, target.y);
+    	   Server.doLeap(character.id, target.x, target.y);
     }
 };
 Leap.prototype.levelup = function(){
@@ -220,7 +212,7 @@ Spike.prototype.cast = function(character){
         target.x = offset.x * this.distance + curPos.x
         target.y = offset.y * this.distance + curPos.y
         if(character.id==myId)
-            eurecaServer.doSpike(character.id,
+            Server.doSpike(character.id,
                              target.x,
                              target.y,
                              this.stayTime,
@@ -248,7 +240,7 @@ CloseFighting.prototype.cast = function(character)
         character.nextFire = game.time.now + character.fireRate; 
         this.displayCooldowns(character,6);
         if(character.id==myId)
-    	   eurecaServer.castCloseAttack(character.id, {x: character.cursor.tx,
+    	   Server.castCloseAttack(character.id, {x: character.cursor.tx,
         											y: character.cursor.ty});
     }
 }
@@ -258,7 +250,7 @@ function bulletHit (victim, bullet) {
     bullet.kill();
     if(this.id == myId && bullet.damage!=0){
         if(victim.health>0) {
-            eurecaServer.updateHP(victim.id, bullet.damage - bullet.spellPowerBoost, player.id);
+            Server.updateHP(victim.id, bullet.damage - bullet.spellPowerBoost, player.id);
         }
     }
     if(bullet.type==0){
@@ -266,7 +258,7 @@ function bulletHit (victim, bullet) {
     }
     if(bullet.type==5){
         if(this.id == myId && victim.key=='enemy')
-            eurecaServer.castFreeze(victim.id, 3)
+            Server.castFreeze(victim.id, 3)
     }
     if(bullet.type==6){
             var vape = this.vapelosions.getFirstDead();
@@ -279,5 +271,5 @@ function bulletHit (victim, bullet) {
 //Vape cloud hit
 function vapeHit (victim, vapelosion,spellPowerBoost) {
    if (victim.health>0 && this.id == myId)
-        eurecaServer.updateHP(victim.id, -0.5 - 0.1*this.spells.Vape.spellPower, player.id);
+        Server.updateHP(victim.id, -0.5 - 0.1*this.spells.Vape.spellPower, player.id);
 }

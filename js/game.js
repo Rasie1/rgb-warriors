@@ -395,7 +395,7 @@ function update () {
     if (game.time.now > HPTimer){
         HPTimer = game.time.now + 500;
 		if (player.health < player.privateHealth && player.health < player.maxHealth && player.alive)
-			eurecaServer.updateHP(myId, +1);
+			Server.updateHP(myId, +1);
 	}    
 
     handleInput(player)

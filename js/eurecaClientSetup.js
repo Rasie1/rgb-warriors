@@ -1,36 +1,36 @@
-var eurecaServer;
+var Server;
 var ready = false;
 var found = false;
 
 var EurecaClientSetup = function() {
 	//create an instance of eureca.io client
 
-	var eurecaClient = new Eureca.Client();
+	var Client = new Eureca.Client();
 	
-	eurecaClient.ready(function (proxy) {		
-		eurecaServer = proxy;
+	Client.ready(function (proxy) {		
+		Server = proxy;
 	});
 	
 	
 	//methods defined under "exports" namespace become available in the server side
 	
-	eurecaClient.exports.setId = function(id,x,y) 
+	Client.exports.setId = function(id,x,y) 
 	{
 		//create() is moved here to make sure nothing is created before uniq id assignation
 		myId = id;
 		initialSpawnLocationX = x;
 		initialSpawnLocationY = y;
 		create();
-		eurecaServer.handshake(id,initialSpawnLocationX,initialSpawnLocationY);
+		Server.handshake(id,initialSpawnLocationX,initialSpawnLocationY);
 		ready = true;
 	}	
 	
-	eurecaClient.exports.kill = function(id)
+	Client.exports.kill = function(id)
 	{	
 		if (charactersList[id]) charactersList[id].kill();
 	}	
 
-	eurecaClient.exports.updateHP = function(id, difHP, attackerId)
+	Client.exports.updateHP = function(id, difHP, attackerId)
 	{
 		var target = charactersList[id]
 		if (target && target.health >= 0) {
@@ -45,12 +45,23 @@ var EurecaClientSetup = function() {
 				if (attackerId == myId && id == myId) player.kills--;
 			}
 			if (target.health <= 0 && id == player.baseSprite.id) {
-				eurecaServer.killPlayer(id);
+				Server.killPlayer(id);
 			}
 		}
 	}
-
-	eurecaClient.exports.castCloseAttack = function(id, target) {
+	Client.exports.castProjectile = function(characterId,bulletType,bulletFrame,bulletSpeed,bulletDamage,spellPowerBoost,spellId,spellPower){
+        var character = charactersList[characterId];
+        var bullet = character.bullets.getFirstDead();
+        bullet.lifespan = 5000;
+        bullet.damage = bulletDamage;
+        bullet.type = bulletType;
+        bullet.frame = bulletFrame;
+        bullet.spellPower = spellPower;
+        bullet.spellPowerBoost = spellPowerBoost * spellPower;
+        bullet.reset(character.headSprite.x, character.headSprite.y);
+        bullet.rotation = game.physics.arcade.moveToObject(bullet, {x:character.cursor.tx,y:character.cursor.ty}, bulletSpeed);
+	}
+	Client.exports.castCloseAttack = function(id, target) {
 		var attacker = charactersList[id];
 		//console.log(id);
 		if (!attacker) return
@@ -82,11 +93,11 @@ var EurecaClientSetup = function() {
 											 charactersList[i].baseSprite.y - 32,
 											 64, 64);
 				if (Phaser.Rectangle.intersects(a, b))
-					eurecaServer.updateHP(charactersList[i].baseSprite.id, closeFightWeaponDamage,myId);
+					Server.updateHP(charactersList[i].baseSprite.id, closeFightWeaponDamage,myId);
 			}
 	}
 
-    eurecaClient.exports.castFreeze = function(id, speedX, speedY){
+    Client.exports.castFreeze = function(id, speedX, speedY){
         if (!charactersList[id])
             return;
         
@@ -94,7 +105,7 @@ var EurecaClientSetup = function() {
         charactersList[id].SpeedY = speedY;
     }
 
-    eurecaClient.exports.scaleSpeed = function(id, k){
+    Client.exports.scaleSpeed = function(id, k){
         if (!charactersList[id])
             return;
         
@@ -103,7 +114,7 @@ var EurecaClientSetup = function() {
         //console.log(charactersList[id].SpeedX)
     }
 
-    eurecaClient.exports.doLeap = function(id, new_x, new_y)
+    Client.exports.doLeap = function(id, new_x, new_y)
     {
         if (charactersList[id])
         {
@@ -114,7 +125,7 @@ var EurecaClientSetup = function() {
         }
     }
 
-    eurecaClient.exports.doSpike = function(id, x, y, time, damage)
+    Client.exports.doSpike = function(id, x, y, time, damage)
     {
         var stone = obstacles.create(x, y, 'spike')
         stone.anchor.set(0.5, 0.5)
@@ -137,35 +148,35 @@ var EurecaClientSetup = function() {
                                                                   charactersList[i].baseSprite.y))
                 if (dist < 64)
                 {
-                    eurecaServer.updateHP(charactersList[i].baseSprite.id, damage,myId);
+                    Server.updateHP(charactersList[i].baseSprite.id, damage,myId);
                 }
             }
     }
 	
-	eurecaClient.exports.spawnEnemy = function(i, x, y, r, g, b)
+	Client.exports.spawnEnemy = function(i, x, y, r, g, b)
 	{
 		if (i == myId) return; //this is me
 		
 		var tnk = new Character(i,game,x,y,r,g,b);
 		charactersList[i] = tnk;
 	}
-	eurecaClient.exports.respawnPlayer = function(id,x,y){
+	Client.exports.respawnPlayer = function(id,x,y){
 		charactersList[id].recreate(x,y)
 	}
-	eurecaClient.exports.getX = function()
+	Client.exports.getX = function()
 	{
 		return charactersList[myId].baseSprite.x
 	}
-	eurecaClient.exports.getY = function()
+	Client.exports.getY = function()
 	{
 		return charactersList[myId].baseSprite.y
 	}
-	eurecaClient.exports.getId = function()
+	Client.exports.getId = function()
 	{
 		return myId
 	}
 	
-	eurecaClient.exports.updateState = function(id, state)
+	Client.exports.updateState = function(id, state)
 	{
 		if (charactersList[id])  {
 			charactersList[id].cursor = state;
@@ -181,7 +192,7 @@ var EurecaClientSetup = function() {
 				charactersList[id].update();
 		}
 	}
-	eurecaClient.exports.updateRotation = function(id, state)
+	Client.exports.updateRotation = function(id, state)
 	{
 		if (charactersList[id])  {
 			//console.log('updating')
@@ -189,7 +200,7 @@ var EurecaClientSetup = function() {
 			charactersList[id].update();
 		}
 	}
-	eurecaClient.exports.makeItem = function(x,y,elementForDrop,itemID) {
+	Client.exports.makeItem = function(x,y,elementForDrop,itemID) {
 		//console.log('making item');
 		found = false;
 		for (var i in items){ 
@@ -205,7 +216,7 @@ var EurecaClientSetup = function() {
 		}
 
 	}
-	eurecaClient.exports.createObstacles = function(obstaclesList){
+	Client.exports.createObstacles = function(obstaclesList){
 	    for (var i=0;i<obstaclesList.length;i++) {
 			var v = obstacles.create(obstaclesList[i].x,obstaclesList[i].y, obstaclesList[i].spriteType)
 			v.body.immovable = true;

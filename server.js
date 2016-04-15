@@ -6,6 +6,16 @@ var elementForDrop;
 var itemsList = [];
 var itemIdCounter = 0;
 
+var colors = [
+    0x99FFFF,
+    0xFF9E9E,
+    0xFFFB62,
+    0xAFFF87,
+    0x9AFFEA,
+    0xA9C2FF,
+    0xE492FF
+]
+
 var express = require('express')
   , app = express(app)
   , server = require('http').createServer(app);
@@ -18,11 +28,11 @@ app.use(express.static(__dirname));
 //we'll keep clients data here
 var clients = {};
 
-//get EurecaServer class
+//get Server class
 var Eureca = require('eureca.io');
 
-//create an instance of EurecaServer
-var eurecaServer = new Eureca.Server({allow:[
+//create an instance of Server
+var Server = new Eureca.Server({allow:[
 	'setId',
 	'spawnEnemy',
 	'getX',
@@ -37,6 +47,7 @@ var eurecaServer = new Eureca.Server({allow:[
 	'dropItem',
 	'pickUpItem',
 	'createObstacles',
+	'castProjectile',
 	'castCloseAttack',
 	'castFreeze',
 	'doLeap',
@@ -46,7 +57,7 @@ var eurecaServer = new Eureca.Server({allow:[
 });
 
 //attach eureca.io to our http server
-eurecaServer.attach(server);
+Server.attach(server);
 
 
 
@@ -54,14 +65,17 @@ eurecaServer.attach(server);
 //eureca.io provides events to detect clients connect/disconnect
 
 //detect client connection
-eurecaServer.onConnect(function (conn) {
+Server.onConnect(function (conn) {
     console.log('New Client id=%s ', conn.id, conn.remoteAddress);
 
 	//the getClient method provide a proxy allowing us to call remote client functions
-    var remote = eurecaServer.getClient(conn.id);
+    var remote = Server.getClient(conn.id);
 
 	//register the client
 	clients[conn.id] = {id:conn.id, remote:remote}
+
+    var color = colors[Math.floor(Math.random()*colors.length)];
+    clients[conn.id].color = color;
 
 	//here we call setId (defined in the client side)
 	shuffle(obstaclesPositions);
@@ -84,10 +98,10 @@ eurecaServer.onConnect(function (conn) {
 	}
 
 	if(!outOfPlaces){
-		remote.setId(conn.id,x,y)
+		remote.setId(conn.id,x,y,color)
 	}
 	else{
-		remote.setId(conn.id,0,0)
+		remote.setId(conn.id,0,0,color)
 	}
 
 	if(itemsList.length){
@@ -102,7 +116,7 @@ eurecaServer.onConnect(function (conn) {
 });
 
 //detect client disconnection
-eurecaServer.onDisconnect(function (conn) {
+Server.onDisconnect(function (conn) {
     console.log('Client disconnected ', conn.id);
 
 	var removeId = clients[conn.id].id;
@@ -119,21 +133,21 @@ eurecaServer.onDisconnect(function (conn) {
 });
 
 
-eurecaServer.exports.handshake = function(id,x,y,r,g,b)
+Server.exports.handshake = function(id,x,y,r,g,b,color)
 {
 	var enemy=clients[id]
 	for (var c in clients)
 		if (c!=id) {
-			clients[c].remote.spawnEnemy(id,x,y,r,g,b)
+			clients[c].remote.spawnEnemy(id,x,y,r,g,b,color)
 			var cl = clients[c]
-			enemy.remote.spawnEnemy(c,cl.lastX,cl.lastY,cl.r,cl.g,cl.b)
+			enemy.remote.spawnEnemy(c,cl.lastX,cl.lastY,cl.r,cl.g,cl.b,clients[c].color)
 		}
 
 }
 
 
 //be exposed to client side
-eurecaServer.exports.handleKeys = function (keys,x,y,r,g,b) {
+Server.exports.handleKeys = function (keys,x,y,r,g,b) {
     var conn = this.connection;
     var updatedClient = clients[conn.id];
 
@@ -151,7 +165,7 @@ eurecaServer.exports.handleKeys = function (keys,x,y,r,g,b) {
     }
 }
 
-eurecaServer.exports.handleTouchInput = function (input) {
+Server.exports.handleTouchInput = function (input) {
     var conn = this.connection;
     var updatedClient = clients[conn.id];
 
@@ -168,7 +182,7 @@ eurecaServer.exports.handleTouchInput = function (input) {
         // clients[c].b = b;
     }
 }
-eurecaServer.exports.handleRotation = function (keys) {
+Server.exports.handleRotation = function (keys) {
 	var conn = this.connection;
 	var updatedClient = clients[conn.id];
 
@@ -181,7 +195,7 @@ eurecaServer.exports.handleRotation = function (keys) {
 		clients[c].laststate = keys;
 	}
 }
-eurecaServer.exports.killPlayer = function(id)
+Server.exports.killPlayer = function(id)
 {
 	for (var c in clients)
 		clients[c].remote.kill(id);
@@ -218,13 +232,13 @@ eurecaServer.exports.killPlayer = function(id)
 	},3000)
 }
 
-eurecaServer.exports.updateHP = function(id, difHP, attackerId)
+Server.exports.updateHP = function(id, difHP, attackerId)
 {
 	for (var c in clients)
 		clients[c].remote.updateHP(id, difHP, attackerId);
 }
 
-eurecaServer.exports.dropItem = function(x, y, elementForDrop)
+Server.exports.dropItem = function(x, y, elementForDrop)
 {
 	elementForDrop = Math.round(Math.random()*2)+1;
 	for (var c in clients){
@@ -239,7 +253,7 @@ eurecaServer.exports.dropItem = function(x, y, elementForDrop)
 	itemIdCounter++;
 }
 
-eurecaServer.exports.pickUpItem = function(itemID)
+Server.exports.pickUpItem = function(itemID)
 {
 
 	for(i=0;i<itemsList.length;i++){
@@ -257,13 +271,16 @@ eurecaServer.exports.pickUpItem = function(itemID)
 	}
 }
 
-
-eurecaServer.exports.castCloseAttack = function(id, target)
+Server.exports.castProjectile = function(characterId,bulletType,bulletFrame,bulletSpeed,bulletDamage,spellPowerBoost,spellId,spellPower){
+	for (var c in clients)
+		clients[c].remote.castProjectile(characterId,bulletType,bulletFrame,bulletSpeed,bulletDamage,spellPowerBoost,spellId,spellPower);
+}
+Server.exports.castCloseAttack = function(id, target)
 {
 	for (var c in clients)
 		clients[c].remote.castCloseAttack(id, target);
 }
-eurecaServer.exports.castFreeze = function(id, time)
+Server.exports.castFreeze = function(id, time)
 {
     for (var c in clients) {
         clients[c].remote.scaleSpeed(id, 0.01)
@@ -276,13 +293,13 @@ eurecaServer.exports.castFreeze = function(id, time)
         time * 1000)
 }
 
-eurecaServer.exports.doLeap = function(id, new_x, new_y)
+Server.exports.doLeap = function(id, new_x, new_y)
 {
     for (var c in clients)
         clients[c].remote.doLeap(id, new_x, new_y);
 }
 
-eurecaServer.exports.doSpike = function(id, x, y, time, damage)
+Server.exports.doSpike = function(id, x, y, time, damage)
 {
     for (var c in clients)
         clients[c].remote.doSpike(id, x, y, time, damage);
