@@ -420,7 +420,7 @@ Character.prototype.update = function() {
     }
 
     //Firing
-    if (this.cursor.fire)
+    if (this.cursor.fire && this.id == myId)
     {
         if(!this.spellsAvailable[this.fireType] && this.id == myId){
             this.fireType=6;
@@ -432,8 +432,15 @@ Character.prototype.update = function() {
     //Spell select
     for(k=0;k<7;k++){
         if ((this.cursor['spell'+k] || this.touchInput['button'+k]) && this.spellsAvailable[k]){
-            this.fireType=k;
-            touchControls.moveHighlight(k)
+            if(/[1,2,3]/.test(k)){
+                if(this.spellsAvailable[this.fireType] && this.id == myId){
+                    this.fire({x:this.cursor.tx, y:this.cursor.ty},k);
+                }
+            }
+            else{
+                this.fireType=k;
+                touchControls.moveHighlight(k)
+            }
         }
     }
 

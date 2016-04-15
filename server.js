@@ -255,10 +255,12 @@ Server.exports.killPlayer = function(id)
 	},3000)
 }
 
-Server.exports.updateHP = function(id, difHP, attackerId)
+Server.exports.updateHP = function(id, difHP, attackerId,playAnim)
 {
+	if(typeof playAnim == 'undefined')
+		var playAnim = false;
 	for (var c in clients)
-		clients[c].remote.updateHP(id, difHP, attackerId);
+		clients[c].remote.updateHP(id, difHP, attackerId,playAnim);
 }
 
 Server.exports.dropItem = function(x, y, elementForDrop)
@@ -316,10 +318,10 @@ Server.exports.castFreeze = function(id, time,speedMultiplier)
         time * 1000)
 }
 
-Server.exports.doLeap = function(id, new_x, new_y)
+Server.exports.doLeap = function(id, new_x, new_y, old_x, old_y)
 {
     for (var c in clients)
-        clients[c].remote.doLeap(id, new_x, new_y);
+        clients[c].remote.doLeap(id, new_x, new_y, old_x, old_y);
 }
 
 Server.exports.doSpike = function(id, x, y, time, damage)

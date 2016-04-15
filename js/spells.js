@@ -57,11 +57,7 @@ HealingSpell.prototype.cast = function(character){
         character.nextFire = game.time.now + character.fireRate; 
         this.displayCooldowns(character,1);
 
-        this.visualEffectSprite.reset(character.baseSprite.x,
-                                      character.baseSprite.y)
-        this.visualEffectSprite.animations.play('cast', 5, false, true);
-
-        Server.updateHP(character.id, this.healingSpellHealing + 5 * this.spellPower);
+        Server.updateHP(character.id, this.healingSpellHealing + 5 * this.spellPower,null,true);
     }
 };
 
@@ -157,12 +153,7 @@ Leap.prototype.cast = function(character){
         target.x = curPos.x + offset_x;
         target.y = curPos.y + offset_y;
 
-        this.visualEffectSpriteBegin.reset(curPos.x,
-                                           curPos.y)
-        this.visualEffectSpriteBegin.animations.play('cast', 15, false, true);
-        this.visualEffectSpriteEnd.reset(target.x,
-                                         target.y)
-        this.visualEffectSpriteEnd.animations.play('cast', 15, false, true);
+
         /*var isCollision = false;
         for (var obst in character.game.obstacles)
         {
@@ -176,7 +167,7 @@ Leap.prototype.cast = function(character){
         }
         if (!isCollision)*/
         if(character.id==myId)
-    	   Server.doLeap(character.id, target.x, target.y);
+    	   Server.doLeap(character.id, target.x, target.y,curPos.x,curPos.y);
     }
 };
 Leap.prototype.levelup = function(){

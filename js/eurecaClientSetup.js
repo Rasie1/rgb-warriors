@@ -34,10 +34,19 @@ var EurecaClientSetup = function() {
 		if (charactersList[id]) charactersList[id].kill();
 	}	
 
-	Client.exports.updateHP = function(id, difHP, attackerId)
+	Client.exports.updateHP = function(id, difHP, attackerId,playAnim)
 	{
-		var target = charactersList[id]
+		var target = charactersList[id];
 		if (target && target.health >= 0) {
+			//Heal effect
+			console.log(playAnim,target,target.spells,target.spells.HealingSpell);
+			if(playAnim){
+		        target.spells.HealingSpell.visualEffectSprite.reset(
+		        	target.baseSprite.x,
+		            target.baseSprite.y
+		        )
+		        target.spells.HealingSpell.visualEffectSprite.animations.play('cast', 5, false, true);
+			}
 			//console.log(difHP);
 			target.health = Phaser.Math.min(target.privateHealth,target.health + difHP);
 			if (target.hpBar != null)
@@ -121,10 +130,15 @@ var EurecaClientSetup = function() {
     	charactersList[id].speedMultiplier = speedMultiplier;
     }
 
-    Client.exports.doLeap = function(id, new_x, new_y)
+    Client.exports.doLeap = function(id, new_x, new_y, old_x, old_y)
     {
         if (charactersList[id])
         {
+	        charactersList[id].spells.Leap.visualEffectSpriteBegin.reset(old_x,old_y)
+	        charactersList[id].spells.Leap.visualEffectSpriteBegin.animations.play('cast', 15, false, true);
+	        charactersList[id].spells.Leap.visualEffectSpriteEnd.reset(new_x,new_y)
+	        charactersList[id].spells.Leap.visualEffectSpriteEnd.animations.play('cast', 15, false, true);
+
             charactersList[id].baseSprite.x = new_x;
             charactersList[id].baseSprite.y = new_y;
             if(id == myId)
