@@ -25,21 +25,39 @@ var EurecaClientSetup = function() {
 		ready = true;
 	}	
 	Client.exports.spawnBot = function(id,x,y,owner){
-		console.log(id)
+		console.log('Bot spawned ',id);
 		charactersList[id] = new Character(id, game, x, y, -1, -1, -1,false,true,owner);
 	}
-	
+	Client.exports.updateBot = function(botId,status){
+		console.log(botId)
+		var bot = charactersList[botId]
+		if(!bot)
+			return;
+		bot.baseSprite.x = status.x;
+		bot.baseSprite.y = status.y;
+		bot.headSprite.rotation = status.rot;
+	}
 	Client.exports.kill = function(id)
 	{	
 		if (charactersList[id]) charactersList[id].kill();
 	}	
 
+	Client.exports.pickUpItem = function(itemID,element,playerId){
+		if(playerId != myId){
+			console.log('picking up')
+			for (var i in items){
+				if(items[i].id == itemID){
+					items[i].kill();
+					items[i].shadow.kill();
+				}
+			}
+		}
+	}
 	Client.exports.updateHP = function(id, difHP, attackerId,playAnim)
 	{
 		var target = charactersList[id];
 		if (target && target.health >= 0) {
 			//Heal effect
-			console.log(playAnim,target,target.spells,target.spells.HealingSpell);
 			if(playAnim){
 		        target.spells.HealingSpell.visualEffectSprite.reset(
 		        	target.baseSprite.x,
@@ -57,12 +75,12 @@ var EurecaClientSetup = function() {
 				if (attackerId == myId && id != myId) player.kills++;
 				if (attackerId == myId && id == myId) player.kills--;
 			}
-			if (target.health <= 0 && id == player.baseSprite.id) {
+			if (target.health <= 0 && (id == myId || (target.isBot && target.owner == myId))) {
 				Server.killPlayer(id);
 			}
 		}
 	}
-	Client.exports.castProjectile = function(characterId,bulletType,bulletFrame,bulletSpeed,bulletDamage,spellPowerBoost,spellId,spellPower){
+	Client.exports.castProjectile = function(characterId,bulletType,bulletFrame,bulletSpeed,bulletDamage,spellPowerBoost,spellId,spellPower,tx,ty){
         var character = charactersList[characterId];
         var bullet = character.bullets.getFirstDead();
         bullet.lifespan = 5000;
@@ -72,7 +90,7 @@ var EurecaClientSetup = function() {
         bullet.spellPower = spellPower;
         bullet.spellPowerBoost = spellPowerBoost * spellPower;
         bullet.reset(character.headSprite.x, character.headSprite.y);
-        bullet.rotation = game.physics.arcade.moveToObject(bullet, {x:character.cursor.tx,y:character.cursor.ty}, bulletSpeed);
+        bullet.rotation = game.physics.arcade.moveToObject(bullet, {x:tx,y:ty}, bulletSpeed);
 	}
 	Client.exports.castCloseAttack = function(id, target) {
 		var attacker = charactersList[id];
@@ -184,18 +202,6 @@ var EurecaClientSetup = function() {
 	Client.exports.respawnPlayer = function(id,x,y){
 		charactersList[id].recreate(x,y)
 	}
-	Client.exports.getX = function()
-	{
-		return charactersList[myId].baseSprite.x
-	}
-	Client.exports.getY = function()
-	{
-		return charactersList[myId].baseSprite.y
-	}
-	Client.exports.getId = function()
-	{
-		return myId
-	}
 	
 	Client.exports.updateState = function(id, state)
 	{
@@ -211,14 +217,6 @@ var EurecaClientSetup = function() {
 			charactersList[id].headSprite.rotation = state.rot;
 			if(id!=myId)
 				charactersList[id].update();
-		}
-	}
-	Client.exports.updateRotation = function(id, state)
-	{
-		if (charactersList[id])  {
-			//console.log('updating')
-			charactersList[id].cursor = state;
-			charactersList[id].update();
 		}
 	}
 	Client.exports.makeItem = function(x,y,elementForDrop,itemID) {

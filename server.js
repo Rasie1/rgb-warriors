@@ -38,13 +38,9 @@ var Eureca = require('eureca.io');
 var Server = new Eureca.Server({allow:[
 	'setId',
 	'spawnEnemy',
-	'getX',
-	'getY',
-	'getId',
 	'kill',
 	'respawnPlayer',
 	'updateState',
-	'updateRotation',
 	'updateHP',
 	'makeItem',
 	'dropItem',
@@ -57,7 +53,8 @@ var Server = new Eureca.Server({allow:[
     'doSpike',
     'scaleSpeed',
     'freezePlayer',
-    'spawnBot'
+    'spawnBot',
+    'updateBot'
 ]
 });
 
@@ -205,19 +202,6 @@ Server.exports.handleTouchInput = function (input) {
         // clients[c].b = b;
     }
 }
-Server.exports.handleRotation = function (keys) {
-	var conn = this.connection;
-	var updatedClient = clients[conn.id];
-
-	for (var c in clients)
-	{
-		var remote = clients[c].remote;
-		remote.updateRotation(updatedClient.id, keys);
-
-		//keep last known state so we can send it to new connected clients
-		clients[c].laststate = keys;
-	}
-}
 Server.exports.killPlayer = function(id)
 {
 	for (var c in clients)
@@ -278,9 +262,10 @@ Server.exports.dropItem = function(x, y, elementForDrop)
 	itemIdCounter++;
 }
 
-Server.exports.pickUpItem = function(itemID)
+Server.exports.pickUpItem = function(itemID,element,playerId)
 {
-
+	for (var c in clients)
+		clients[c].remote.pickUpItem(itemID,element,playerId);
 	for(i=0;i<itemsList.length;i++){
 
 		if(typeof itemsList[i] != 'undefined'){
@@ -296,9 +281,9 @@ Server.exports.pickUpItem = function(itemID)
 	}
 }
 
-Server.exports.castProjectile = function(characterId,bulletType,bulletFrame,bulletSpeed,bulletDamage,spellPowerBoost,spellId,spellPower){
+Server.exports.castProjectile = function(characterId,bulletType,bulletFrame,bulletSpeed,bulletDamage,spellPowerBoost,spellId,spellPower,tx,ty){
 	for (var c in clients)
-		clients[c].remote.castProjectile(characterId,bulletType,bulletFrame,bulletSpeed,bulletDamage,spellPowerBoost,spellId,spellPower);
+		clients[c].remote.castProjectile(characterId,bulletType,bulletFrame,bulletSpeed,bulletDamage,spellPowerBoost,spellId,spellPower,tx,ty);
 }
 Server.exports.castCloseAttack = function(id, target)
 {
@@ -379,6 +364,20 @@ Server.exports.addbots = function(owner,num){
 
 	}
 
+}
+Server.exports.updateBot = function(botId,ownerId,status){
+	var bot = bots[botId];
+	if(bot){
+		bot.x = status.x;
+		bot.y = status.y;
+		bot.rot = status.rot;
+
+		for (var c in clients){
+			if(c != ownerId){
+				clients[c].remote.updateBot(botId,status)
+			}
+		}
+	}
 }
 
 

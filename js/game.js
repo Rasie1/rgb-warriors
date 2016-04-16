@@ -122,8 +122,6 @@ function handleInput(player)
     cursors.s = game.input.keyboard.addKey(Phaser.Keyboard.S)
     cursors.a = game.input.keyboard.addKey(Phaser.Keyboard.A)
     cursors.d = game.input.keyboard.addKey(Phaser.Keyboard.D)
-
-    cursors.fire = game.input.keyboard.addKey(Phaser.Mouse.LEFT_BUTTON)
     
     cursors.spell0 = game.input.keyboard.addKey(Phaser.Keyboard.E)
     cursors.spell1 = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR)
@@ -410,17 +408,8 @@ function update () {
     player.input.s = cursors.s.isDown;
     player.input.d = cursors.d.isDown;
 
-    player.input.fire = game.input.activePointer.isDown;
-    player.input.tx = game.input.x + game.camera.x;
-    player.input.ty = game.input.y + game.camera.y;
-
-    player.input.spell0 = cursors.spell0.isDown;
-    player.input.spell1 = cursors.spell1.isDown;
-    player.input.spell2 = cursors.spell2.isDown;
-    player.input.spell3 = cursors.spell3.isDown;
-    player.input.spell4 = cursors.spell4.isDown;
-    player.input.spell5 = cursors.spell5.isDown;
-    player.input.spell6 = cursors.spell6.isDown;
+    player.tx = game.input.x + game.camera.x;
+    player.ty = game.input.y + game.camera.y;
 
     player.touchInput = touchCursors
 
@@ -431,7 +420,7 @@ function update () {
     player.deaths_counter.setText(player.deaths+"")
     player.kills_counter.setText(player.kills+"")
     
-    headSprite.rotation = game.physics.arcade.angleToPointer(headSprite) + 3.14/2;  
+    player.headSprite.rotation = game.physics.arcade.angleToPointer(player.headSprite) + 3.14/2;  
 
     //Update players and projectiles
     for (var i in charactersList)
@@ -448,9 +437,13 @@ function update () {
                 game.physics.arcade.overlap(targetCharacter, curBullets, bulletHit, null, charactersList[i]);                
 			}
             game.physics.arcade.overlap(targetCharacter, curVapelosions, vapeHit, null, charactersList[i]);
-			if (charactersList[j].alive)
-			{
-				charactersList[j].update();
+			if (charactersList[j].alive){
+
+                if(charactersList[j].isBot && charactersList[j].owner == myId){
+                    charactersList[j].updateBot()
+                }
+                else
+				    charactersList[j].update();
 			}			
 		}
     };

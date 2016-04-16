@@ -23,15 +23,7 @@ Character = function (index, game, x, y, r, g, b,color,isBot,owner) {
         w:false,
         a:false,
         s:false,
-        d:false,
-        fire:false,
-        spell0:false,
-        spell1:false,
-        spell2:false,
-        spell3:false,
-        spell4:false,
-        spell5:false,
-        spell6:false
+        d:false
     }
 
     this.input = {
@@ -42,16 +34,7 @@ Character = function (index, game, x, y, r, g, b,color,isBot,owner) {
         w:false,
         a:false,
         s:false,
-        d:false,
-        fire:false,
-        spell0:false,
-        spell1:false,
-        spell2:false,
-        spell3:false,
-        spell4:false,
-        spell5:false,
-        spell6:false,
-        fireType:0
+        d:false
     }
 
     
@@ -67,6 +50,9 @@ Character = function (index, game, x, y, r, g, b,color,isBot,owner) {
         button6:false
     }
 
+    this.status = {};
+    this.statusActual = {};
+
     this.game = game;
     this.privateHealth = maxHealth;
     this.health = this.privateHealth;
@@ -78,6 +64,8 @@ Character = function (index, game, x, y, r, g, b,color,isBot,owner) {
         var owner = null;
     this.isBot = isBot;
     this.owner = owner;
+    this.nextClosestTargetCheck = 0;
+    this.targetCheckRate = 200;
 
     //Player speed
     this.SpeedX = playerSpeedX;
@@ -170,6 +158,9 @@ Character = function (index, game, x, y, r, g, b,color,isBot,owner) {
     //Applying player ID
     this.id = index;
     this.baseSprite.id = index;
+    if(this.id != myId)
+        this.baseSprite.tag = 'enemy';
+    //console.log(this.tag)
 
     //Physics
     game.physics.enable(this.baseSprite, Phaser.Physics.ARCADE);
@@ -215,9 +206,6 @@ Character = function (index, game, x, y, r, g, b,color,isBot,owner) {
         this.hpBar = game.add.sprite(x - 32, y - 32, 'hpBar');
         this.hpBar.anchor.set(0.5);
     };
-
-    //Continious firing (needs to be re-implemented)
-    this.mouseAlreadyUpdated = false;
 
     //Put players behind the HUD (doesn't work properly??)
     playersGroup.add(this.baseSprite);
@@ -276,35 +264,31 @@ Character.prototype.recreate = function (x,y) {
 
 Character.prototype.update = function() {
 
-    //Checks difference between current input and last saved
-    function checkInputChange(set1,set2,additional){
-        var changed = false;
-        for(var button in set1)
-            if(typeof set1[button] == 'boolean' && typeof set2[button] == 'boolean')
-                if(set1[button] != set2[button]){
-                    changed = true;
-                }
-        if(typeof additional == 'object')
-            for(i=0;i<additional.length;i++)
-                if(set1[additional[i]] != set2[additional[i]]){
-                    changed = true;
-                }
-        return changed;
-    }
-    var inputChanged = checkInputChange(this.cursor,this.input);
-    if(this.input.fireType != this.fireType)
-        inputChanged = true;
-    var touchInputChanged = checkInputChange(touchControls.touchInput,this.touchInput,['joystickX','joystickY']);
+    if (this.id == myId){
+        //Checks difference between current input and last saved
+        function checkInputChange(set1,set2,additional){
+            var changed = false;
+            for(var button in set1)
+                if(typeof set1[button] == 'boolean' && typeof set2[button] == 'boolean')
+                    if(set1[button] != set2[button]){
+                        changed = true;
+                    }
+            if(typeof additional == 'object')
+                for(i=0;i<additional.length;i++)
+                    if(set1[additional[i]] != set2[additional[i]]){
+                        changed = true;
+                    }
+            return changed;
+        }
+        var inputChanged = checkInputChange(this.cursor,this.input);
+        var touchInputChanged = checkInputChange(touchControls.touchInput,this.touchInput,['joystickX','joystickY']);
 
-    if (inputChanged || touchInputChanged)
-    {    
-        if (this.baseSprite.id == myId)
-        {
+        if (inputChanged || touchInputChanged)
+        {    
             // send latest valid state to the server
             this.input.x = this.baseSprite.x;
             this.input.y = this.baseSprite.y;
             this.input.rot = this.headSprite.rotation;
-            this.input.fireType = this.fireType;
             this.input.speedX = this.SpeedX;
             this.input.speedY = this.SpeedY;
 
@@ -315,21 +299,9 @@ Character.prototype.update = function() {
                 Server.handleTouchInput(this.touchInput)
 
             }
-            
+                
         }
     }
-
-    //Checks if player is firing without releasing the mouse button to update direction
-    var isContiniouslyFiring = (this.cursor.fire && 
-                                this.game.time.now+50 >= this.spells[spellAliases[this.fireType]].nextFire && 
-                                !this.mouseAlreadyUpdated);
-    if (isContiniouslyFiring){
-        if (this.baseSprite.id == myId){
-            this.mouseAlreadyUpdated = true;
-            Server.handleRotation(this.input);
-        }
-    }
-
     //cursor value is now updated by eurecaClient.exports.updateState method       
 
     // commit movement
@@ -360,7 +332,7 @@ Character.prototype.update = function() {
         speed = Math.sqrt(Math.pow(this.SpeedX,2)+Math.pow(this.SpeedY,2))/2*this.speedMultiplier
     }
     else{
-        speed = this.SpeedX;
+        speed = this.SpeedX*this.speedMultiplier;
     };
 
     if (left && this.canMove) {
@@ -418,30 +390,84 @@ Character.prototype.update = function() {
     }
 
     //Firing
-    if (this.cursor.fire && this.id == myId)
+    if (game.input.activePointer.isDown && this.id == myId)
     {
-        if(!this.spellsAvailable[this.fireType] && this.id == myId){
+        if(!this.spellsAvailable[this.fireType]){
             this.fireType=6;
             touchControls.moveHighlight(6)
         }
-        this.fire({x:this.cursor.tx, y:this.cursor.ty},this.fireType);
+        this.fire({x:this.tx, y:this.ty},this.fireType);
     }
 
     //Spell select
-    for(k=0;k<7;k++){
-        if ((this.cursor['spell'+k] || this.touchInput['button'+k]) && this.spellsAvailable[k]){
-            if(/[0,1,2]/.test(k)){
-                if(this.spellsAvailable[this.fireType] && this.id == myId){
-                    this.fire({x:this.cursor.tx, y:this.cursor.ty},k);
+    if(this.id == myId){
+        for(k=0;k<7;k++){
+            if ((cursors['spell'+k].isDown || this.touchInput['button'+k]) && this.spellsAvailable[k]){
+                if(/[0,1,2]/.test(k)){
+                    if(this.spellsAvailable[this.fireType]){
+                        this.fire({x:this.tx, y:this.ty},k);
+                    }
                 }
-            }
-            else{
-                this.fireType=k;
-                touchControls.moveHighlight(k)
+                else{
+                    this.fireType=k;
+                    touchControls.moveHighlight(k)
+                }
             }
         }
     }
+    this.updateGeneric();
+};
 
+Character.prototype.updateBot = function(){    
+    for(a in this.statusActual){
+        this.status[a] = this.statusActual[a];
+    }
+
+    if (game.time.now > this.nextClosestTargetCheck){
+        this.nextClosestTargetCheck = game.time.now + this.targetCheckRate;
+        this.closestTarget = null;
+        for(p in charactersList){
+            if(p != this.id){
+                if(!this.closestTarget){
+                    this.closestTarget = charactersList[p];
+                }
+                else{
+                    if(
+                        game.physics.arcade.distanceBetween(this.baseSprite, charactersList[p].baseSprite) < 
+                        game.physics.arcade.distanceBetween(this.baseSprite, this.closestTarget.baseSprite)
+                    ){
+                        this.closestTarget = charactersList[p];                
+                    }
+                }
+            }
+        };
+    }
+    if (game.physics.arcade.distanceBetween(this.baseSprite, this.closestTarget.baseSprite) < 1500){
+        var pointX = this.closestTarget.baseSprite.x-100+Math.floor(Math.random()*200);
+        var pointY = this.closestTarget.baseSprite.y-100+Math.floor(Math.random()*200);
+        this.spells.Fireball.cast(this,{x:pointX,y:pointY});
+        this.headSprite.rotation = game.physics.arcade.angleBetween(
+            {x:this.baseSprite.x,y:this.baseSprite.y},
+            {x:this.closestTarget.baseSprite.x,y:this.closestTarget.baseSprite.y}
+            ) + 3.14/2;
+    }
+    this.updateGeneric();
+
+    this.statusActual = {
+        x:this.baseSprite.x,
+        y:this.baseSprite.y,
+        rot:this.headSprite.rotation
+    }
+    var statusChanged = false;
+    for(a in this.status)
+        if(this.statusActual[a] != this.status[a])
+            statusChanged = true;
+
+    if (statusChanged)
+        Server.updateBot(this.id,myId,this.statusActual)
+}
+
+Character.prototype.updateGeneric = function(){
     //Set player position
     this.headSprite.x
     = this.weapon.x
@@ -472,8 +498,7 @@ Character.prototype.update = function() {
     for (var c in charactersList){
         game.physics.arcade.collide(charactersList[c].baseSprite, this.baseSprite);
     }
-};
-
+}
 
 Character.prototype.fire = function(target,fireType) {
         if (!this.alive) return
@@ -482,22 +507,22 @@ Character.prototype.fire = function(target,fireType) {
                 this.spells.HealingSpell.cast(this)
             break
             case 1:
-                this.spells.Leap.cast(this)
+                this.spells.Leap.cast(this,target)
             break
             case 2:
-                this.spells.Spike.cast(this)
+                this.spells.Spike.cast(this,target)
             break
             case 3:
-                this.spells.Fireball.cast(this)
+                this.spells.Fireball.cast(this,target)
             break
             case 4:
-                this.spells.ColdSphere.cast(this)
+                this.spells.ColdSphere.cast(this,target)
             break
             case 5:
-                this.spells.Vape.cast(this)
+                this.spells.Vape.cast(this,target)
             break
             case 6:
-                this.spells.CloseFighting.cast(this)
+                this.spells.CloseFighting.cast(this,target)
             break
         }
 }
@@ -557,55 +582,59 @@ Character.prototype.recolorAura = function() {
 
 Character.prototype.pickUpItem = function(itemSprite) {
 
-    //Add a new spell or upgrade already existing
-    this.spellsAddSpell = function(spellId,alias){
-        if(this.spells[alias].spellPower==0){
-            if(spellId > 2){
-                this.fireType=spellId;            
-                touchControls.moveHighlight(spellId);
-            }
-            touchControls.spellPowerCounter[spellId].alpha = 1;
-        }
-        else{
-            touchControls.spellPowerCounter[spellId].setText('lvl '+this.spells[alias].spellPower);
-            touchControls.levelup[spellId].alpha = 1;
-            game.add.tween(touchControls.levelup[spellId]).to( { alpha: 0 }, 500, Phaser.Easing.Linear.None, true); 
-            this.spells[alias].levelup(); 
-        }
-        this.spells[alias].spellPower = Phaser.Math.min(maxSpellsLevel, this.spells[alias].spellPower + 1);
-        this.spellsAvailable[spellId] = true;
-        touchControls.buttons[spellId].reset();
-        touchControls.buttonMapping[spellId].alpha = 1;
-        touchControls.buttons[spellId].alpha = 1;
-    };
-
-    //Handles inventory when picking up items
-    function inventorySwitch(spellsRegEx,frame,reminderFrame){
-        for(i=0;i<touchControls.buttons.length;i++){
-            if(spellsRegEx.test(i)){
-                if(touchControls.buttons[i].alpha != 1){
-                    touchControls.buttons[i].reset();
-                    touchControls.buttons[i].alpha = 0.3;
-                }
-                touchControls.elementReminder[i].reset();
-                if(typeof reminderFrame == 'boolean' && reminderFrame)                       
-                    if(i==1)
-                        touchControls.elementReminder[i].frame = touchControls.frames[i][0]
-                    else
-                        touchControls.elementReminder[i].frame = touchControls.frames[i][1]
-                else
-                    touchControls.elementReminder[i].frame = touchControls.frames[i][reminderFrame]
-            }
-        }
-        inventoryItem.reset();
-        inventoryItem.frame = frame;
-    }
-
-    itemSprite.kill();
-    itemSprite.shadow.kill();
-    this.inventory.push(itemSprite.element);
-    this.privateHealth += 3;    //Heal on item pickup
     if(this.id == myId){
+        itemSprite.kill();
+        itemSprite.shadow.kill();
+        this.inventory.push(itemSprite.element);
+        this.privateHealth += 3;    //Heal on item pickup
+
+        //Send information to server if local player
+        Server.pickUpItem(itemSprite.id,itemSprite.element,myId);
+
+        //Add a new spell or upgrade already existing
+        this.spellsAddSpell = function(spellId,alias){
+            if(this.spells[alias].spellPower==0){
+                if(spellId > 2){
+                    this.fireType=spellId;            
+                    touchControls.moveHighlight(spellId);
+                }
+                touchControls.spellPowerCounter[spellId].alpha = 1;
+            }
+            else{
+                touchControls.spellPowerCounter[spellId].setText('lvl '+this.spells[alias].spellPower);
+                touchControls.levelup[spellId].alpha = 1;
+                game.add.tween(touchControls.levelup[spellId]).to( { alpha: 0 }, 500, Phaser.Easing.Linear.None, true); 
+                this.spells[alias].levelup(); 
+            }
+            this.spells[alias].spellPower = Phaser.Math.min(maxSpellsLevel, this.spells[alias].spellPower + 1);
+            this.spellsAvailable[spellId] = true;
+            touchControls.buttons[spellId].reset();
+            touchControls.buttonMapping[spellId].alpha = 1;
+            touchControls.buttons[spellId].alpha = 1;
+        };
+
+        //Handles inventory when picking up items
+        function inventorySwitch(spellsRegEx,frame,reminderFrame){
+            for(i=0;i<touchControls.buttons.length;i++){
+                if(spellsRegEx.test(i)){
+                    if(touchControls.buttons[i].alpha != 1){
+                        touchControls.buttons[i].reset();
+                        touchControls.buttons[i].alpha = 0.3;
+                    }
+                    touchControls.elementReminder[i].reset();
+                    if(typeof reminderFrame == 'boolean' && reminderFrame)                       
+                        if(i==1)
+                            touchControls.elementReminder[i].frame = touchControls.frames[i][0]
+                        else
+                            touchControls.elementReminder[i].frame = touchControls.frames[i][1]
+                    else
+                        touchControls.elementReminder[i].frame = touchControls.frames[i][reminderFrame]
+                }
+            }
+            inventoryItem.reset();
+            inventoryItem.frame = frame;
+        }
+    
         if(this.inventory.length>=2){
             switch(this.inventory[0]){
                 case 1:
@@ -677,19 +706,15 @@ Character.prototype.pickUpItem = function(itemSprite) {
                     break ;
             }
         }
-    }
 
-    //Elements counter for Aura
-    var counter = this.RCounter+this.GCounter+this.BCounter
-    if (counter <= 20) {
-        this.SpeedX = playerSpeedX - counter*5
-        this.SpeedY = playerSpeedY - counter*5
+        //Elements counter for Aura
+        var counter = this.RCounter+this.GCounter+this.BCounter
+        if (counter <= 20) {
+            this.SpeedX = playerSpeedX - counter*5
+            this.SpeedY = playerSpeedY - counter*5
+        }
+        this.recolorAura();
     }
-    this.recolorAura();
-
-    //Send information to server if local player
-    if(this.baseSprite.id==myId)
-        Server.pickUpItem(itemSprite.id);
 }
 
 Character.prototype.mouseWheel = function(d){
@@ -713,7 +738,6 @@ Character.prototype.mouseWheel = function(d){
                     if(checkingWeapon == previouslySelected)
                         stopScrolling = true;
                 }
-                player.input.fireType = checkingWeapon;
             }
             else{
                 while(!stopScrolling){

@@ -8,19 +8,18 @@ Spell.prototype.cast = function(character) {
 
 }
 
-Spell.prototype.castProjectile = function(character,bulletType,bulletFrame,bulletSpeed,bulletDamage,spellPowerBoost,spellId){
+Spell.prototype.castProjectile = function(character,bulletType,bulletFrame,bulletSpeed,bulletDamage,spellPowerBoost,spellId,target){
     if (game.time.now > this.nextFire && game.time.now > character.nextFire && character.bullets.countDead() > 0){
         character.mouseAlreadyUpdated = false;
         this.nextFire = game.time.now + this.cooldown;
         character.nextFire = game.time.now + character.fireRate;
         this.displayCooldowns(character,spellId);
-        if(character.id==myId)
-            Server.castProjectile(character.id,bulletType,bulletFrame,bulletSpeed,bulletDamage,spellPowerBoost,spellId,this.spellPower)
+        Server.castProjectile(character.id,bulletType,bulletFrame,bulletSpeed,bulletDamage,spellPowerBoost,spellId,this.spellPower,target.x,target.y)
     }
 }
 
 Spell.prototype.displayCooldowns = function(character,spellId){
-    if(character.id == myId){
+    if(!character.isBot){
         touchControls.reload[spellId].scale.y = 1;
         game.add.tween(touchControls.reload[spellId].scale).to( { x: 1, y: 0 }, this.cooldown, Phaser.Easing.Linear.None, true);  
         for(i=0;i<touchControls.reload.length;i++){
@@ -73,8 +72,8 @@ Fireball.prototype = Object.create(Spell.prototype);
 
 Fireball.prototype.constructor = Fireball
 
-Fireball.prototype.cast = function(character){
-    this.castProjectile(character,0,0,this.bulletSpeed,-15,5,3)
+Fireball.prototype.cast = function(character,target){
+    this.castProjectile(character,0,0,this.bulletSpeed,-15,5,3,target)
 };
 
 // Cold Sphere
@@ -91,8 +90,8 @@ ColdSphere.prototype = Object.create(Spell.prototype);
 
 ColdSphere.prototype.constructor = ColdSphere
 
-ColdSphere.prototype.cast = function(character){
-    this.castProjectile(character,5,2,this.bulletSpeed,-10,2,4)
+ColdSphere.prototype.cast = function(character,target){
+    this.castProjectile(character,5,2,this.bulletSpeed,-10,2,4,target)
 };
 
 // Vape
@@ -104,8 +103,8 @@ function Vape() {
 
 Vape.prototype = Object.create(Spell.prototype);
 Vape.prototype.constructor = Vape;
-Vape.prototype.cast = function(character){
-    this.castProjectile(character,6,1,this.bulletSpeed,-5,1,5)
+Vape.prototype.cast = function(character,target){
+    this.castProjectile(character,6,1,this.bulletSpeed,-5,1,5,target)
 };
 
 // Leap
@@ -130,7 +129,7 @@ Leap.prototype = Object.create(Spell.prototype);
 
 Leap.prototype.constructor = Leap
 
-Leap.prototype.cast = function(character){
+Leap.prototype.cast = function(character,target){
 
     if (game.time.now > this.nextFire && game.time.now > character.nextFire){
         character.mouseAlreadyUpdated = false;
@@ -139,7 +138,7 @@ Leap.prototype.cast = function(character){
         this.displayCooldowns(character,1);
 
         var curPos = new Phaser.Point(character.baseSprite.x, character.baseSprite.y);
-        var target = new Phaser.Point(character.cursor.tx, character.cursor.ty);
+        var target = new Phaser.Point(target.x, target.y);
 
 
         var dist = Phaser.Math.min(this.jumpDist + this.spellPower * 50,
@@ -166,8 +165,7 @@ Leap.prototype.cast = function(character){
         	}
         }
         if (!isCollision)*/
-        if(character.id==myId)
-    	   Server.doLeap(character.id, target.x, target.y,curPos.x,curPos.y);
+	   Server.doLeap(character.id, target.x, target.y,curPos.x,curPos.y);
     }
 };
 Leap.prototype.levelup = function(){
@@ -187,7 +185,7 @@ Spike.prototype = Object.create(Spell.prototype);
 
 Spike.prototype.constructor = Spike
 
-Spike.prototype.cast = function(character){
+Spike.prototype.cast = function(character,target){
 
     if (game.time.now > this.nextFire && game.time.now > character.nextFire){
         character.mouseAlreadyUpdated = false;
@@ -196,18 +194,17 @@ Spike.prototype.cast = function(character){
         this.displayCooldowns(character,2);
 
         var curPos = new Phaser.Point(character.baseSprite.x, character.baseSprite.y);
-        var target = new Phaser.Point(character.cursor.tx, character.cursor.ty);
+        var target = new Phaser.Point(target.x, target.y);
 
         var offset = Phaser.Point.subtract(target, curPos).normalize()
 
         target.x = offset.x * this.distance + curPos.x
         target.y = offset.y * this.distance + curPos.y
-        if(character.id==myId)
-            Server.doSpike(character.id,
-                             target.x,
-                             target.y,
-                             this.stayTime,
-                             this.damage);
+        Server.doSpike(character.id,
+                         target.x,
+                         target.y,
+                         this.stayTime,
+                         this.damage);
     }
 
 };
@@ -223,23 +220,22 @@ CloseFighting.prototype = Object.create(Spell.prototype)
 
 CloseFighting.prototype.constructor = CloseFighting
 
-CloseFighting.prototype.cast = function(character)
+CloseFighting.prototype.cast = function(character,target)
 {
     if (game.time.now > this.nextFire && game.time.now > character.nextFire){
         character.mouseAlreadyUpdated = false;
         this.nextFire = game.time.now + this.cooldown;
         character.nextFire = game.time.now + character.fireRate; 
         this.displayCooldowns(character,6);
-        if(character.id==myId)
-    	   Server.castCloseAttack(character.id, {x: character.cursor.tx,
-        											y: character.cursor.ty});
+    	Server.castCloseAttack(character.id, {x: target.x,
+        									y: target.y});
     }
 }
 
 //Projectiles hit
 function bulletHit (victim, bullet) {
     bullet.kill();
-    if(this.id == myId && bullet.damage!=0){
+    if(((this.id == myId && victim.tag == 'enemy') || (this.isBot && this.owner == myId)) && bullet.damage!=0){
         if(victim.health>0) {
             Server.updateHP(victim.id, bullet.damage - bullet.spellPowerBoost, player.id);
         }
@@ -248,7 +244,7 @@ function bulletHit (victim, bullet) {
 
     }
     if(bullet.type==5){
-        if(this.id == myId)
+        if((this.id == myId && victim.tag == 'enemy') || (this.isBot && this.owner == myId))
             Server.castFreeze(victim.id, 3)
     }
     if(bullet.type==6){
@@ -261,6 +257,6 @@ function bulletHit (victim, bullet) {
 
 //Vape cloud hit
 function vapeHit (victim, vapelosion,spellPowerBoost) {
-   if (victim.health>0 && this.id == myId)
+   if (victim.health>0 && ((this.id == myId) || (this.isBot && this.owner == myId)))
         Server.updateHP(victim.id, -0.5 - 0.1*this.spells.Vape.spellPower, player.id);
 }
