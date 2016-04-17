@@ -162,6 +162,16 @@ Character = function (index, game, x, y, r, g, b,color,isBot,owner) {
         this.baseSprite.tag = 'enemy';
     //console.log(this.tag)
 
+    //Body for teleport checks
+    if(this.id == myId){
+        this.fakeSprite = game.add.sprite(x, y, 'player-head');
+        this.fakeSprite.anchor.set(0.5);
+        this.fakeSprite.kill();
+        game.physics.enable(this.fakeSprite, Phaser.Physics.ARCADE);
+        this.fakeSprite.enableBody = true;
+        this.fakeSprite.alpha = 0;
+    }
+
     //Physics
     game.physics.enable(this.baseSprite, Phaser.Physics.ARCADE);
     game.physics.enable(this.headSprite, Phaser.Physics.ARCADE);

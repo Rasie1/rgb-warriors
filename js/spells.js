@@ -132,11 +132,6 @@ Leap.prototype.constructor = Leap
 Leap.prototype.cast = function(character,target){
 
     if (game.time.now > this.nextFire && game.time.now > character.nextFire){
-        character.mouseAlreadyUpdated = false;
-        this.nextFire = game.time.now + this.cooldown;
-        character.nextFire = game.time.now + character.fireRate;     
-        this.displayCooldowns(character,1);
-
         var curPos = new Phaser.Point(character.baseSprite.x, character.baseSprite.y);
         var target = new Phaser.Point(target.x, target.y);
 
@@ -147,25 +142,20 @@ Leap.prototype.cast = function(character,target){
                                                         target.x,
                                                         target.y));
 
-        var offset_x = dist * Math.cos(Phaser.Math.angleBetweenPoints(curPos, target));
-        var offset_y = dist * Math.sin(Phaser.Math.angleBetweenPoints(curPos, target));
-        target.x = curPos.x + offset_x;
-        target.y = curPos.y + offset_y;
+        character.fakeSprite.reset(target.x,target.y);
+        if(!game.physics.arcade.overlap(character.fakeSprite, obstacles) &&
+            !game.physics.arcade.overlap(character.fakeSprite, playersGroup)){
+            character.mouseAlreadyUpdated = false;
+            this.nextFire = game.time.now + this.cooldown;
+            character.nextFire = game.time.now + character.fireRate;     
+            this.displayCooldowns(character,1);
 
-
-        /*var isCollision = false;
-        for (var obst in character.game.obstacles)
-        {
-        	var a = new Phaser.Rectangle(obst.x, obst.y, obst.width, obst.height);
-        	var b = new Phaser.Rectangle(target.x - 32, target.y - 32, 64, 64);
-        	if (Phaser.Rectangle.intersects(a, b))
-        	{
-        		isCollision = true;
-        		break;
-        	}
+            var offset_x = dist * Math.cos(Phaser.Math.angleBetweenPoints(curPos, target));
+            var offset_y = dist * Math.sin(Phaser.Math.angleBetweenPoints(curPos, target));
+            target.x = curPos.x + offset_x;
+            target.y = curPos.y + offset_y;
+            Server.doLeap(character.id, target.x, target.y,curPos.x,curPos.y);
         }
-        if (!isCollision)*/
-	   Server.doLeap(character.id, target.x, target.y,curPos.x,curPos.y);
     }
 };
 Leap.prototype.levelup = function(){
