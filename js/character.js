@@ -289,7 +289,13 @@ Character.prototype.recreate = function (x,y) {
     }
 
     for (i = 0; i <= 5; ++i)
-        this.spellsAvailable[i] = false;  
+        this.spellsAvailable[i] = false;
+
+    if(this.baseSprite.id == myId){
+        var dis = this;
+        mouseWheel = function(d){dis.mouseWheel(d)}
+        window.addEventListener('wheel',mouseWheel);
+    }
 }
 
 Character.prototype.update = function() {
@@ -532,7 +538,7 @@ Character.prototype.updateBot = function(){
             this.nextStuckCheck = game.time.now + this.stuckCheckRate;
             this.goingX = this.goingY = 0;
             if(this.touching.up || this.touching.down){
-                this.wasGoingUp = this.wasGoingUp = this.movementDecidedY = false;
+                this.wasGoingUp = this.wasGoingDown = this.movementDecidedY = false;
                 if(this.touching.up)
                     this.cantGoUp = true;
                 if(this.touching.down)
