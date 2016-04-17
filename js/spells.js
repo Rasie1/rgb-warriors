@@ -147,12 +147,12 @@ Leap.prototype.cast = function(character,target){
         target.y = curPos.y + offset_y;
         character.fakeSprite.reset(target.x,target.y);
         if(!game.physics.arcade.overlap(character.fakeSprite, obstacles) &&
-            !game.physics.arcade.overlap(character.fakeSprite, playersGroup)){
+           !game.physics.arcade.overlap(character.fakeSprite, playersGroup)){
             character.mouseAlreadyUpdated = false;
             this.nextFire = game.time.now + this.cooldown;
             character.nextFire = game.time.now + character.fireRate;     
             this.displayCooldowns(character,1);
-            
+
             Server.doLeap(character.id, target.x, target.y,curPos.x,curPos.y);
         }
     }

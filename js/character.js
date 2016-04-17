@@ -57,15 +57,35 @@ Character = function (index, game, x, y, r, g, b,color,isBot,owner) {
     this.privateHealth = maxHealth;
     this.health = this.privateHealth;
 
-    //Bots
+    //Bot stuff
     if(typeof isBot == 'undefined')
         var isBot = false;
     if(typeof owner == 'undefined')
         var owner = null;
     this.isBot = isBot;
     this.owner = owner;
+    this.touching  = {};
+
+    this.movementDecidedX = false;
+    this.movementDecidedY = false;
+    this.wasGoingRight = false;
+    this.wasGoingLeft = false;
+    this.wasGoingUp = false;
+    this.wasGoingDown = false;
+    this.failSafeCounter = 30;
+
     this.nextClosestTargetCheck = 0;
     this.targetCheckRate = 200;
+    this.nextStuckCheck = 0;
+    this.stuckCheckRate = 1000;
+
+    this.actualTarget = {};
+    this.nextActualTargetCheck = 0;
+    this.actualTargetCheckRate = 3000;
+    this.targetReached = false;
+
+    this.goingX = 0;
+    this.goingY = 0;
 
     //Player speed
     this.SpeedX = playerSpeedX;
@@ -429,6 +449,16 @@ Character.prototype.update = function() {
 };
 
 Character.prototype.updateBot = function(){    
+    if(!this.alive)
+        return;
+
+    this.realSpeed = this.SpeedX*this.speedMultiplier-50;
+
+    this.touching.up = this.baseSprite.body.touching.up;
+    this.touching.down = this.baseSprite.body.touching.down;
+    this.touching.right = this.baseSprite.body.touching.right;
+    this.touching.left = this.baseSprite.body.touching.left;
+
     for(a in this.statusActual){
         this.status[a] = this.statusActual[a];
     }
@@ -438,11 +468,12 @@ Character.prototype.updateBot = function(){
         this.closestTarget = null;
         for(p in charactersList){
             if(p != this.id){
-                if(!this.closestTarget){
+                if(!this.closestTarget && charactersList[p].alive){
                     this.closestTarget = charactersList[p];
                 }
                 else{
                     if(
+                        charactersList[p].alive && 
                         game.physics.arcade.distanceBetween(this.baseSprite, charactersList[p].baseSprite) < 
                         game.physics.arcade.distanceBetween(this.baseSprite, this.closestTarget.baseSprite)
                     ){
@@ -451,16 +482,169 @@ Character.prototype.updateBot = function(){
                 }
             }
         };
-    }
-    if (game.physics.arcade.distanceBetween(this.baseSprite, this.closestTarget.baseSprite) < 1500){
+    };
+
+    if(!this.closestTarget)
+        this.closestTarget = this;
+
+    this.headSprite.rotation = game.physics.arcade.angleBetween(
+        {x:this.baseSprite.x,y:this.baseSprite.y},
+        {x:this.closestTarget.baseSprite.x,y:this.closestTarget.baseSprite.y}
+    ) + 3.14/2;
+
+    if (game.physics.arcade.distanceBetween(this.baseSprite, this.closestTarget.baseSprite) < 500){
         var pointX = this.closestTarget.baseSprite.x-100+Math.floor(Math.random()*200);
         var pointY = this.closestTarget.baseSprite.y-100+Math.floor(Math.random()*200);
         this.spells.Fireball.cast(this,{x:pointX,y:pointY});
-        this.headSprite.rotation = game.physics.arcade.angleBetween(
-            {x:this.baseSprite.x,y:this.baseSprite.y},
-            {x:this.closestTarget.baseSprite.x,y:this.closestTarget.baseSprite.y}
-            ) + 3.14/2;
+
     }
+
+
+    if (game.time.now > this.nextStuckCheck){        
+        if(game.physics.arcade.distanceBetween(this.baseSprite, this.actualTarget) < 100)
+            this.targetReached = true;
+        //console.log(this.targetReached,this.actualTarget,game.physics.arcade.distanceBetween(this.baseSprite, this.actualTarget));
+
+        if(game.time.now > this.nextActualTargetCheck || this.targetReached){ 
+            this.targetReached = false;
+            this.nextActualTargetCheck = game.time.now + this.actualTargetCheckRate;
+            if(game.physics.arcade.distanceBetween(this.baseSprite, this.closestTarget.baseSprite) > 500){
+                this.actualTarget.x = this.closestTarget.baseSprite.x;
+                this.actualTarget.y = this.closestTarget.baseSprite.y;
+            }
+            else{
+                this.actualTarget.x = this.closestTarget.baseSprite.x + Math.random()*500 - 250;
+                this.actualTarget.y = this.closestTarget.baseSprite.y + Math.random()*500 - 250;
+            }
+        }
+        if(this.baseSprite.body.touching.none){
+            //Hack to ignore frames in which the game tells us the bot isn't stuck when it in fact is
+            this.failSafeCounter--;
+            if(this.failSafeCounter <= 0){
+                this.failSafeCounter = 30;
+                this.movementDecidedX = this.movementDecidedY = this.wasGoingRight = this.wasGoingLeft = this.wasGoingUp = this.wasGoingDown = this.cantGoLeft = this.cantGoRight = this.cantGoUp = this.cantGoDown = false;
+            }
+
+            game.physics.arcade.moveToObject(this.baseSprite, {x:this.actualTarget.x,y:this.actualTarget.y}, this.realSpeed)
+
+        }
+        else{
+            this.nextStuckCheck = game.time.now + this.stuckCheckRate;
+            this.goingX = this.goingY = 0;
+            if(this.touching.up || this.touching.down){
+                this.wasGoingUp = this.wasGoingUp = this.movementDecidedY = false;
+                if(this.touching.up)
+                    this.cantGoUp = true;
+                if(this.touching.down)
+                    this.cantGoDown = true;
+                //console.log('stuck up or down ',this.baseSprite.body.touching,this.cantGoRight,this.cantGoLeft)
+                if(!this.touching.right && !this.touching.left && !this.wasGoingLeft && !this.wasGoingRight && !this.cantGoRight && !this.cantGoLeft){
+                    //console.log('left and right clear')
+                    if(!this.movementDecidedX){
+                        if(this.baseSprite.x < this.actualTarget.x){
+                            this.goingX = this.wasGoingX = this.realSpeed;
+                            this.baseSprite.body.velocity.x = this.goingX;
+                        }
+                        else{
+                            this.goingX = this.wasGoingX = -this.realSpeed;
+                            this.baseSprite.body.velocity.x = this.goingX;
+                        }
+                        this.movementDecidedX = true;
+                    }
+                    else{
+                        this.baseSprite.body.velocity.x = this.goingX = this.wasGoingX;
+                    }
+                    
+                } else {
+                    this.movementDecidedX = false;
+                    if((!this.touching.right || this.wasGoingRight) && !this.cantGoRight){
+                        //console.log('right clear');
+                        this.goingX = this.realSpeed;
+                        this.baseSprite.body.velocity.x = this.goingX;
+                        this.wasGoingLeft = false;
+                        this.wasGoingRight = true;
+                    }
+                    else if((!this.touching.left || this.wasGoingLeft) && !this.cantGoLeft){
+                        //console.log('left clear');
+                        this.goingX = -this.realSpeed;
+                        this.baseSprite.body.velocity.x = this.goingX;
+                        this.wasGoingRight = false;
+                        this.wasGoingLeft = true;
+                    }
+                    else if(!this.touching.up){
+                        //console.log('up clear');
+                        this.goingY = this.realSpeed;
+                        this.baseSprite.body.velocity.y = this.goingY;
+                    }
+                    else if(!this.touching.down){
+                        //console.log('down clear');
+                        this.goingY = -this.realSpeed;
+                        this.baseSprite.body.velocity.y = this.goingY;
+                    }
+                    else{
+                        console.log('Bot '+this.id+' got stuck')
+                    }
+                }
+            }
+            else{
+                if(this.touching.right)
+                    this.cantGoRight = true;
+                if(this.touching.left)
+                    this.cantGoLeft = true;
+                this.wasGoingLeft = this.wasGoingRight = this.movementDecidedX = false;
+                //console.log('stuck left or right',this.baseSprite.body.touching,this.cantGoUp,this.cantGoDown)
+                if(!this.touching.up && !this.touching.down && !this.wasGoingUp && !this.wasGoingDown && !this.cantGoDown && !this.cantGoUp){
+                    //console.log('up and down clear');
+                    if(!this.movementDecidedY){
+                        if(this.baseSprite.y < this.actualTarget.y){
+                            this.goingY = this.wasGoingY = this.realSpeed;
+                            this.baseSprite.body.velocity.y = this.goingY;
+                        }
+                        else{
+                            this.goingY = this.wasGoingY = -this.realSpeed;
+                            this.baseSprite.body.velocity.y = this.goingY;
+                        };
+                        this.movementDecidedY = true;
+                    }
+                    else{
+                        this.baseSprite.body.velocity.y = this.goingY = this.wasGoingY;
+                    }
+                }
+                else{
+                    this.movementDecidedY = false;
+                    if((!this.touching.up || this.wasGoingUp) && !this.cantGoUp){
+                        this.goingY = this.realSpeed;
+                        this.baseSprite.body.velocity.y = this.goingY;
+                        this.wasGoingDown = false;
+                        this.wasGoingUp = true;
+                    }
+                    else if((!this.touching.down || this.wasGoingDown) && !this.cantGoDown){
+                        this.goingY = -this.realSpeed;
+                        this.baseSprite.body.velocity.y = this.goingY;
+                        this.wasGoingUp = false;
+                        this.wasGoingDown = true;
+                    }
+                    else if(!this.touching.right){
+                        this.goingX = this.realSpeed;
+                        this.baseSprite.body.velocity.x = this.goingX;
+                    }
+                    else if(!this.touching.left){
+                        this.goingX = -this.realSpeed;
+                        this.baseSprite.body.velocity.x = this.goingX;
+                    }
+                    else{
+                        console.log('Bot '+this.id+' got stuck')
+                    }
+                }
+            }
+        }
+    }
+    else{
+        this.baseSprite.body.velocity.x = this.goingX;
+        this.baseSprite.body.velocity.y = this.goingY;
+    }
+
+
     this.updateGeneric();
 
     this.statusActual = {
