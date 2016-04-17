@@ -141,7 +141,10 @@ Leap.prototype.cast = function(character,target){
                                                         curPos.y,
                                                         target.x,
                                                         target.y));
-
+        var offset_x = dist * Math.cos(Phaser.Math.angleBetweenPoints(curPos, target));
+        var offset_y = dist * Math.sin(Phaser.Math.angleBetweenPoints(curPos, target));
+        target.x = curPos.x + offset_x;
+        target.y = curPos.y + offset_y;
         character.fakeSprite.reset(target.x,target.y);
         if(!game.physics.arcade.overlap(character.fakeSprite, obstacles) &&
             !game.physics.arcade.overlap(character.fakeSprite, playersGroup)){
@@ -149,11 +152,7 @@ Leap.prototype.cast = function(character,target){
             this.nextFire = game.time.now + this.cooldown;
             character.nextFire = game.time.now + character.fireRate;     
             this.displayCooldowns(character,1);
-
-            var offset_x = dist * Math.cos(Phaser.Math.angleBetweenPoints(curPos, target));
-            var offset_y = dist * Math.sin(Phaser.Math.angleBetweenPoints(curPos, target));
-            target.x = curPos.x + offset_x;
-            target.y = curPos.y + offset_y;
+            
             Server.doLeap(character.id, target.x, target.y,curPos.x,curPos.y);
         }
     }
