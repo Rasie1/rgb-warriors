@@ -14,6 +14,7 @@ Spell.prototype.castProjectile = function(character,bulletType,bulletFrame,bulle
         this.nextFire = game.time.now + this.cooldown;
         character.nextFire = game.time.now + character.fireRate;
         this.displayCooldowns(character,spellId);
+        Server.handleKeys(character.input,character.baseSprite.x,character.baseSprite.y,character.RCounter,character.GCounter,character.BCounter,myId);
         Server.castProjectile(character.id,bulletType,bulletFrame,bulletSpeed,bulletDamage,spellPowerBoost,spellId,this.spellPower,target.x,target.y)
     }
 }
@@ -216,6 +217,7 @@ CloseFighting.prototype.cast = function(character,target)
         this.nextFire = game.time.now + this.cooldown;
         character.nextFire = game.time.now + character.fireRate; 
         this.displayCooldowns(character,6);
+        Server.handleKeys(character.input,character.baseSprite.x,character.baseSprite.y,character.RCounter,character.GCounter,character.BCounter,myId);
     	Server.castCloseAttack(character.id, {x: target.x,
         									y: target.y});
     }

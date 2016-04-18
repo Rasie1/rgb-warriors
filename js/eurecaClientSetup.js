@@ -27,6 +27,8 @@ var EurecaClientSetup = function() {
 	Client.exports.spawnBot = function(id,x,y,owner){
 		console.log('Bot spawned ',id);
 		charactersList[id] = new Character(id, game, x, y, -1, -1, -1,false,true,owner);
+		if(owner == myId)
+			charactersList[id].initBot()
 	}
 	Client.exports.kill = function(id)
 	{	

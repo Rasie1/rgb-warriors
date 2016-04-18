@@ -422,17 +422,16 @@ function update () {
                 game.physics.arcade.overlap(targetCharacter, curBullets, bulletHit, null, charactersList[i]);                
 			}
             game.physics.arcade.overlap(targetCharacter, curVapelosions, vapeHit, null, charactersList[i]);
-			if (charactersList[j].alive){
-
-                if(charactersList[j].isBot && charactersList[j].owner == myId){
-                    charactersList[j].updateBot()
-                }
-                else if(charactersList[j].isBot)
-                    charactersList[j].updateGeneric()
-                else
-				    charactersList[j].update();
-			}			
 		}
+        if (charactersList[i].alive){
+            if(charactersList[i].isBot && charactersList[i].owner == myId){
+                charactersList[i].updateBot()
+            }
+            else if(charactersList[i].isBot)
+                charactersList[i].updateGeneric()
+            else
+                charactersList[i].update();
+        }
     };
 }
 
