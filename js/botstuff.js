@@ -10,6 +10,8 @@ Character.prototype.updateBot = function(){
         game.physics.arcade.collide(charactersList[c].baseSprite, this.baseSprite);
     }
 
+    this.statusChanged = false;
+
     //Aliases for touching
     for(t in this.baseSprite.body.touching){
         this.touching[t] = this.baseSprite.body.touching[t]
@@ -33,7 +35,7 @@ Character.prototype.updateBot = function(){
     this.moveToDestination();
 
     //Update stuff that's the same for bots and players
-    this.updateGeneric();
+    this.updateGenericAfter();
 
     //Collect data for the server
     this.statusActual = {
@@ -43,14 +45,13 @@ Character.prototype.updateBot = function(){
         velX:Math.round(this.baseSprite.body.velocity.x),
         velY:Math.round(this.baseSprite.body.velocity.y)
     }
-    var statusChanged = false;
 
     //Check if bot's velocity has changed
     if(this.statusActual.velX != this.status.velX || this.statusActual.velY != this.status.velY)
-        statusChanged = true;
+        this.statusChanged = true;
 
     //Send bot's state to the server if needed
-    if (statusChanged)
+    if (this.statusChanged)
         Server.updateBot(this.id,myId,this.statusActual)
 }
 
@@ -84,7 +85,7 @@ Character.prototype.initBot = function(){
         if (game.physics.arcade.distanceBetween(this.baseSprite, this.closestTarget.baseSprite) < 500){
             var pointX = this.closestTarget.baseSprite.x-100+Math.floor(Math.random()*200);
             var pointY = this.closestTarget.baseSprite.y-100+Math.floor(Math.random()*200);
-            this.spells.Fireball.cast(this,{x:pointX,y:pointY});
+            this.statusChanged = this.spells.Fireball.cast(this,{x:pointX,y:pointY});
         }
     };
     this.faceTarget = function(){ //Set rotation to face closest target

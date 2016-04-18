@@ -300,14 +300,6 @@ Character.prototype.recreate = function (x,y) {
 }
 
 Character.prototype.update = function() {
-    
-    //Collisions
-    game.physics.arcade.collide(this.baseSprite, obstacles);
-    game.physics.arcade.collide( obstacles,this.bullets, bulletHit,null,this);
-    for (var c in charactersList){
-        game.physics.arcade.collide(charactersList[c].baseSprite, this.baseSprite);
-    }
-
     for(a in this.input){
         this.cursor[a] = this.input[a];
     }
@@ -480,10 +472,17 @@ Character.prototype.update = function() {
         }
     };
     
-    this.updateGeneric();
+    this.updateGenericAfter();
 };
-
-Character.prototype.updateGeneric = function(){
+Character.prototype.updateGenericBefore = function(){
+    //Collisions
+    game.physics.arcade.collide(this.baseSprite, obstacles);
+    game.physics.arcade.collide( obstacles,this.bullets, bulletHit,null,this);
+    for (var c in charactersList){
+        game.physics.arcade.collide(charactersList[c].baseSprite, this.baseSprite);
+    }
+}
+Character.prototype.updateGenericAfter = function(){
     //Set player position
     this.headSprite.x
     = this.weapon.x

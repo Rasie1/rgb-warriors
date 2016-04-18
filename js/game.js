@@ -427,8 +427,10 @@ function update () {
             if(charactersList[i].isBot && charactersList[i].owner == myId){
                 charactersList[i].updateBot()
             }
-            else if(charactersList[i].isBot)
-                charactersList[i].updateGeneric()
+            else if(charactersList[i].isBot){
+                charactersList[i].updateGenericBefore();
+                charactersList[i].updateGenericAfter()
+            }
             else
                 charactersList[i].update();
         }

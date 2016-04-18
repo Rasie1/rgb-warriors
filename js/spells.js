@@ -14,9 +14,13 @@ Spell.prototype.castProjectile = function(character,bulletType,bulletFrame,bulle
         this.nextFire = game.time.now + this.cooldown;
         character.nextFire = game.time.now + character.fireRate;
         this.displayCooldowns(character,spellId);
-        Server.handleKeys(character.input,character.baseSprite.x,character.baseSprite.y,character.RCounter,character.GCounter,character.BCounter,myId);
-        Server.castProjectile(character.id,bulletType,bulletFrame,bulletSpeed,bulletDamage,spellPowerBoost,spellId,this.spellPower,target.x,target.y)
+        if(!character.isBot)
+            Server.handleKeys(character.input,character.baseSprite.x,character.baseSprite.y,character.RCounter,character.GCounter,character.BCounter,myId);
+        Server.castProjectile(character.id,bulletType,bulletFrame,bulletSpeed,bulletDamage,spellPowerBoost,spellId,this.spellPower,target.x,target.y);
+        return true
     }
+    else
+        return false
 }
 
 Spell.prototype.displayCooldowns = function(character,spellId){
@@ -74,7 +78,7 @@ Fireball.prototype = Object.create(Spell.prototype);
 Fireball.prototype.constructor = Fireball
 
 Fireball.prototype.cast = function(character,target){
-    this.castProjectile(character,0,0,this.bulletSpeed,-15,5,3,target)
+    return this.castProjectile(character,0,0,this.bulletSpeed,-15,5,3,target)
 };
 
 // Cold Sphere
@@ -92,7 +96,7 @@ ColdSphere.prototype = Object.create(Spell.prototype);
 ColdSphere.prototype.constructor = ColdSphere
 
 ColdSphere.prototype.cast = function(character,target){
-    this.castProjectile(character,5,2,this.bulletSpeed,-10,2,4,target)
+    return this.castProjectile(character,5,2,this.bulletSpeed,-10,2,4,target)
 };
 
 // Vape
@@ -105,7 +109,7 @@ function Vape() {
 Vape.prototype = Object.create(Spell.prototype);
 Vape.prototype.constructor = Vape;
 Vape.prototype.cast = function(character,target){
-    this.castProjectile(character,6,1,this.bulletSpeed,-5,1,5,target)
+    return this.castProjectile(character,6,1,this.bulletSpeed,-5,1,5,target)
 };
 
 // Leap
@@ -220,7 +224,10 @@ CloseFighting.prototype.cast = function(character,target)
         Server.handleKeys(character.input,character.baseSprite.x,character.baseSprite.y,character.RCounter,character.GCounter,character.BCounter,myId);
     	Server.castCloseAttack(character.id, {x: target.x,
         									y: target.y});
+        return true
     }
+    else
+        return false;
 }
 
 //Projectiles hit
