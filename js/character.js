@@ -72,16 +72,17 @@ Character = function (index, game, x, y, r, g, b,color,isBot,owner) {
     this.wasGoingLeft = false;
     this.wasGoingUp = false;
     this.wasGoingDown = false;
+
     this.failSafeCounter = 30;
 
     this.nextClosestTargetCheck = 0;
-    this.targetCheckRate = 200;
+    this.targetCheckRate = targetCheckRate;
     this.nextStuckCheck = 0;
-    this.stuckCheckRate = 1000;
+    this.stuckCheckRate = stuckCheckRate;
 
     this.actualTarget = {};
     this.nextActualTargetCheck = 0;
-    this.actualTargetCheckRate = 3000;
+    this.actualTargetCheckRate = actualTargetCheckRate;
     this.targetReached = false;
 
     this.goingX = 0;
@@ -300,7 +301,34 @@ Character.prototype.recreate = function (x,y) {
 
 Character.prototype.update = function() {
 
+    for(a in this.input){
+        this.cursor[a] = this.input[a];
+    }
+
     if (this.id == myId){
+        handleInput(this)
+        
+        this.input.left = cursors.left.isDown;
+        this.input.right = cursors.right.isDown;
+        this.input.up = cursors.up.isDown;
+        this.input.down = cursors.down.isDown;
+
+        this.input.w = cursors.w.isDown;
+        this.input.a = cursors.a.isDown;
+        this.input.s = cursors.s.isDown;
+        this.input.d = cursors.d.isDown;
+
+        this.tx = game.input.x + game.camera.x;
+        this.ty = game.input.y + game.camera.y;
+
+        this.input.x = this.baseSprite.x;
+        this.input.y = this.baseSprite.y;
+        this.input.rot = this.headSprite.rotation;
+        this.input.speedX = this.SpeedX;
+        this.input.speedY = this.SpeedY;
+
+        this.touchInput = touchCursors;
+
         //Checks difference between current input and last saved
         function checkInputChange(set1,set2,additional){
             var changed = false;
@@ -317,18 +345,14 @@ Character.prototype.update = function() {
             return changed;
         }
         var inputChanged = checkInputChange(this.cursor,this.input);
+        //var inputChanged = (this.input.velX != this.cursor.velX || this.input.velY != this.cursor.velY);
         var touchInputChanged = checkInputChange(touchControls.touchInput,this.touchInput,['joystickX','joystickY']);
 
         if (inputChanged || touchInputChanged)
         {    
             // send latest valid state to the server
-            this.input.x = this.baseSprite.x;
-            this.input.y = this.baseSprite.y;
-            this.input.rot = this.headSprite.rotation;
-            this.input.speedX = this.SpeedX;
-            this.input.speedY = this.SpeedY;
 
-           Server.handleKeys(this.input,this.baseSprite.x,this.baseSprite.y,this.RCounter,this.GCounter,this.BCounter);
+           Server.handleKeys(this.input,this.baseSprite.x,this.baseSprite.y,this.RCounter,this.GCounter,this.BCounter,myId);
 
             if (touchInputChanged)
             {
@@ -349,13 +373,13 @@ Character.prototype.update = function() {
     var down = false;
     var left = false;
     var right = false;
-    if(this.cursor.up || this.cursor.w || touchControls.touchInput.joystickY < -0.5)
+    if(this.input.up || this.input.w || touchControls.touchInput.joystickY < -0.5)
         up = true;
-    if(this.cursor.down  || this.cursor.s || touchControls.touchInput.joystickY > 0.5)
+    if(this.input.down  || this.input.s || touchControls.touchInput.joystickY > 0.5)
         down = true;
-    if(this.cursor.left || this.cursor.a  || touchControls.touchInput.joystickX < -0.5)
+    if(this.input.left || this.input.a  || touchControls.touchInput.joystickX < -0.5)
         left = true;
-    if(this.cursor.right || this.cursor.d || touchControls.touchInput.joystickX > 0.5)
+    if(this.input.right || this.input.d || touchControls.touchInput.joystickX > 0.5)
         right = true;
 
     var speed;
@@ -450,13 +474,17 @@ Character.prototype.update = function() {
                 }
             }
         }
-    }
+    };
+    
     this.updateGeneric();
 };
 
 Character.prototype.updateBot = function(){    
     if(!this.alive)
         return;
+
+    this.baseSprite.animations.play('move', 10, true); 
+    this.headSprite.animations.play('move', 10, true); 
 
     this.realSpeed = this.SpeedX*this.speedMultiplier-50;
 
@@ -502,9 +530,7 @@ Character.prototype.updateBot = function(){
         var pointX = this.closestTarget.baseSprite.x-100+Math.floor(Math.random()*200);
         var pointY = this.closestTarget.baseSprite.y-100+Math.floor(Math.random()*200);
         this.spells.Fireball.cast(this,{x:pointX,y:pointY});
-
     }
-
 
     if (game.time.now > this.nextStuckCheck){        
         if(game.physics.arcade.distanceBetween(this.baseSprite, this.actualTarget) < 100)
@@ -531,14 +557,13 @@ Character.prototype.updateBot = function(){
                 this.movementDecidedX = this.movementDecidedY = this.wasGoingRight = this.wasGoingLeft = this.wasGoingUp = this.wasGoingDown = this.cantGoLeft = this.cantGoRight = this.cantGoUp = this.cantGoDown = false;
             }
 
-            game.physics.arcade.moveToObject(this.baseSprite, {x:this.actualTarget.x,y:this.actualTarget.y}, this.realSpeed)
-
+            game.physics.arcade.moveToObject(this.baseSprite, {x:this.actualTarget.x,y:this.actualTarget.y}, this.realSpeed);
         }
         else{
             this.nextStuckCheck = game.time.now + this.stuckCheckRate;
             this.goingX = this.goingY = 0;
             if(this.touching.up || this.touching.down){
-                this.wasGoingUp = this.wasGoingDown = this.movementDecidedY = false;
+                //this.wasGoingUp = this.wasGoingDown = this.movementDecidedY = false;
                 if(this.touching.up)
                     this.cantGoUp = true;
                 if(this.touching.down)
@@ -597,7 +622,7 @@ Character.prototype.updateBot = function(){
                     this.cantGoRight = true;
                 if(this.touching.left)
                     this.cantGoLeft = true;
-                this.wasGoingLeft = this.wasGoingRight = this.movementDecidedX = false;
+                //this.wasGoingLeft = this.wasGoingRight = this.movementDecidedX = false;
                 //console.log('stuck left or right',this.baseSprite.body.touching,this.cantGoUp,this.cantGoDown)
                 if(!this.touching.up && !this.touching.down && !this.wasGoingUp && !this.wasGoingDown && !this.cantGoDown && !this.cantGoUp){
                     //console.log('up and down clear');
@@ -656,12 +681,18 @@ Character.prototype.updateBot = function(){
     this.statusActual = {
         x:this.baseSprite.x,
         y:this.baseSprite.y,
-        rot:this.headSprite.rotation
+        rot:this.headSprite.rotation,
+        velX:Math.round(this.baseSprite.body.velocity.x),
+        velY:Math.round(this.baseSprite.body.velocity.y)
     }
     var statusChanged = false;
-    for(a in this.status)
-        if(this.statusActual[a] != this.status[a])
-            statusChanged = true;
+    //for(a in this.status)
+        //if(this.statusActual[a] != this.status[a])
+            //statusChanged = true;
+
+    if(this.statusActual.velX != this.status.velX || this.statusActual.velY != this.status.velY)
+        statusChanged = true;
+    //console.log(this.statusActual.velX,this.status.velX,this.statusActual.velX != this.status.velX,' | ',this.statusActual.velY,this.status.velY,this.statusActual.velY != this.status.velY)
 
     if (statusChanged)
         Server.updateBot(this.id,myId,this.statusActual)

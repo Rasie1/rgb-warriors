@@ -167,14 +167,15 @@ Server.exports.handshake = function(id,x,y,r,g,b,color)
 
 
 //be exposed to client side
-Server.exports.handleKeys = function (keys,x,y,r,g,b) {
+Server.exports.handleKeys = function (keys,x,y,r,g,b,id) {
     var conn = this.connection;
     var updatedClient = clients[conn.id];
 
     for (var c in clients)
     {
         var remote = clients[c].remote;
-        remote.updateState(updatedClient.id, keys);
+        if(c != id)
+        	remote.updateState(updatedClient.id, keys);
         //keep last known state so we can send it to new connected clients
         clients[c].laststate = keys;
         clients[c].lastX = x;

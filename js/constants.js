@@ -27,6 +27,11 @@ var maxSpellsLevel = 10
 var closeFightWeaponDamage = -20;
 var healingSpellHealingPercentage = 10;
 
+//Bots
+targetCheckRate = 200;
+actualTargetCheckRate = 3000;
+stuckCheckRate = 1000;
+
 //Assets
 function preload () {
     game.load.atlas('character', 'assets/tanks.png', 'assets/tanks.json');

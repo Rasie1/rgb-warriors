@@ -28,15 +28,6 @@ var EurecaClientSetup = function() {
 		console.log('Bot spawned ',id);
 		charactersList[id] = new Character(id, game, x, y, -1, -1, -1,false,true,owner);
 	}
-	Client.exports.updateBot = function(botId,status){
-		console.log(botId)
-		var bot = charactersList[botId]
-		if(!bot)
-			return;
-		bot.baseSprite.x = status.x;
-		bot.baseSprite.y = status.y;
-		bot.headSprite.rotation = status.rot;
-	}
 	Client.exports.kill = function(id)
 	{	
 		if (charactersList[id]) charactersList[id].kill();
@@ -206,18 +197,31 @@ var EurecaClientSetup = function() {
 	Client.exports.updateState = function(id, state)
 	{
 		if (charactersList[id])  {
-			charactersList[id].cursor = state;
+			charactersList[id].input = state;
 
 			charactersList[id].baseSprite.x = state.x;
 			charactersList[id].baseSprite.y = state.y;
 
-			if(id!=myId)
-				charactersList[id].fireType = state.fireType;
+
+			charactersList[id].fireType = state.fireType;
 
 			charactersList[id].headSprite.rotation = state.rot;
-			if(id!=myId)
-				charactersList[id].update();
+			charactersList[id].update();
 		}
+	}
+	Client.exports.updateBot = function(botId,status){
+		var bot = charactersList[botId]
+		if(!bot)
+			return;
+		if(status.x != bot.prevX || status.y != bot.prevY){
+			bot.baseSprite.x = status.x;
+			bot.baseSprite.y = status.y;
+			bot.prevX = status.x;
+			bot.prevY = status.y;
+		}
+		bot.baseSprite.body.velocity.x = status.velX;
+		bot.baseSprite.body.velocity.y = status.velY;
+		bot.headSprite.rotation = status.rot;
 	}
 	Client.exports.makeItem = function(x,y,elementForDrop,itemID) {
 		//console.log('making item');

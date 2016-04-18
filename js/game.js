@@ -396,22 +396,7 @@ function update () {
 			Server.updateHP(myId, +1);
 	}    
 
-    handleInput(player)
-    
-    player.input.left = cursors.left.isDown;
-    player.input.right = cursors.right.isDown;
-    player.input.up = cursors.up.isDown;
-    player.input.down = cursors.down.isDown;
 
-    player.input.w = cursors.w.isDown;
-    player.input.a = cursors.a.isDown;
-    player.input.s = cursors.s.isDown;
-    player.input.d = cursors.d.isDown;
-
-    player.tx = game.input.x + game.camera.x;
-    player.ty = game.input.y + game.camera.y;
-
-    player.touchInput = touchCursors
 
     //Update HUD
     //player.healthBar.setText("HP: " + player.health);
@@ -442,6 +427,8 @@ function update () {
                 if(charactersList[j].isBot && charactersList[j].owner == myId){
                     charactersList[j].updateBot()
                 }
+                else if(charactersList[j].isBot)
+                    charactersList[j].updateGeneric()
                 else
 				    charactersList[j].update();
 			}			
