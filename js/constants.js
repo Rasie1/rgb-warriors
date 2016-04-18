@@ -29,7 +29,7 @@ var healingSpellHealingPercentage = 10;
 
 //Bots
 targetCheckRate = 200;
-actualTargetCheckRate = 3000;
+actualTargetCheckRate = 1000;
 stuckCheckRate = 1000;
 
 //Assets

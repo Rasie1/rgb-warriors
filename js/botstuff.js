@@ -3,35 +3,34 @@ Character.prototype.updateBot = function(){
     if(!this.alive)
         return;
 
-    //Collisions
-    game.physics.arcade.collide(this.baseSprite, obstacles);
-    game.physics.arcade.collide( obstacles,this.bullets, bulletHit,null,this);
-    for (var c in charactersList){
-        game.physics.arcade.collide(charactersList[c].baseSprite, this.baseSprite);
-    }
-
-    this.statusChanged = false;
+    this.updateGenericBefore();
 
     //Aliases for touching
     for(t in this.baseSprite.body.touching){
         this.touching[t] = this.baseSprite.body.touching[t]
     }
-    //Apply animation (bots are always moving)
-    this.baseSprite.animations.play('move', 10, true); 
-    this.headSprite.animations.play('move', 10, true); 
 
     //Speed of the bot (no reason to have x and y separately tbh)
     //Also lower bots speed for testing
     this.realSpeed = this.SpeedX*this.speedMultiplier-50;
 
     //Remember previous state before updating
+    this.statusChanged = false;
     for(a in this.statusActual){
         this.status[a] = this.statusActual[a];
     }
 
-    this.chooseTarget();
+    //Decide on behavior
+    if (game.time.now > this.nextClosestTargetCheck){
+        this.nextClosestTargetCheck = game.time.now + this.targetCheckRate;
+        this.chooseTarget();
+        if(!this.closestTarget)
+            this.closestTarget = this;
+        this.findItem();
+    }
     this.faceTarget();
-    this.attackTarget();
+    if(this.canFire())
+        this.attackTarget();
     this.moveToDestination();
 
     //Update stuff that's the same for bots and players
@@ -57,64 +56,136 @@ Character.prototype.updateBot = function(){
 
 Character.prototype.initBot = function(){
     this.chooseTarget = function(){ //Choose closest target
-        if (game.time.now > this.nextClosestTargetCheck){
-            this.nextClosestTargetCheck = game.time.now + this.targetCheckRate;
-            this.closestTarget = null;
-            for(p in charactersList){
-                if(p != this.id){
-                    if(!this.closestTarget && charactersList[p].alive){
-                        this.closestTarget = charactersList[p];
-                    }
-                    else{
-                        if(
-                            charactersList[p].alive && 
-                            game.physics.arcade.distanceBetween(this.baseSprite, charactersList[p].baseSprite) < 
-                            game.physics.arcade.distanceBetween(this.baseSprite, this.closestTarget.baseSprite)
-                        ){
-                            this.closestTarget = charactersList[p];                
-                        }
+        this.closestTarget = null;
+        for(p in charactersList){
+            if(p != this.id){
+                if(!this.closestTarget && charactersList[p].alive){
+                    this.closestTarget = charactersList[p];
+                }
+                else{
+                    if(
+                        charactersList[p].alive && 
+                        game.physics.arcade.distanceBetween(this.baseSprite, charactersList[p].baseSprite) < 
+                        game.physics.arcade.distanceBetween(this.baseSprite, this.closestTarget.baseSprite)
+                    ){
+                        this.closestTarget = charactersList[p];                
                     }
                 }
-            };
+            }
         };
-
-        if(!this.closestTarget)
-            this.closestTarget = this;
+    };
+    this.findItem = function(){
+        this.newClosestItem = {};
+        this.newClosestItem.alive = false;
+        for(i in items){
+            if(items[i].alive){
+                if(!this.newClosestItem.alive){
+                    this.newClosestItem = items[i];
+                }
+                else{
+                    if(
+                        game.physics.arcade.distanceBetween(this.baseSprite, items[i]) < 
+                        game.physics.arcade.distanceBetween(this.baseSprite, this.newClosestItem)
+                    ){
+                        this.newClosestItem = items[i];                
+                    }
+                }
+            }
+        };
+        if(this.newClosestItem != this.closestItem){
+            var preferNewItem = false;
+            if(this.closestItem.alive){
+                if(
+                    game.physics.arcade.distanceBetween(this.closestTarget.baseSprite, this.newClosestItem) < 
+                    game.physics.arcade.distanceBetween(this.closestTarget.baseSprite, this.closestItem) ||
+                    game.physics.arcade.distanceBetween(this.baseSprite, this.closestItem) < 300
+                )
+                    preferNewItem = true;
+            }
+            else
+                preferNewItem = true;
+            if(preferNewItem)
+                this.closestItem = this.newClosestItem;
+        }
     };
     this.attackTarget = function(){ //Shoot at target if close enough
         if (game.physics.arcade.distanceBetween(this.baseSprite, this.closestTarget.baseSprite) < 500){
             var pointX = this.closestTarget.baseSprite.x-100+Math.floor(Math.random()*200);
             var pointY = this.closestTarget.baseSprite.y-100+Math.floor(Math.random()*200);
-            this.statusChanged = this.spells.Fireball.cast(this,{x:pointX,y:pointY});
+            //this.statusChanged = this.spells.Fireball.cast(this,{x:pointX,y:pointY});
         }
     };
-    this.faceTarget = function(){ //Set rotation to face closest target
-        this.headSprite.rotation = game.physics.arcade.angleBetween(
-            {x:this.baseSprite.x,y:this.baseSprite.y},
-            {x:this.closestTarget.baseSprite.x,y:this.closestTarget.baseSprite.y}
-        ) + 3.14/2;
+    this.faceTarget = function(){ //Set rotation to face closest target\destination
+        if(this.canFire() || !this.closestItem.alive){
+            this.headSprite.rotation = game.physics.arcade.angleBetween(
+                {x:this.baseSprite.x,y:this.baseSprite.y},
+                {x:this.closestTarget.baseSprite.x,y:this.closestTarget.baseSprite.y}
+            ) + 3.14/2;
+        }
+        else{
+            this.headSprite.rotation = game.physics.arcade.angleBetween(
+                {x:this.baseSprite.x,y:this.baseSprite.y},
+                {x:this.closestItem.x,y:this.closestItem.y}
+            ) + 3.14/2; 
+        }
     };
-    this.chooseDestination = function(){
-        //Check if target has been reached        
-        if(game.physics.arcade.distanceBetween(this.baseSprite, this.actualTarget) < 100)
-            this.targetReached = true;
+    this.closeInOnTarget = function(){ //Choose a destination based on target
+        if(game.physics.arcade.distanceBetween(this.baseSprite, this.closestTarget.baseSprite) > 500){
+            this.actualTarget.x = this.closestTarget.baseSprite.x;
+            this.actualTarget.y = this.closestTarget.baseSprite.y;
+        }
+        else{
+            this.actualTarget.x = this.closestTarget.baseSprite.x + Math.random()*500 - 250;
+            this.actualTarget.y = this.closestTarget.baseSprite.y + Math.random()*500 - 250;
+        }
+    };
+    this.goForItem = function(){ //Choose a destination based on item
+        this.actualTarget.x = this.closestItem.x;
+        this.actualTarget.y = this.closestItem.y;
+    };
 
-        //Choose a destination based on target
-        if(game.time.now > this.nextActualTargetCheck || this.targetReached){ 
-            this.targetReached = false;
+    this.itemCloserThanTarget = function(){
+        return 
+            game.physics.arcade.distanceBetween(this.closestTarget.baseSprite, this.closestItem) < 
+            game.physics.arcade.distanceBetween(this.closestTarget.baseSprite, this.baseSprite);
+    }
+    this.canFire = function(){
+        return (this.spellsAvailable[3] || this.spellsAvailable[4] || this.spellsAvailable[5])
+    }
+
+    this.chooseDestination = function(){ //Decide what the destination should be
+        //Check if target has been reached
+        if(game.physics.arcade.distanceBetween(this.baseSprite, this.actualTarget) < 100){
+            if(!this.closestItem.alive)
+                this.targetReached = true
+            else if(!this.itemCloserThanTarget)
+                this.targetReached = true;
+        };
+        if(game.time.now > this.nextActualTargetCheck || this.targetReached){
             this.nextActualTargetCheck = game.time.now + this.actualTargetCheckRate;
-            if(game.physics.arcade.distanceBetween(this.baseSprite, this.closestTarget.baseSprite) > 500){
-                this.actualTarget.x = this.closestTarget.baseSprite.x;
-                this.actualTarget.y = this.closestTarget.baseSprite.y;
+            this.targetReached = false;
+            //console.log(this.canFire())
+            if(this.canFire()){
+                if(this.closestItem.alive){
+                    if(this.itemCloserThanTarget())
+                        this.goForItem()
+                    else
+                        this.closeInOnTarget();
+                }
+                else
+                    this.closeInOnTarget();
             }
             else{
-                this.actualTarget.x = this.closestTarget.baseSprite.x + Math.random()*500 - 250;
-                this.actualTarget.y = this.closestTarget.baseSprite.y + Math.random()*500 - 250;
+                if(this.closestItem.alive)
+                    this.goForItem()
+                else
+                    this.closeInOnTarget();
             }
         }
-    }
-    this.moveToDestination = function(){
-        //Update destination and movement...
+
+    };
+    this.moveToDestination = function(){//Move to chosen destination
+        //Update movement...
         if (game.time.now > this.nextStuckCheck){
             this.chooseDestination();
             //Move the bot
@@ -244,5 +315,15 @@ Character.prototype.initBot = function(){
             this.baseSprite.body.velocity.x = this.goingX;
             this.baseSprite.body.velocity.y = this.goingY;
         }
-    }
+    };
+}
+
+Character.prototype.pickUpItemBot = function(itemSprite){
+    itemSprite.kill();
+    itemSprite.shadow.kill();
+    Server.pickUpItem(itemSprite.id,itemSprite.element,this.id);
+
+    this.targetReached = true;
+    this.findItem();
+    this.chooseDestination();
 }

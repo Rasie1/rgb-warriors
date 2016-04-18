@@ -85,6 +85,11 @@ Character = function (index, game, x, y, r, g, b,color,isBot,owner) {
     this.actualTargetCheckRate = actualTargetCheckRate;
     this.targetReached = false;
 
+    this.closestItem = {};
+    this.closestItem.alive = false;
+    this.newClosestItem = {};
+    this.newClosestItem.alive = false;
+
     this.goingX = 0;
     this.goingY = 0;
 
@@ -301,10 +306,8 @@ Character.prototype.recreate = function (x,y) {
 
 Character.prototype.update = function() {
 
-    if(!this.alive)
-        return;
-
     this.updateGenericBefore();
+    
     for(a in this.input){
         this.cursor[a] = this.input[a];
     }
@@ -366,8 +369,8 @@ Character.prototype.update = function() {
                 
         }
     }      
-
-    var shouldAnim = false
+    if(!this.alive)
+        return;
 
     //Left and right movement
     var up = false;
@@ -401,14 +404,12 @@ Character.prototype.update = function() {
         = this.baseSprite.body.velocity.x 
         = -speed;
         this.baseSprite.rotation = -3.14;
-        shouldAnim = true
     }
     else if (right && this.canMove) {
         this.headSprite.body.velocity.x 
         = this.baseSprite.body.velocity.x 
         = speed;
         this.baseSprite.rotation = 0;
-        shouldAnim = true
     }
     else
     {
@@ -423,14 +424,12 @@ Character.prototype.update = function() {
         = this.baseSprite.body.velocity.y 
         = -speed;
         this.baseSprite.rotation = this.baseSprite.rotation==-3.14 ? -3*3.14/4 : this.baseSprite.rotation==0 ? -3.14/4 : -3.14/2
-        shouldAnim = true
     }
     else if (down && this.canMove) {
         this.headSprite.body.velocity.y 
         = this.baseSprite.body.velocity.y 
         = speed;
         this.baseSprite.rotation = this.baseSprite.rotation==-3.14 ? 3*3.14/4 : this.baseSprite.rotation==0 ? 3.14/4 : 3.14/2
-        shouldAnim = true
     }
     else
     {
@@ -439,16 +438,6 @@ Character.prototype.update = function() {
         = 0
     }
 
-    //Player animation
-    if (shouldAnim) {
-        this.baseSprite.animations.play('move', 10, true); 
-        this.headSprite.animations.play('move', 10, true); 
-    }
-    else
-    {
-        this.baseSprite.animations.stop();
-        this.headSprite.animations.stop();
-    }
 
     //Firing
     if (game.input.activePointer.isDown && this.id == myId)
@@ -486,8 +475,41 @@ Character.prototype.updateGenericBefore = function(){
     for (var c in charactersList){
         game.physics.arcade.collide(charactersList[c].baseSprite, this.baseSprite);
     }
+
+    //Items collision
+    if(this.id == myId){
+        for (var i in items)
+            game.physics.arcade.overlap(
+                items[i],
+                this.baseSprite, 
+                this.pickUpItem, 
+                null, 
+                this
+            )
+    }
+    else if(this.isBot && this.owner == myId){
+
+        for (var i in items)
+            game.physics.arcade.overlap(
+                items[i],
+                this.baseSprite, 
+                this.pickUpItemBot, 
+                null, 
+                this
+            )
+    }
 }
 Character.prototype.updateGenericAfter = function(){
+    //Apply animation
+    if(this.baseSprite.body.velocity.x != 0 || this.baseSprite.body.velocity.y != 0){
+        this.baseSprite.animations.play('move', 10, true); 
+        this.headSprite.animations.play('move', 10, true); 
+    }
+    else{
+        this.baseSprite.animations.stop();
+        this.headSprite.animations.stop();
+    }
+
     //Set player position
     this.headSprite.x
     = this.weapon.x
@@ -595,139 +617,137 @@ Character.prototype.recolorAura = function() {
 
 Character.prototype.pickUpItem = function(itemSprite) {
 
-    if(this.id == myId){
-        itemSprite.kill();
-        itemSprite.shadow.kill();
-        this.inventory.push(itemSprite.element);
-        this.privateHealth += 3;    //Heal on item pickup
+    itemSprite.kill();
+    itemSprite.shadow.kill();
+    this.inventory.push(itemSprite.element);
+    this.privateHealth += 3;    //Heal on item pickup
 
-        //Send information to server if local player
-        Server.pickUpItem(itemSprite.id,itemSprite.element,myId);
+    //Send information to server if local player
+    Server.pickUpItem(itemSprite.id,itemSprite.element,myId);
 
-        //Add a new spell or upgrade already existing
-        this.spellsAddSpell = function(spellId,alias){
-            if(this.spells[alias].spellPower==0){
-                if(spellId > 2){
-                    this.fireType=spellId;            
-                    touchControls.moveHighlight(spellId);
-                }
-                touchControls.spellPowerCounter[spellId].alpha = 1;
+    //Add a new spell or upgrade already existing
+    this.spellsAddSpell = function(spellId,alias){
+        if(this.spells[alias].spellPower==0){
+            if(spellId > 2){
+                this.fireType=spellId;            
+                touchControls.moveHighlight(spellId);
             }
-            else{
-                touchControls.spellPowerCounter[spellId].setText('lvl '+this.spells[alias].spellPower);
-                touchControls.levelup[spellId].alpha = 1;
-                game.add.tween(touchControls.levelup[spellId]).to( { alpha: 0 }, 500, Phaser.Easing.Linear.None, true); 
-                this.spells[alias].levelup(); 
-            }
-            this.spells[alias].spellPower = Phaser.Math.min(maxSpellsLevel, this.spells[alias].spellPower + 1);
-            this.spellsAvailable[spellId] = true;
-            touchControls.buttons[spellId].reset();
-            touchControls.buttonMapping[spellId].alpha = 1;
-            touchControls.buttons[spellId].alpha = 1;
-        };
-
-        //Handles inventory when picking up items
-        function inventorySwitch(spellsRegEx,frame,reminderFrame){
-            for(i=0;i<touchControls.buttons.length;i++){
-                if(spellsRegEx.test(i)){
-                    if(touchControls.buttons[i].alpha != 1){
-                        touchControls.buttons[i].reset();
-                        touchControls.buttons[i].alpha = 0.3;
-                    }
-                    touchControls.elementReminder[i].reset();
-                    if(typeof reminderFrame == 'boolean' && reminderFrame)                       
-                        if(i==1)
-                            touchControls.elementReminder[i].frame = touchControls.frames[i][0]
-                        else
-                            touchControls.elementReminder[i].frame = touchControls.frames[i][1]
-                    else
-                        touchControls.elementReminder[i].frame = touchControls.frames[i][reminderFrame]
-                }
-            }
-            inventoryItem.reset();
-            inventoryItem.frame = frame;
-        }
-    
-        if(this.inventory.length>=2){
-            switch(this.inventory[0]){
-                case 1:
-                    switch(this.inventory[1]){
-                        case 1:
-                            this.spellsAddSpell(3,'Fireball')
-                            break;
-                        case 2:
-                            this.spellsAddSpell(1,'Leap')
-                            break;
-                        case 3:
-                            this.spellsAddSpell(5,'Vape')
-                            break;
-                    };
-                    break;
-                case 2:
-                    switch(this.inventory[1]){
-                        case 1:
-                            this.spellsAddSpell(1,'Leap')
-                            break;
-                        case 2:
-                            this.spellsAddSpell(2,'Spike')
-                            break;
-                        case 3:
-                            this.spellsAddSpell(0,'HealingSpell')
-                            break;
-                    };
-                    break;
-                case 3:
-                    switch(this.inventory[1]){
-                        case 1:
-                            this.spellsAddSpell(5,'Vape')
-                            break;
-                        case 2:
-                            this.spellsAddSpell(0,'HealingSpell')
-                            break;
-                        case 3:
-                            this.spellsAddSpell(4,'ColdSphere')
-                            break;
-                    };
-                    break;
-            };
-            inventoryItem.kill();
-            this.inventory=[];
-
-            //Reset inventory helper
-            for(i=0;i<touchControls.buttons.length;i++){
-                if(i!=6)
-                    touchControls.elementReminder[i].kill();
-                if(touchControls.buttons[i].alpha == 0.3){
-                    touchControls.buttons[i].kill();
-                    touchControls.buttons[i].alpha = 0;
-                }
-            }
+            touchControls.spellPowerCounter[spellId].alpha = 1;
         }
         else{
-            switch (itemSprite.element) {
-                case 1:
-                    this.RCounter++;
-                    inventorySwitch(/[3,1,5]/,0,1);
-                    break;
-                case 2:
-                    this.GCounter++;
-                    inventorySwitch(/[0,1,2]/,1,true);
-                    break;
-                case 3:
-                    this.BCounter++;
-                    inventorySwitch(/[0,4,5]/,2,0);
-                    break ;
+            touchControls.spellPowerCounter[spellId].setText('lvl '+this.spells[alias].spellPower);
+            touchControls.levelup[spellId].alpha = 1;
+            game.add.tween(touchControls.levelup[spellId]).to( { alpha: 0 }, 500, Phaser.Easing.Linear.None, true); 
+            this.spells[alias].levelup(); 
+        }
+        this.spells[alias].spellPower = Phaser.Math.min(maxSpellsLevel, this.spells[alias].spellPower + 1);
+        this.spellsAvailable[spellId] = true;
+        touchControls.buttons[spellId].reset();
+        touchControls.buttonMapping[spellId].alpha = 1;
+        touchControls.buttons[spellId].alpha = 1;
+    };
+
+    //Handles inventory when picking up items
+    function inventorySwitch(spellsRegEx,frame,reminderFrame){
+        for(i=0;i<touchControls.buttons.length;i++){
+            if(spellsRegEx.test(i)){
+                if(touchControls.buttons[i].alpha != 1){
+                    touchControls.buttons[i].reset();
+                    touchControls.buttons[i].alpha = 0.3;
+                }
+                touchControls.elementReminder[i].reset();
+                if(typeof reminderFrame == 'boolean' && reminderFrame)                       
+                    if(i==1)
+                        touchControls.elementReminder[i].frame = touchControls.frames[i][0]
+                    else
+                        touchControls.elementReminder[i].frame = touchControls.frames[i][1]
+                else
+                    touchControls.elementReminder[i].frame = touchControls.frames[i][reminderFrame]
             }
         }
-
-        //Elements counter for Aura
-        var counter = this.RCounter+this.GCounter+this.BCounter
-        if (counter <= 20) {
-            this.SpeedX = playerSpeedX - counter*5
-            this.SpeedY = playerSpeedY - counter*5
-        }
-        this.recolorAura();
+        inventoryItem.reset();
+        inventoryItem.frame = frame;
     }
+
+    if(this.inventory.length>=2){
+        switch(this.inventory[0]){
+            case 1:
+                switch(this.inventory[1]){
+                    case 1:
+                        this.spellsAddSpell(3,'Fireball')
+                        break;
+                    case 2:
+                        this.spellsAddSpell(1,'Leap')
+                        break;
+                    case 3:
+                        this.spellsAddSpell(5,'Vape')
+                        break;
+                };
+                break;
+            case 2:
+                switch(this.inventory[1]){
+                    case 1:
+                        this.spellsAddSpell(1,'Leap')
+                        break;
+                    case 2:
+                        this.spellsAddSpell(2,'Spike')
+                        break;
+                    case 3:
+                        this.spellsAddSpell(0,'HealingSpell')
+                        break;
+                };
+                break;
+            case 3:
+                switch(this.inventory[1]){
+                    case 1:
+                        this.spellsAddSpell(5,'Vape')
+                        break;
+                    case 2:
+                        this.spellsAddSpell(0,'HealingSpell')
+                        break;
+                    case 3:
+                        this.spellsAddSpell(4,'ColdSphere')
+                        break;
+                };
+                break;
+        };
+        inventoryItem.kill();
+        this.inventory=[];
+
+        //Reset inventory helper
+        for(i=0;i<touchControls.buttons.length;i++){
+            if(i!=6)
+                touchControls.elementReminder[i].kill();
+            if(touchControls.buttons[i].alpha == 0.3){
+                touchControls.buttons[i].kill();
+                touchControls.buttons[i].alpha = 0;
+            }
+        }
+    }
+    else{
+        switch (itemSprite.element) {
+            case 1:
+                this.RCounter++;
+                inventorySwitch(/[3,1,5]/,0,1);
+                break;
+            case 2:
+                this.GCounter++;
+                inventorySwitch(/[0,1,2]/,1,true);
+                break;
+            case 3:
+                this.BCounter++;
+                inventorySwitch(/[0,4,5]/,2,0);
+                break ;
+        }
+    }
+
+    //Elements counter for Aura
+    var counter = this.RCounter+this.GCounter+this.BCounter
+    if (counter <= 20) {
+        this.SpeedX = playerSpeedX - counter*5
+        this.SpeedY = playerSpeedY - counter*5
+    }
+    this.recolorAura();
 }
 
 Character.prototype.mouseWheel = function(d){

@@ -485,5 +485,8 @@ for(i=0;i<10;i++)
 setInterval(function(){
 	spawnAnItem();
 	spawnAnItem();
+	if(itemsList.length<5)
+		for(i=0;i<5;i++)
+			spawnAnItem()
 },5000)
 server.listen(8000, '0.0.0.0');

@@ -15,7 +15,7 @@ Spell.prototype.castProjectile = function(character,bulletType,bulletFrame,bulle
         character.nextFire = game.time.now + character.fireRate;
         this.displayCooldowns(character,spellId);
         if(!character.isBot)
-            Server.handleKeys(character.input,character.baseSprite.x,character.baseSprite.y,character.RCounter,character.GCounter,character.BCounter,myId);
+            Server.handleKeys(character.input,character.baseSprite.x,character.baseSprite.y,character.RCounter,character.GCounter,character.BCounter,character.id);
         Server.castProjectile(character.id,bulletType,bulletFrame,bulletSpeed,bulletDamage,spellPowerBoost,spellId,this.spellPower,target.x,target.y);
         return true
     }
@@ -38,32 +38,6 @@ Spell.prototype.displayCooldowns = function(character,spellId){
 Spell.prototype.levelup = function(){
 
 }
-
-// Healing Spell
-function HealingSpell() {
-    Spell.call(this);
-    this.cooldown = 2000;
-    this.healingSpellHealing = 10;
-    this.visualEffectSprite = game.add.sprite(0, 0, 'yellow-jolt')
-    this.visualEffectSprite.animations.add('cast');
-    this.visualEffectSprite.anchor.set(0.5, 0.5);
-    this.visualEffectSprite.kill()
-}
-
-HealingSpell.prototype = Object.create(Spell.prototype);
-
-HealingSpell.prototype.constructor = HealingSpell
-
-HealingSpell.prototype.cast = function(character){
-    if (game.time.now > this.nextFire && game.time.now > character.nextFire){
-        character.mouseAlreadyUpdated = false;
-        this.nextFire = game.time.now + this.cooldown;
-        character.nextFire = game.time.now + character.fireRate; 
-        this.displayCooldowns(character,0);
-
-        Server.updateHP(character.id, this.healingSpellHealing + 5 * this.spellPower,null,true);
-    }
-};
 
 
 // Fireball
@@ -110,6 +84,33 @@ Vape.prototype = Object.create(Spell.prototype);
 Vape.prototype.constructor = Vape;
 Vape.prototype.cast = function(character,target){
     return this.castProjectile(character,6,1,this.bulletSpeed,-5,1,5,target)
+};
+
+
+// Healing Spell
+function HealingSpell() {
+    Spell.call(this);
+    this.cooldown = 2000;
+    this.healingSpellHealing = 10;
+    this.visualEffectSprite = game.add.sprite(0, 0, 'yellow-jolt')
+    this.visualEffectSprite.animations.add('cast');
+    this.visualEffectSprite.anchor.set(0.5, 0.5);
+    this.visualEffectSprite.kill()
+}
+
+HealingSpell.prototype = Object.create(Spell.prototype);
+
+HealingSpell.prototype.constructor = HealingSpell
+
+HealingSpell.prototype.cast = function(character){
+    if (game.time.now > this.nextFire && game.time.now > character.nextFire){
+        character.mouseAlreadyUpdated = false;
+        this.nextFire = game.time.now + this.cooldown;
+        character.nextFire = game.time.now + character.fireRate; 
+        this.displayCooldowns(character,0);
+
+        Server.updateHP(character.id, this.healingSpellHealing + 5 * this.spellPower,null,true);
+    }
 };
 
 // Leap
@@ -221,7 +222,8 @@ CloseFighting.prototype.cast = function(character,target)
         this.nextFire = game.time.now + this.cooldown;
         character.nextFire = game.time.now + character.fireRate; 
         this.displayCooldowns(character,6);
-        Server.handleKeys(character.input,character.baseSprite.x,character.baseSprite.y,character.RCounter,character.GCounter,character.BCounter,myId);
+        if(!character.isBot)
+            Server.handleKeys(character.input,character.baseSprite.x,character.baseSprite.y,character.RCounter,character.GCounter,character.BCounter,character.id);
     	Server.castCloseAttack(character.id, {x: target.x,
         									y: target.y});
         return true
@@ -235,7 +237,7 @@ function bulletHit (victim, bullet) {
     bullet.kill();
     if(((this.id == myId && victim.tag == 'enemy') || (this.isBot && this.owner == myId)) && bullet.damage!=0){
         if(victim.health>0) {
-            Server.updateHP(victim.id, bullet.damage - bullet.spellPowerBoost, player.id);
+            Server.updateHP(victim.id, bullet.damage - bullet.spellPowerBoost, this.id);
         }
     }
     if(bullet.type==3){
@@ -256,5 +258,5 @@ function bulletHit (victim, bullet) {
 //Vape cloud hit
 function vapeHit (victim, vapelosion,spellPowerBoost) {
    if (victim.health>0 && ((this.id == myId) || (this.isBot && this.owner == myId)))
-        Server.updateHP(victim.id, -0.5 - 0.1*this.spells.Vape.spellPower, player.id);
+        Server.updateHP(victim.id, -0.5 - 0.1*this.spells.Vape.spellPower, this.id);
 }

@@ -46,9 +46,9 @@ var EurecaClientSetup = function() {
 			}
 		}
 	}
-	Client.exports.updateHP = function(id, difHP, attackerId,playAnim)
+	Client.exports.updateHP = function(victimId, difHP, attackerId, playAnim)
 	{
-		var target = charactersList[id];
+		var target = charactersList[victimId];
 		if (target && target.health >= 0) {
 			//Heal effect
 			if(playAnim){
@@ -63,14 +63,34 @@ var EurecaClientSetup = function() {
 			if (target.hpBar != null)
 				target.hpBar.scale.setTo(Phaser.Math.max(target.health/target.privateHealth,0), 1);
 			if (target.health <= 0 &&  !target.hasDied) {
-				target.hasDied = true
-				if (id == myId) player.deaths++
-				if (attackerId == myId && id != myId) player.kills++;
-				if (attackerId == myId && id == myId) player.kills--;
+				target.hasDied = true;
+
+				if (victimId == myId || (target.isBot && target.owner == myId)) {
+					Server.killPlayer(victimId);
+				}
+
+				if (victimId == myId) player.deaths++;
+				if(charactersList[victimId].isBot && myId == charactersList[attackerId].owner)
+						charactersList[victimId].deaths++;
+				if(!charactersList[attackerId].isBot){					
+					if (attackerId == myId && victimId != myId) player.kills++;
+					if (attackerId == myId && victimId == myId) player.kills--;
+				}
+				else{
+					if(myId == charactersList[attackerId].owner){
+						for(c in charactersList){
+							if (attackerId == c && victimId != c) charactersList[c].kills++;
+							if (attackerId == c && victimId == c) charactersList[c].kills--;
+						}
+					}
+				}
+				console.log('---Scoreboard---');
+				for(a in charactersList){
+					console.log(a,': ',charactersList[a].kills,'/',charactersList[a].deaths)
+				}
+				console.log('----------------');
 			}
-			if (target.health <= 0 && (id == myId || (target.isBot && target.owner == myId))) {
-				Server.killPlayer(id);
-			}
+
 		}
 	}
 	Client.exports.castProjectile = function(characterId,bulletType,bulletFrame,bulletSpeed,bulletDamage,spellPowerBoost,spellId,spellPower,tx,ty){

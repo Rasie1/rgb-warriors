@@ -377,17 +377,6 @@ function update () {
     //Scroll ground
     //land.tilePosition.x = -game.camera.x;
     //land.tilePosition.y = -game.camera.y; 
-    
-    //Items collision
-    for (var j in charactersList)
-		for (var i in items)
-            game.physics.arcade.overlap(
-                items[i],
-                charactersList[j].baseSprite, 
-                function(a){charactersList[j].pickUpItem(items[i])}, 
-                null, 
-                this
-            )
 
     //Interval for health regen
     if (game.time.now > HPTimer){
