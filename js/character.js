@@ -300,6 +300,11 @@ Character.prototype.recreate = function (x,y) {
 }
 
 Character.prototype.update = function() {
+
+    if(!this.alive)
+        return;
+
+    this.updateGenericBefore();
     for(a in this.input){
         this.cursor[a] = this.input[a];
     }

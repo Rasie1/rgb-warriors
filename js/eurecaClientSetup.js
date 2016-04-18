@@ -193,7 +193,8 @@ var EurecaClientSetup = function() {
 		charactersList[i] = tnk;
 	}
 	Client.exports.respawnPlayer = function(id,x,y){
-		charactersList[id].recreate(x,y)
+		if(charactersList[id])
+			charactersList[id].recreate(x,y)
 	}
 	
 	Client.exports.updateState = function(id, state)
