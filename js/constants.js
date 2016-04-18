@@ -30,7 +30,8 @@ var healingSpellHealingPercentage = 10;
 //Bots
 targetCheckRate = 200;
 actualTargetCheckRate = 1000;
-stuckCheckRate = 1000;
+stuckCheckRate = 500;
+maxStrayItemDistance = 300;
 
 //Assets
 function preload () {

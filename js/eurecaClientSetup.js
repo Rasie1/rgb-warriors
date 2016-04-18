@@ -129,7 +129,7 @@ var EurecaClientSetup = function() {
 		attacker.weapon.lifespan = 100;
 		attacker.weapon.angle = attacker.headSprite.angle;
 
-		if (player.id == id)
+		if (myId == id || charactersList[id].owner == myId)
 			for (var i in charactersList)
 				if (i != id) {
 				var a = new Phaser.Rectangle(weapon.x - 32, weapon.y - 32, 32, 32);
@@ -137,7 +137,7 @@ var EurecaClientSetup = function() {
 											 charactersList[i].baseSprite.y - 32,
 											 64, 64);
 				if (Phaser.Rectangle.intersects(a, b))
-					Server.updateHP(charactersList[i].baseSprite.id, closeFightWeaponDamage,myId);
+					Server.updateHP(charactersList[i].baseSprite.id, closeFightWeaponDamage,id);
 			}
 	}
 

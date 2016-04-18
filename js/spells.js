@@ -235,7 +235,7 @@ CloseFighting.prototype.cast = function(character,target)
 //Projectiles hit
 function bulletHit (victim, bullet) {
     bullet.kill();
-    if(((this.id == myId && victim.tag == 'enemy') || (this.isBot && this.owner == myId)) && bullet.damage!=0){
+    if(((this.id == myId && victim.tag == 'enemy') || (this.isBot && this.owner == myId && (victim.tag == 'enemy' || victim.tag == 'me'))) && bullet.damage!=0 ){
         if(victim.health>0) {
             Server.updateHP(victim.id, bullet.damage - bullet.spellPowerBoost, this.id);
         }
@@ -244,7 +244,7 @@ function bulletHit (victim, bullet) {
 
     }
     if(bullet.type==5){
-        if((this.id == myId && victim.tag == 'enemy') || (this.isBot && this.owner == myId))
+        if(((this.id == myId && victim.tag == 'enemy') || (this.isBot && this.owner == myId && (victim.tag == 'enemy' || victim.tag == 'me'))))
             Server.castFreeze(victim.id, 3)
     }
     if(bullet.type==6){
@@ -257,6 +257,6 @@ function bulletHit (victim, bullet) {
 
 //Vape cloud hit
 function vapeHit (victim, vapelosion,spellPowerBoost) {
-   if (victim.health>0 && ((this.id == myId) || (this.isBot && this.owner == myId)))
+   if ((victim.health>0 && ((this.id == myId) || (this.isBot && this.owner == myId))) && (victim.tag == 'enemy' || victim.tag == 'me'))
         Server.updateHP(victim.id, -0.5 - 0.1*this.spells.Vape.spellPower, this.id);
 }

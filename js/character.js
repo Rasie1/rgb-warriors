@@ -64,6 +64,7 @@ Character = function (index, game, x, y, r, g, b,color,isBot,owner) {
         var owner = null;
     this.isBot = isBot;
     this.owner = owner;
+    this.lastUpdate = 0;
     this.touching  = {};
 
     this.movementDecidedX = false;
@@ -73,7 +74,7 @@ Character = function (index, game, x, y, r, g, b,color,isBot,owner) {
     this.wasGoingUp = false;
     this.wasGoingDown = false;
 
-    this.failSafeCounter = 30;
+    this.failSafeCounter = 10;
 
     this.nextClosestTargetCheck = 0;
     this.targetCheckRate = targetCheckRate;
@@ -185,7 +186,9 @@ Character = function (index, game, x, y, r, g, b,color,isBot,owner) {
     this.id = index;
     this.baseSprite.id = index;
     if(this.id != myId)
-        this.baseSprite.tag = 'enemy';
+        this.baseSprite.tag = 'enemy'
+    else
+        this.baseSprite.tag = 'me';
     //console.log(this.tag)
 
     //Body for teleport checks
@@ -307,7 +310,7 @@ Character.prototype.recreate = function (x,y) {
 Character.prototype.update = function() {
 
     this.updateGenericBefore();
-    
+
     for(a in this.input){
         this.cursor[a] = this.input[a];
     }
@@ -623,32 +626,40 @@ Character.prototype.pickUpItem = function(itemSprite) {
     this.privateHealth += 3;    //Heal on item pickup
 
     //Send information to server if local player
-    Server.pickUpItem(itemSprite.id,itemSprite.element,myId);
+    Server.pickUpItem(itemSprite.id,itemSprite.element,this.id);
 
     //Add a new spell or upgrade already existing
     this.spellsAddSpell = function(spellId,alias){
         if(this.spells[alias].spellPower==0){
             if(spellId > 2){
-                this.fireType=spellId;            
-                touchControls.moveHighlight(spellId);
+                this.fireType=spellId;       
+                if(!this.isBot)     
+                    touchControls.moveHighlight(spellId);
             }
-            touchControls.spellPowerCounter[spellId].alpha = 1;
+            if(!this.isBot)
+                touchControls.spellPowerCounter[spellId].alpha = 1;
         }
         else{
-            touchControls.spellPowerCounter[spellId].setText('lvl '+this.spells[alias].spellPower);
-            touchControls.levelup[spellId].alpha = 1;
-            game.add.tween(touchControls.levelup[spellId]).to( { alpha: 0 }, 500, Phaser.Easing.Linear.None, true); 
+            if(!this.isBot){
+                touchControls.spellPowerCounter[spellId].setText('lvl '+this.spells[alias].spellPower);
+                touchControls.levelup[spellId].alpha = 1;
+                game.add.tween(touchControls.levelup[spellId]).to( { alpha: 0 }, 500, Phaser.Easing.Linear.None, true); 
+            }
             this.spells[alias].levelup(); 
         }
         this.spells[alias].spellPower = Phaser.Math.min(maxSpellsLevel, this.spells[alias].spellPower + 1);
         this.spellsAvailable[spellId] = true;
-        touchControls.buttons[spellId].reset();
-        touchControls.buttonMapping[spellId].alpha = 1;
-        touchControls.buttons[spellId].alpha = 1;
+        if(!this.isBot){
+            touchControls.buttons[spellId].reset();
+            touchControls.buttonMapping[spellId].alpha = 1;
+            touchControls.buttons[spellId].alpha = 1;
+        }
     };
 
     //Handles inventory when picking up items
-    function inventorySwitch(spellsRegEx,frame,reminderFrame){
+    function inventorySwitch(spellsRegEx,frame,reminderFrame,isBot){
+        if(isBot)
+            return;
         for(i=0;i<touchControls.buttons.length;i++){
             if(spellsRegEx.test(i)){
                 if(touchControls.buttons[i].alpha != 1){
@@ -715,12 +726,14 @@ Character.prototype.pickUpItem = function(itemSprite) {
         this.inventory=[];
 
         //Reset inventory helper
-        for(i=0;i<touchControls.buttons.length;i++){
-            if(i!=6)
-                touchControls.elementReminder[i].kill();
-            if(touchControls.buttons[i].alpha == 0.3){
-                touchControls.buttons[i].kill();
-                touchControls.buttons[i].alpha = 0;
+        if(!this.isBot){
+            for(i=0;i<touchControls.buttons.length;i++){
+                if(i!=6)
+                    touchControls.elementReminder[i].kill();
+                if(touchControls.buttons[i].alpha == 0.3){
+                    touchControls.buttons[i].kill();
+                    touchControls.buttons[i].alpha = 0;
+                }
             }
         }
     }
@@ -728,15 +741,15 @@ Character.prototype.pickUpItem = function(itemSprite) {
         switch (itemSprite.element) {
             case 1:
                 this.RCounter++;
-                inventorySwitch(/[3,1,5]/,0,1);
+                inventorySwitch(/[3,1,5]/,0,1,this.isBot);
                 break;
             case 2:
                 this.GCounter++;
-                inventorySwitch(/[0,1,2]/,1,true);
+                inventorySwitch(/[0,1,2]/,1,true,this.isBot);
                 break;
             case 3:
                 this.BCounter++;
-                inventorySwitch(/[0,4,5]/,2,0);
+                inventorySwitch(/[0,4,5]/,2,0,this.isBot);
                 break ;
         }
     }

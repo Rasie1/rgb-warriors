@@ -31,7 +31,7 @@ Character.prototype.updateBot = function(){
         this.findItem();
     }
     this.faceTarget();
-    if(this.canFire())
+    if(this.canFire() || this.inMeleeRange())
         this.attackTarget();
     this.moveToDestination();
 
@@ -52,12 +52,16 @@ Character.prototype.updateBot = function(){
         this.statusChanged = true;
 
     //Send bot's state to the server if needed
-    if (this.statusChanged)
+    if(game.time.now - this.lastUpdate > 5000)
+        this.statusChanged = true;
+    if (this.statusChanged){
+        this.lastUpdate = game.time.now;
         Server.updateBot(this.id,myId,this.statusActual)
+    }
 }
 
 Character.prototype.initBot = function(){
-    this.chooseTarget = function(){ //Choose closest target
+    this.chooseTarget = function(){ //Find closest target
         this.closestTarget = null;
         for(p in charactersList){
             if(p != this.id){
@@ -76,7 +80,7 @@ Character.prototype.initBot = function(){
             }
         };
     };
-    this.findItem = function(){
+    this.findItem = function(){//Find closest item
         this.newClosestItem = {};
         this.newClosestItem.alive = false;
         for(i in items){
@@ -100,7 +104,7 @@ Character.prototype.initBot = function(){
                 if(
                     game.physics.arcade.distanceBetween(this.closestTarget.baseSprite, this.newClosestItem) < 
                     game.physics.arcade.distanceBetween(this.closestTarget.baseSprite, this.closestItem) ||
-                    game.physics.arcade.distanceBetween(this.baseSprite, this.closestItem) < 300
+                    game.physics.arcade.distanceBetween(this.baseSprite, this.closestItem) < maxStrayItemDistance
                 )
                     preferNewItem = true;
             }
@@ -111,14 +115,24 @@ Character.prototype.initBot = function(){
         }
     };
     this.attackTarget = function(){ //Shoot at target if close enough
-        if (game.physics.arcade.distanceBetween(this.baseSprite, this.closestTarget.baseSprite) < 500){
-            var pointX = this.closestTarget.baseSprite.x-100+Math.floor(Math.random()*200);
-            var pointY = this.closestTarget.baseSprite.y-100+Math.floor(Math.random()*200);
-            //this.statusChanged = this.spells.Fireball.cast(this,{x:pointX,y:pointY});
+        if(this.inMeleeRange()){
+            this.faceTarget(true);
+            this.spells.CloseFighting.cast(this,{x: this.closestTarget.baseSprite.x,y: this.closestTarget.baseSprite.y});
+        }
+        else{
+            if (game.physics.arcade.distanceBetween(this.baseSprite, this.closestTarget.baseSprite) < 500){
+                var pointX = this.closestTarget.baseSprite.x-100+Math.floor(Math.random()*200);
+                var pointY = this.closestTarget.baseSprite.y-100+Math.floor(Math.random()*200);
+                this.statusChanged = this.fire({x:pointX,y:pointY},5);
+            }
+            else{
+                if(this.spellsAvailable[0])
+                    this.spells.HealingSpell.cast(this)
+            }
         }
     };
-    this.faceTarget = function(){ //Set rotation to face closest target\destination
-        if(this.canFire() || !this.closestItem.alive){
+    this.faceTarget = function(mustFaceTarget){ //Set rotation to face closest target\destination
+        if(this.canFire() || !this.closestItem.alive || mustFaceTarget){
             this.headSprite.rotation = game.physics.arcade.angleBetween(
                 {x:this.baseSprite.x,y:this.baseSprite.y},
                 {x:this.closestTarget.baseSprite.x,y:this.closestTarget.baseSprite.y}
@@ -153,6 +167,9 @@ Character.prototype.initBot = function(){
     }
     this.canFire = function(){
         return (this.spellsAvailable[3] || this.spellsAvailable[4] || this.spellsAvailable[5])
+    }
+    this.inMeleeRange = function(){
+        return game.physics.arcade.distanceBetween(this.baseSprite, this.closestTarget.baseSprite) < 100
     }
 
     this.chooseDestination = function(){ //Decide what the destination should be
@@ -192,10 +209,10 @@ Character.prototype.initBot = function(){
             this.chooseDestination();
             //Move the bot
             if(this.touching.none){
-                //Hack to ignore frames in which the game tells us the bot isn't stuck when it in fact is
+                //Hack to prevent bots from getting stuck on the same obstacle over and over again
                 this.failSafeCounter--;
                 if(this.failSafeCounter <= 0){
-                    this.failSafeCounter = 30;
+                    this.failSafeCounter = 10;
                     this.movementDecidedX = this.movementDecidedY = this.wasGoingRight = this.wasGoingLeft = this.wasGoingUp = this.wasGoingDown = this.cantGoLeft = this.cantGoRight = this.cantGoUp = this.cantGoDown = false;
                 }
                 game.physics.arcade.moveToObject(this.baseSprite, {x:this.actualTarget.x,y:this.actualTarget.y}, this.realSpeed);
@@ -321,10 +338,7 @@ Character.prototype.initBot = function(){
 }
 
 Character.prototype.pickUpItemBot = function(itemSprite){
-    itemSprite.kill();
-    itemSprite.shadow.kill();
-    Server.pickUpItem(itemSprite.id,itemSprite.element,this.id);
-
+    this.pickUpItem(itemSprite);
     this.targetReached = true;
     this.findItem();
     this.chooseDestination();
