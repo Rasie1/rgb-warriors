@@ -7,7 +7,7 @@ Character.prototype.updateBot = function(){
 
     //Aliases for touching
     for(t in this.baseSprite.body.touching){
-        this.touching[t] = this.baseSprite.body.touching[t]
+        this.touching[t] = this.baseSprite.body.blocked[t] ? this.baseSprite.body.blocked[t] : this.baseSprite.body.touching[t];
     }
 
     //Speed of the bot (no reason to have x and y separately tbh)
@@ -21,6 +21,8 @@ Character.prototype.updateBot = function(){
     }
 
     //Decide on behavior
+    //chooseTarget -> findItem -> faceTarget -> attackTarget -> chooseDestination(goForItem\closeInOnTarget) -> moveToDestination
+    //The target is always another character; the destination can be an iten, the target or area around the target. faceTarget can face target or destination
     if (game.time.now > this.nextClosestTargetCheck){
         this.nextClosestTargetCheck = game.time.now + this.targetCheckRate;
         this.chooseTarget();
@@ -184,7 +186,7 @@ Character.prototype.initBot = function(){
         }
 
     };
-    this.moveToDestination = function(){//Move to chosen destination
+    this.moveToDestination = function(){//Choose destination and move to it
         //Update movement...
         if (game.time.now > this.nextStuckCheck){
             this.chooseDestination();
