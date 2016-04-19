@@ -48,8 +48,6 @@ else {
 	var gameHeight = screenHeight;
 };
 
-var HPTimer = 0;
-
 var items = [];
 var inventoryItem;
 var itemsGroup;
@@ -242,18 +240,11 @@ function create ()
     player.HUD = game.add.group();
 
     //Healthbar
-    player.healthBar = game.add.text(10, 10, "HP: 99999%",
-        { font: "32px Arial", fill: "#ffffff", align: "left" });
-    player.healthBar.fixedToCamera = true
-    player.healthBar.cameraOffset.setTo(10, 10);
-    player.HUD.add(player.healthBar);
-
     var shift = 80
-    player.healthBar.setText(" ")
-    player.hpline_red = game.add.sprite(10+shift, 10, 'window_health_2')
-    player.hpline_red.fixedToCamera = true
-    player.HUD.add(player.hpline_red)
-    player.hpline_red.kill()
+    //player.hpline_red = game.add.sprite(10+shift, 10, 'window_health_2')
+    //player.hpline_red.fixedToCamera = true
+    //player.HUD.add(player.hpline_red)
+    //player.hpline_red.kill()
 
     player.hpline_green = game.add.sprite(10+shift, 10, 'window_health_2')
     player.hpline_green.fixedToCamera = true
@@ -263,10 +254,15 @@ function create ()
     player.hpline.fixedToCamera = true
     player.HUD.add(player.hpline)
 
-    player.hpline_secondary = game.add.sprite(12+shift, 10, 'window_health_secondary')
-    player.hpline_secondary.fixedToCamera = true
-    player.hpline_secondary.scale.setTo(0,1)
-    player.HUD.add(player.hpline_secondary)
+    //player.hpline_secondary = game.add.sprite(12+shift, 10, 'window_health_secondary')
+    //player.hpline_secondary.fixedToCamera = true
+    //player.hpline_secondary.scale.setTo(0,1)
+    //player.HUD.add(player.hpline_secondary)
+
+    player.healthIndicator = game.add.text(20+shift, 10, maxHealth+'/'+maxHealth,
+        { font: "28px Arial", fill: "#ffffff", align: "left" });
+    player.healthIndicator.fixedToCamera = true
+    player.HUD.add(player.healthIndicator);
 
     player.hpline_glass = game.add.sprite(10+shift, 10, 'window_health_0')
     player.hpline_glass.fixedToCamera = true
@@ -377,19 +373,11 @@ function update () {
     //land.tilePosition.x = -game.camera.x;
     //land.tilePosition.y = -game.camera.y; 
 
-    //Interval for health regen
-    if (game.time.now > HPTimer){
-        HPTimer = game.time.now + 500;
-		if (player.health < player.privateHealth && player.health < player.maxHealth && player.alive)
-			Server.updateHP(myId, +1);
-	}    
-
-
 
     //Update HUD
-    //player.healthBar.setText("HP: " + player.health);
-    player.hpline.scale.setTo(Phaser.Math.min(player.health/maxHealth,1), 1);
-    player.hpline_secondary.scale.setTo(Phaser.Math.max((player.health-maxHealth)/180,0), 1);
+    player.healthIndicator.setText(Math.max(Math.round(player.health),0)+'/'+maxHealth);
+    player.hpline.scale.setTo(Phaser.Math.max(player.health/maxHealth,0), 1);
+    //player.hpline_secondary.scale.setTo(Phaser.Math.max((player.health-maxHealth)/180,0), 1);
     player.deaths_counter.setText(player.deaths+"")
     player.kills_counter.setText(player.kills+"")
     

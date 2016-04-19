@@ -18,7 +18,10 @@ var playerSpeedY = 200;
 var maxGameWidth = 3000; 
 var maxGameHeight = 3000;
 
-var maxHealth = 100
+var maxHealth = 100;
+var regenInterval = 500;
+var regenValue = 1;
+var pickupHealthValue = 5;
 
 var maxSpellsLevel = 10
 

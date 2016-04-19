@@ -59,9 +59,9 @@ var EurecaClientSetup = function() {
 		        target.spells.HealingSpell.visualEffectSprite.animations.play('cast', 5, false, true);
 			}
 			//console.log(difHP);
-			target.health = Phaser.Math.min(target.privateHealth,target.health + difHP);
+			target.health = Phaser.Math.min(target.health + difHP,maxHealth);
 			if (target.hpBar != null)
-				target.hpBar.scale.setTo(Phaser.Math.max(target.health/target.privateHealth,0), 1);
+				target.hpBar.scale.setTo(Phaser.Math.max(target.health/maxHealth,0), 1);
 			if (target.health <= 0 &&  !target.hasDied) {
 				target.hasDied = true;
 

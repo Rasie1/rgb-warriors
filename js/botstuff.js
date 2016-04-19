@@ -3,6 +3,7 @@ Character.prototype.updateBot = function(){
     if(!this.alive)
         return;
 
+    //Update stuff that's the same for bots and players
     this.updateGenericBefore();
 
     //Aliases for touching

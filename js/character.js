@@ -54,8 +54,8 @@ Character = function (index, game, x, y, r, g, b,color,isBot,owner) {
     this.statusActual = {};
 
     this.game = game;
-    this.privateHealth = maxHealth;
-    this.health = this.privateHealth;
+    this.health = maxHealth;
+    this.HPTimer = 0;
 
     //Bot stuff
     if(typeof isBot == 'undefined')
@@ -263,7 +263,7 @@ Character = function (index, game, x, y, r, g, b,color,isBot,owner) {
 
 Character.prototype.recreate = function (x,y) {
 
-    this.health = 100;
+    this.health = maxHealth;
 
     this.SpeedX = playerSpeedX;
     this.SpeedY = playerSpeedY;
@@ -472,6 +472,14 @@ Character.prototype.update = function() {
     this.updateGenericAfter();
 };
 Character.prototype.updateGenericBefore = function(){
+
+    //Interval for health regen
+    if (game.time.now > this.HPTimer && (this.id == myId || (this.isBot && this.owner == myId))){
+        this.HPTimer = game.time.now + regenInterval;
+        if (this.health < maxHealth && this.alive)
+            Server.updateHP(this.id, regenValue);
+    }    
+
     //Collisions
     game.physics.arcade.collide(this.baseSprite, obstacles);
     game.physics.arcade.collide( obstacles,this.bullets, bulletHit,null,this);
@@ -500,7 +508,7 @@ Character.prototype.updateGenericBefore = function(){
                 null, 
                 this
             )
-    }
+    };
 }
 Character.prototype.updateGenericAfter = function(){
     //Apply animation
@@ -623,7 +631,7 @@ Character.prototype.pickUpItem = function(itemSprite) {
     itemSprite.kill();
     itemSprite.shadow.kill();
     this.inventory.push(itemSprite.element);
-    this.privateHealth += 3;    //Heal on item pickup
+    Server.updateHP(this.id,pickupHealthValue); //Heal on item pickup
 
     //Send information to server if local player
     Server.pickUpItem(itemSprite.id,itemSprite.element,this.id);
