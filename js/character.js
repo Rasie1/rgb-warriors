@@ -233,11 +233,13 @@ Character = function (index, game, x, y, r, g, b,color,isBot,owner) {
     this.spells.Vape = new Vape()
     this.spells.CloseFighting = new CloseFighting()
 
-    //Spells availability
-    this.spellsAvailable = [];
-    for (i = 0; i < 6; ++i)
-        this.spellsAvailable[i] = false;   
-    this.spellsAvailable[6] = true;
+    if (this.id == myId || (this.isBot && this.owner == myId)){
+        //Spells availability
+        this.spellsAvailable = [];
+        for (i = 0; i < 6; ++i)
+            this.spellsAvailable[i] = false;   
+        this.spellsAvailable[6] = true;
+    }
 
     //HP bar
     if (myId != this.baseSprite.id)
@@ -291,20 +293,55 @@ Character.prototype.recreate = function (x,y) {
         this.hpBar.anchor.set(0.5);
     }
 
-    if (this.id==player.id) {
-        inventoryItem.kill();
+    if (this.id==myId) {
         player.hpline.scale.setTo(Phaser.Math.min(player.health/maxHealth,1), 1);
-        player.hpline_secondary.scale.setTo(Phaser.Math.max((player.health-maxHealth)/180,0), 1);
+        //player.hpline_secondary.scale.setTo(Phaser.Math.max((player.health-maxHealth)/180,0), 1);
     }
-
-    for (i = 0; i <= 5; ++i)
-        this.spellsAvailable[i] = false;
 
     if(this.baseSprite.id == myId){
         var dis = this;
         mouseWheel = function(d){dis.mouseWheel(d)}
         window.addEventListener('wheel',mouseWheel);
     }
+}
+
+Character.prototype.kill = function() {
+    //console.log('killed')
+    this.alive = false;
+    this.baseSprite.kill();
+    if (this.hpBar != null) {
+        this.hpBar.kill();
+    }
+    this.deadSprite.reset(this.headSprite.x-32,this.headSprite.y-32);
+    this.deadSprite.lifespan = 3000;
+    this.headSprite.kill();
+    this.auraSprite.kill();
+    this.shadow.kill();
+
+    if (this.id == myId || (this.isBot && this.owner == myId)){
+        for (i = 0; i <= 5; ++i)
+            this.spellsAvailable[i] = false;
+        for(var spell in this.spells){
+            this.spells[spell].resetPower(); //Reset spellpower
+        }
+    }
+
+    if (this.id==myId){
+        inventoryItem.kill();
+        touchControls.moveHighlight(6); //Reset to default weapon
+
+        //Reset inventory helper
+        for (i=0;i<touchControls.buttons.length-1;i++){
+            touchControls.buttons[i].kill();
+            touchControls.buttons[i].alpha = 0;
+            touchControls.elementReminder[i].kill();
+            touchControls.buttonMapping[i].alpha = 0;
+            touchControls.spellPowerCounter[i].alpha = 0;
+        }
+        window.removeEventListener('wheel',mouseWheel);
+        this.dropItem();
+    }
+        
 }
 
 Character.prototype.update = function() {
@@ -571,39 +608,6 @@ Character.prototype.fire = function(target,fireType) {
                 this.spells.CloseFighting.cast(this,target)
             break
         }
-}
-
-
-Character.prototype.kill = function() {
-    //console.log('killed')
-    this.alive = false;
-    this.baseSprite.kill();
-    if (this.hpBar != null) {
-        this.hpBar.kill();
-    }
-    this.deadSprite.reset(this.headSprite.x-32,this.headSprite.y-32);
-    this.deadSprite.lifespan = 3000;
-    this.headSprite.kill();
-    this.auraSprite.kill();
-    this.shadow.kill();
-
-    if (this.id==myId){
-        touchControls.moveHighlight(6); //Reset to default weapon
-        for(var spell in player.spells) 
-            player.spells[spell].spellPower = 0; //Reset spellpower
-
-        //Reset inventory helper
-        for (i=0;i<touchControls.buttons.length-1;i++){
-            touchControls.buttons[i].kill();
-            touchControls.buttons[i].alpha = 0;
-            touchControls.elementReminder[i].kill();
-            touchControls.buttonMapping[i].alpha = 0;
-            touchControls.spellPowerCounter[i].alpha = 0;
-        }
-        window.removeEventListener('wheel',mouseWheel);
-        this.dropItem();
-    }
-        
 }
 
 Character.prototype.dropItem = function() {

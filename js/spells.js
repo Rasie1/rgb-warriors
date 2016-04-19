@@ -1,7 +1,19 @@
 Spell = function() {
-    this.cooldown = 0
     this.spellPower = 0;
     this.nextFire = 0;
+    this._cooldown = this.cooldown;
+    if(this.bulletSpeed)
+        this._bulletSpeed = this.bulletSpeed;
+    if(this.healingSpellHealing)
+        this._healingSpellHealing = this.healingSpellHealing;
+    if(this.jumpDist)
+        this._jumpDist = this.jumpDist;
+    if(this.distance)
+        this._distance = this.distance
+    if(this.stayTime)
+        this._stayTime = this.stayTime
+    if(this.damage)
+        this._damage = this.damage 
 };
 
 Spell.prototype.cast = function(character) {
@@ -36,15 +48,31 @@ Spell.prototype.displayCooldowns = function(character,spellId){
     }
 }
 Spell.prototype.levelup = function(){
-
+    
+}
+Spell.prototype.resetPower = function(){
+    this.cooldown = this._cooldown;
+    if(this.bulletSpeed)
+        this.bulletSpeed = this._bulletSpeed;
+    if(this.healingSpellHealing)
+        this.healingSpellHealing = this._healingSpellHealing;
+    if(this.jumpDist)
+        this.jumpDist = this._jumpDist;
+    if(this.distance)
+        this.distance = this._distance
+    if(this.stayTime)
+        this.stayTime = this._stayTime
+    if(this.damage)
+        this.damage = this._damage 
+    this.spellPower = 0;
 }
 
 
 // Fireball
 function Fireball() {
-    Spell.call(this);
     this.cooldown = 500;
     this.bulletSpeed = 750;
+    Spell.call(this);
 }
 
 Fireball.prototype = Object.create(Spell.prototype);
@@ -57,12 +85,12 @@ Fireball.prototype.cast = function(character,target){
 
 // Cold Sphere
 function ColdSphere() {
-    Spell.call(this);
     this.cooldown = 1000;
     this.bulletSpeed = 600;
     this.visualEffectSpriteEnd = game.add.sprite(0, 0, 'ice')
     this.visualEffectSpriteEnd.anchor.set(0.5, 0.5)
-    this.visualEffectSpriteEnd.kill()
+    this.visualEffectSpriteEnd.kill();
+    Spell.call(this);
 }
 
 ColdSphere.prototype = Object.create(Spell.prototype);
@@ -75,9 +103,9 @@ ColdSphere.prototype.cast = function(character,target){
 
 // Vape
 function Vape() {
-    Spell.call(this);
     this.cooldown = 1000;
     this.bulletSpeed = 500;
+    Spell.call(this);
 }
 
 Vape.prototype = Object.create(Spell.prototype);
@@ -89,13 +117,13 @@ Vape.prototype.cast = function(character,target){
 
 // Healing Spell
 function HealingSpell() {
-    Spell.call(this);
     this.cooldown = 2000;
     this.healingSpellHealing = 10;
     this.visualEffectSprite = game.add.sprite(0, 0, 'yellow-jolt')
     this.visualEffectSprite.animations.add('cast');
     this.visualEffectSprite.anchor.set(0.5, 0.5);
-    this.visualEffectSprite.kill()
+    this.visualEffectSprite.kill();
+    Spell.call(this);
 }
 
 HealingSpell.prototype = Object.create(Spell.prototype);
@@ -115,8 +143,6 @@ HealingSpell.prototype.cast = function(character){
 
 // Leap
 function Leap() {
-    Spell.call(this);
-
     this.cooldown = 1000;
 
     this.jumpDist = 300;
@@ -128,7 +154,9 @@ function Leap() {
     this.visualEffectSpriteEnd = game.add.sprite(0, 0, 'yellow-fireball')
     this.visualEffectSpriteEnd.animations.add('cast');
     this.visualEffectSpriteEnd.anchor.set(0.5, 0.5)
-    this.visualEffectSpriteEnd.kill()
+    this.visualEffectSpriteEnd.kill();
+
+    Spell.call(this);
 }
 
 Leap.prototype = Object.create(Spell.prototype);
@@ -169,11 +197,11 @@ Leap.prototype.levelup = function(){
 
 // Spike
 function Spike() {
-    Spell.call(this);
     this.cooldown = 1000
     this.distance = 128
     this.stayTime = 5
     this.damage = -15
+    Spell.call(this);
 }
 
 Spike.prototype = Object.create(Spell.prototype);
@@ -207,8 +235,8 @@ Spike.prototype.cast = function(character,target){
 //close-in fighting
 function CloseFighting()
 {
-	Spell.call(this);
 	this.cooldown = 1000;
+    Spell.call(this);
 }
 
 CloseFighting.prototype = Object.create(Spell.prototype)
