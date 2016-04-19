@@ -109,6 +109,8 @@ Character = function (index, game, x, y, r, g, b,color,isBot,owner) {
     this.bullets.setAll('anchor.x', 0.5);
     this.bullets.setAll('anchor.y', 0.5);
     this.bullets.setAll('checkWorldBounds', true); 
+    for(i=0;i<this.bullets.children.length;i++)
+        this.bullets.children[i].body.bounce.set(1);; 
 
     //Unused right now
     this.explosions = game.add.group();
@@ -341,8 +343,12 @@ Character.prototype.kill = function() {
             touchControls.spellPowerCounter[i].alpha = 0;
         }
         window.removeEventListener('wheel',mouseWheel);
-        this.dropItem();
+        
     }
+    if (this.id==myId || (this.isBot && this.owner==myId))
+        this.dropItem();
+    if(this.id != myId)
+        this.enableProjectileBounce = player.enableProjectileBounce;
         
 }
 
@@ -521,7 +527,7 @@ Character.prototype.updateGenericBefore = function(){
 
     //Collisions
     game.physics.arcade.collide(this.baseSprite, obstacles);
-    game.physics.arcade.collide( obstacles,this.bullets, bulletHit,null,this);
+    game.physics.arcade.collide( obstacles,this.bullets, bulletHitWall,null,this);
     for (var c in charactersList){
         game.physics.arcade.collide(charactersList[c].baseSprite, this.baseSprite);
     }

@@ -218,8 +218,8 @@ var EurecaClientSetup = function() {
 	{
 		if (i == myId) return; //this is me
 		
-		var tnk = new Character(i,game,x,y,r,g,b);
-		charactersList[i] = tnk;
+		var char = new Character(i,game,x,y,r,g,b);
+		charactersList[i] = char;
 	}
 	Client.exports.respawnPlayer = function(id,x,y){
 		if(charactersList[id])
@@ -311,4 +311,10 @@ var EurecaClientSetup = function() {
 		    v.shadow.alpha = 0.4;
 	    }
 	} 
+	Client.exports.toggleBounce = function(bounce){
+		console.log(bounce,charactersList);
+		for(c in charactersList){
+			charactersList[c].enableProjectileBounce = bounce;
+		}
+	}
 }

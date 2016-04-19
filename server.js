@@ -21,6 +21,8 @@ var bots = {};
 
 var scoreBoard = [];
 
+var bounceEnabled = false;
+
 var express = require('express')
   , app = express(app)
   , server = require('http').createServer(app);
@@ -57,7 +59,8 @@ var Server = new Eureca.Server({allow:[
     'scaleSpeed',
     'freezePlayer',
     'spawnBot',
-    'updateBot'
+    'updateBot',
+    'toggleBounce'
 ]
 });
 
@@ -169,7 +172,7 @@ Server.exports.handshake = function(id,x,y,r,g,b,color)
 			var cl = clients[c]
 			enemy.remote.spawnEnemy(c,cl.lastX,cl.lastY,cl.r,cl.g,cl.b,clients[c].color)
 		}
-
+	enemy.remote.toggleBounce(bounceEnabled);
 }
 
 
@@ -464,7 +467,11 @@ Server.exports.updateBot = function(botId,ownerId,status){
 		}
 	}
 }
-
+Server.exports.toggleBounce = function(){
+	for (var c in clients)
+		clients[c].remote.toggleBounce(!bounceEnabled);
+	bounceEnabled = !bounceEnabled;
+}
 
 //obstacles
 var obstaclesPositions = [];

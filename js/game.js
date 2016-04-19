@@ -419,3 +419,6 @@ function render () {
 function addbots (num){
     Server.addbots(myId,num);
 }
+function toggleBounce(){
+    Server.toggleBounce();
+}

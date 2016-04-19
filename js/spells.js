@@ -260,6 +260,9 @@ CloseFighting.prototype.cast = function(character,target)
         return false;
 }
 
+
+
+
 //Projectiles hit
 function bulletHit (victim, bullet) {
     bullet.kill();
@@ -282,9 +285,20 @@ function bulletHit (victim, bullet) {
             vape.lifespan = 1350
     }
 }
+function bulletHitWall (victim, bullet){
+    if(this.enableProjectileBounce)
+        bulletBounce.call(this,victim, bullet)
+    else
+        bulletHit.call(this,victim, bullet);
+}
+
+function bulletBounce (victim, bullet) {
+    bullet.rotation = Math.atan2(bullet.body.velocity.y,bullet.body.velocity.x);
+}
 
 //Vape cloud hit
 function vapeHit (victim, vapelosion,spellPowerBoost) {
    if ((victim.health>0 && ((this.id == myId) || (this.isBot && this.owner == myId && this.id != victim.id))) && (victim.tag == 'enemy' || victim.tag == 'me'))
         Server.updateHP(victim.id, -0.5 - 0.1*this.spells.Vape.spellPower, this.id);
 }
+
