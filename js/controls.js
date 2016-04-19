@@ -166,7 +166,7 @@ TouchControls.prototype.init = function create(game) {
         this.spellPowerCounter[i] = game.add.text(
           window.innerWidth - this.segmentSize - this.margin + 8, 
           this.offsetY + (this.segmentSize*i) + 6,
-          'lvl 0',
+          'lvl 1',
           { font: "14px Arial", fill: "#ffffff", align: "left" }
         );
         this.spellPowerCounter[i].fixedToCamera = true;

@@ -23,7 +23,7 @@ var regenInterval = 500;
 var regenValue = 1;
 var pickupHealthValue = 5;
 
-var maxSpellsLevel = 10
+var maxSpellsLevel = 3
 
 
 // Spells

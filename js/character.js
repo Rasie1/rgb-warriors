@@ -233,8 +233,9 @@ Character = function (index, game, x, y, r, g, b,color,isBot,owner) {
     this.spells.Vape = new Vape()
     this.spells.CloseFighting = new CloseFighting()
 
+    //Spells availability
     if (this.id == myId || (this.isBot && this.owner == myId)){
-        //Spells availability
+        
         this.spellsAvailable = [];
         for (i = 0; i < 6; ++i)
             this.spellsAvailable[i] = false;   
@@ -653,7 +654,9 @@ Character.prototype.pickUpItem = function(itemSprite) {
         }
         else{
             if(!this.isBot){
-                touchControls.spellPowerCounter[spellId].setText('lvl '+this.spells[alias].spellPower);
+                touchControls.spellPowerCounter[spellId].setText(
+                    this.spells[alias].spellPower<maxSpellsLevel ? 'lvl '+(this.spells[alias].spellPower+1) : 'max lvl'
+                );
                 touchControls.levelup[spellId].alpha = 1;
                 game.add.tween(touchControls.levelup[spellId]).to( { alpha: 0 }, 500, Phaser.Easing.Linear.None, true); 
             }
