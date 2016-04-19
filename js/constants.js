@@ -9,8 +9,8 @@ var mapY    = 0;
 var mapWidth  =  2000;
 var mapHeight =  2000;
 
-var cameraDeadzoneWidth = 0.25;
-var cameraDeadzoneHeight = 0.25; 
+var cameraDeadzoneWidth = 0.1;
+var cameraDeadzoneHeight = 0.1; 
 
 var playerSpeedX = 200;
 var playerSpeedY = 200;
