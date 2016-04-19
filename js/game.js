@@ -1,6 +1,5 @@
 var land;
 var obstacles
-
 var player;
 var playersGroup;
 var charactersList = {};
@@ -426,7 +425,8 @@ function update () {
     };
 }
 
-function render () {}
+function render () {
+}
 
 function addbots (num){
     Server.addbots(myId,num);

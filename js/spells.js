@@ -257,6 +257,6 @@ function bulletHit (victim, bullet) {
 
 //Vape cloud hit
 function vapeHit (victim, vapelosion,spellPowerBoost) {
-   if ((victim.health>0 && ((this.id == myId) || (this.isBot && this.owner == myId))) && (victim.tag == 'enemy' || victim.tag == 'me'))
+   if ((victim.health>0 && ((this.id == myId) || (this.isBot && this.owner == myId && this.id != victim.id))) && (victim.tag == 'enemy' || victim.tag == 'me'))
         Server.updateHP(victim.id, -0.5 - 0.1*this.spells.Vape.spellPower, this.id);
 }

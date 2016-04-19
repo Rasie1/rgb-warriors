@@ -28,10 +28,11 @@ var closeFightWeaponDamage = -20;
 var healingSpellHealingPercentage = 10;
 
 //Bots
-targetCheckRate = 200;
-actualTargetCheckRate = 1000;
-stuckCheckRate = 500;
-maxStrayItemDistance = 300;
+var targetCheckRate = 200;
+var actualTargetCheckRate = 1000;
+var stuckCheckRate = 500;
+var maxStrayItemDistance = 300;
+var meleeRange = 100;
 
 //Assets
 function preload () {
@@ -80,4 +81,5 @@ function preload () {
     game.load.image('highlight', 'assets/logo/highlight.png')
     game.load.image('reload', 'assets/logo/fill.png')
     game.load.image('levelup', 'assets/logo/levelup.png')
+    game.load.image('lineOfSight', 'assets/lineofsight.png')
 }

@@ -406,7 +406,7 @@ Character.prototype.update = function() {
         this.headSprite.body.velocity.x 
         = this.baseSprite.body.velocity.x 
         = -speed;
-        this.baseSprite.rotation = -3.14;
+        this.baseSprite.rotation = -Math.PI;
     }
     else if (right && this.canMove) {
         this.headSprite.body.velocity.x 
@@ -426,13 +426,13 @@ Character.prototype.update = function() {
         this.headSprite.body.velocity.y 
         = this.baseSprite.body.velocity.y 
         = -speed;
-        this.baseSprite.rotation = this.baseSprite.rotation==-3.14 ? -3*3.14/4 : this.baseSprite.rotation==0 ? -3.14/4 : -3.14/2
+        this.baseSprite.rotation = this.baseSprite.rotation==-Math.PI ? -3*Math.PI/4 : this.baseSprite.rotation==0 ? -Math.PI/4 : -Math.PI/2
     }
     else if (down && this.canMove) {
         this.headSprite.body.velocity.y 
         = this.baseSprite.body.velocity.y 
         = speed;
-        this.baseSprite.rotation = this.baseSprite.rotation==-3.14 ? 3*3.14/4 : this.baseSprite.rotation==0 ? 3.14/4 : 3.14/2
+        this.baseSprite.rotation = this.baseSprite.rotation==-Math.PI ? 3*Math.PI/4 : this.baseSprite.rotation==0 ? Math.PI/4 : Math.PI/2
     }
     else
     {

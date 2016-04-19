@@ -121,9 +121,12 @@ Character.prototype.initBot = function(){
         }
         else{
             if (game.physics.arcade.distanceBetween(this.baseSprite, this.closestTarget.baseSprite) < 500){
-                var pointX = this.closestTarget.baseSprite.x-100+Math.floor(Math.random()*200);
-                var pointY = this.closestTarget.baseSprite.y-100+Math.floor(Math.random()*200);
-                this.statusChanged = this.fire({x:pointX,y:pointY},5);
+                
+                var angle = game.physics.arcade.angleBetween(this.baseSprite, this.closestTarget.baseSprite);
+                var point = new Phaser.Point(this.closestTarget.baseSprite.x,this.closestTarget.baseSprite.y);
+                var distance = game.physics.arcade.distanceBetween(this.baseSprite, this.closestTarget.baseSprite);
+                point.rotate(this.baseSprite.x,this.baseSprite.y,angle-Math.PI/16+Math.random()*Math.PI/8,false,distance);
+                this.statusChanged = this.fire({x:point.x,y:point.y},this.fireType);
             }
             else{
                 if(this.spellsAvailable[0])
@@ -136,13 +139,13 @@ Character.prototype.initBot = function(){
             this.headSprite.rotation = game.physics.arcade.angleBetween(
                 {x:this.baseSprite.x,y:this.baseSprite.y},
                 {x:this.closestTarget.baseSprite.x,y:this.closestTarget.baseSprite.y}
-            ) + 3.14/2;
+            ) + Math.PI/2;
         }
         else{
             this.headSprite.rotation = game.physics.arcade.angleBetween(
                 {x:this.baseSprite.x,y:this.baseSprite.y},
                 {x:this.closestItem.x,y:this.closestItem.y}
-            ) + 3.14/2; 
+            ) + Math.PI/2; 
         }
     };
     this.closeInOnTarget = function(){ //Choose a destination based on target
@@ -169,7 +172,7 @@ Character.prototype.initBot = function(){
         return (this.spellsAvailable[3] || this.spellsAvailable[4] || this.spellsAvailable[5])
     }
     this.inMeleeRange = function(){
-        return game.physics.arcade.distanceBetween(this.baseSprite, this.closestTarget.baseSprite) < 100
+        return game.physics.arcade.distanceBetween(this.baseSprite, this.closestTarget.baseSprite) < meleeRange;
     }
 
     this.chooseDestination = function(){ //Decide what the destination should be
