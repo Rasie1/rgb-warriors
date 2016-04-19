@@ -19,6 +19,8 @@ var colors = [
 var botCounter = 0;
 var bots = {};
 
+var scoreBoard = [];
+
 var express = require('express')
   , app = express(app)
   , server = require('http').createServer(app);
@@ -43,6 +45,7 @@ var Server = new Eureca.Server({allow:[
 	'updateState',
 	'updateHP',
 	'makeItem',
+	'reMakeItems',
 	'dropItem',
 	'pickUpItem',
 	'createObstacles',
@@ -76,6 +79,14 @@ Server.onConnect(function (conn) {
 	//register the client
 	clients[conn.id] = {id:conn.id, remote:remote}
 
+	//add player to scoreboard
+	scoreBoard[conn.id] = {
+		id:conn.id,
+		kills:0,
+		deaths:0,
+		suicides:0
+	}
+
     var color = colors[Math.floor(Math.random()*colors.length)];
     clients[conn.id].color = color;
 
@@ -106,13 +117,7 @@ Server.onConnect(function (conn) {
 		remote.setId(conn.id,0,0)
 	}
 
-	if(itemsList.length){
-		for(i=0;i<itemsList.length;i++){
-			if(typeof itemsList[i] != 'undefined'){
-				clients[conn.id].remote.makeItem(itemsList[i].x, itemsList[i].y, itemsList[i].element,itemsList[i].id);
-			}
-		}
-	};
+	Server.exports.sendAllItems(conn.id,true);
 	clients[conn.id].remote.createObstacles(obstaclesList);
 	for(b in bots){
 		var bot = bots[b];
@@ -132,11 +137,13 @@ Server.onDisconnect(function (conn) {
 		if(bots[b].ownerId == conn.id){
 			botsToKill.push(bots[b].id)
 			delete bots[b]
+			delete scoreBoard[b]
 		}
 	}
 	console.log('Killing bots: ',botsToKill);
 
 	delete clients[conn.id];
+	delete scoreBoard[conn.id];
 	for (var c in clients)
 	{
 		var remote = clients[c].remote;
@@ -203,11 +210,62 @@ Server.exports.handleTouchInput = function (input) {
         // clients[c].b = b;
     }
 }
-Server.exports.killPlayer = function(id)
+Server.exports.killPlayer = function(id,killerId)
 {
+	if(!clients[id] && !bots[id])
+		return;
+	if(scoreBoard[id] && scoreBoard[killerId]){
+		var victim = scoreBoard[id];
+		var killer = scoreBoard[killerId];
+		victim.deaths++;
+		if(killer.id == victim.id){
+			victim.kills--;
+			victim.suicides++;
+		}
+		else{
+			killer.kills++;
+		};
+		var realScoreBoard = [];
+		var i = 0;
+		for(p in scoreBoard){
+			realScoreBoard[i] = [];
+			for(e in scoreBoard[p])
+				realScoreBoard[i][e] = scoreBoard[p][e];
+			i++;
+		}
+		realScoreBoard = realScoreBoard.sort(function (a, b) {
+		  if (a.kills < b.kills) {
+		    return 1;
+		  }
+		  if (a.kills > b.kills) {
+		    return -1;
+		  }
+		  if (a.deaths < b.deaths) {
+		    return -1;
+		  }
+		  if (a.deaths > b.deaths) {
+		    return 1;
+		  }
+		  if (a.suicides < b.suicides) {
+		    return -1;
+		  }
+		  if (a.suicides > b.suicides) {
+		    return 1;
+		  }
+		  return 0;
+		});
+		console.log('-------------Scoreboard-------------')
+		for(p=0;p<realScoreBoard.length;p++){
+			console.log(realScoreBoard[p].id+': '+realScoreBoard[p].kills+'/'+realScoreBoard[p].deaths+' '+realScoreBoard[p].suicides)
+		}
+		console.log('------------------------------------')
+	};
+
 	for (var c in clients)
 		clients[c].remote.kill(id);
 	setTimeout(function(){
+		if(!clients[id] && !bots[id])
+			return;
 		shuffle(obstaclesPositions);
 		var isOccupied = true;
 		var i = 0;
@@ -281,6 +339,27 @@ Server.exports.pickUpItem = function(itemID,element,playerId)
 		//console.log(itemsList)
 	}
 }
+Server.exports.sendAllItems = function(playerId,isOnconnect){
+	if(itemsList.length){
+		var itemsToSend = [];
+		for(i=0;i<itemsList.length;i++){
+			if(typeof itemsList[i] != 'undefined'){
+				itemsToSend.push({
+					x:itemsList[i].x,
+					y:itemsList[i].y,
+					element:itemsList[i].element,
+					id:itemsList[i].id
+				})
+			}
+		}
+		if(itemsToSend.length){
+			if(isOnconnect)
+				clients[playerId].remote.makeItem(itemsToSend)
+			else
+				clients[playerId].remote.reMakeItems(itemsToSend)
+		}
+	};
+}
 
 Server.exports.castProjectile = function(characterId,bulletType,bulletFrame,bulletSpeed,bulletDamage,spellPowerBoost,spellId,spellPower,tx,ty){
 	for (var c in clients)
@@ -324,7 +403,12 @@ Server.exports.addbots = function(owner,num){
 			velocityX:0,
 			velocityY:0
 		}
-
+		scoreBoard[owner+'bot'+botCounter] = {
+			id:owner+'bot'+botCounter,
+			kills:0,
+			deaths:0,
+			suicides:0
+		}
 		shuffle(obstaclesPositions);
 		var isOccupied = true;
 		var i = 0;
@@ -436,57 +520,70 @@ for(i=0;i<25;i++){
 // console.log(obstaclesPositions)
 
 //item spawn
-function spawnAnItem(){
-	if(itemsList.length<30){
-		shuffle(obstaclesPositions);
-		var isOccupied = true;
-		var i = 0;
-		var gridPosition;
-		var outOfPlaces=false;	
-		var itemX,itemY;
+function spawnAnItem(num){
+	var itemsToSend = [];
+	if(typeof num == 'undefined')
+		num = 1;
+	for(j = 0;j<num;j++){
+		if(itemsList.length<30){
+			shuffle(obstaclesPositions);
+			var isOccupied = true;
+			var i = 0;
+			var gridPosition;
+			var outOfPlaces=false;	
+			var itemX,itemY;
 
-		while(isOccupied==true && !outOfPlaces){
-			//console.log(obstaclesPositions,i)
-			if(typeof obstaclesPositions[i] != 'undefined'){
-				if(!obstaclesPositions[i].occupied){
-					isOccupied=false;
-					itemX = obstaclesPositions[i].x+Math.round(Math.random()*139);
-					itemY = obstaclesPositions[i].y+Math.round(Math.random()*139);
-					obstaclesPositions[i].occupied = true;
-					gridPosition = obstaclesPositions[i];
+			while(isOccupied==true && !outOfPlaces){
+				//console.log(obstaclesPositions,i)
+				if(typeof obstaclesPositions[i] != 'undefined'){
+					if(!obstaclesPositions[i].occupied){
+						isOccupied=false;
+						itemX = obstaclesPositions[i].x+Math.round(Math.random()*139);
+						itemY = obstaclesPositions[i].y+Math.round(Math.random()*139);
+						obstaclesPositions[i].occupied = true;
+						gridPosition = obstaclesPositions[i];
+					}
+					i++
 				}
-				i++
+				else{
+					outOfPlaces=true;
+				}
 			}
-			else{
-				outOfPlaces=true;
+			if(!outOfPlaces){
+				elementForDrop = (itemIdCounter+1)%3+1;
+				//console.log(itemsToSend)
+				itemsToSend.push({
+					x:itemX,
+					y:itemY,
+					element:elementForDrop,
+					id:itemIdCounter
+				})
+				//console.log(elementForDrop)
+
+				itemsList.push({
+					x:itemX,
+					y:itemY,
+					element:elementForDrop,
+					id:itemIdCounter,
+					gridPosition:gridPosition
+				})
+				itemIdCounter++;
+				
 			}
 		}
-		if(!outOfPlaces){
-			elementForDrop = (itemIdCounter+1)%3+1;
-			//console.log(elementForDrop)
-			for (var c in clients){
-				//console.log(itemIdCounter,itemsList.length);
-				clients[c].remote.makeItem(itemX, itemY, elementForDrop,itemIdCounter);
-			};
-			itemsList.push({
-				x:itemX,
-				y:itemY,
-				element:elementForDrop,
-				id:itemIdCounter,
-				gridPosition:gridPosition
-			})
-			itemIdCounter++;
-			
-		}
+	};
+	//console.log(itemsToSend.length)
+	if(itemsToSend.length){
+		for (var c in clients){
+			//console.log(itemIdCounter,itemsList.length);
+			clients[c].remote.makeItem(itemsToSend);
+		};
 	}
 }
-for(i=0;i<10;i++)
-	spawnAnItem()
+spawnAnItem(10)
 setInterval(function(){
-	spawnAnItem();
-	spawnAnItem();
+	spawnAnItem(2);
 	if(itemsList.length<5)
-		for(i=0;i<5;i++)
-			spawnAnItem()
+		spawnAnItem(5)
 },5000)
 server.listen(8000, '0.0.0.0');

@@ -1,4 +1,3 @@
-var myId = 0;
 var initialSpawnLocationX = 0;
 var initialSpawnLocationY = 0;
 

@@ -17,7 +17,16 @@ var EurecaClientSetup = function() {
 	Client.exports.setId = function(id,x,y) 
 	{
 		//create() is moved here to make sure nothing is created before uniq id assignation
-		myId = id;
+		if(typeof myId != 'undefined'){
+			location.href = location.href;
+			return
+		}
+		Object.defineProperty(window, 'myId', {
+		    value: id,
+		    writable : false,
+		    enumerable : true,
+		    configurable : false
+		});
 		initialSpawnLocationX = x;
 		initialSpawnLocationY = y;
 		create();
@@ -66,7 +75,7 @@ var EurecaClientSetup = function() {
 				target.hasDied = true;
 
 				if (victimId == myId || (target.isBot && target.owner == myId)) {
-					Server.killPlayer(victimId);
+					Server.killPlayer(victimId,attackerId);
 				}
 
 				if (victimId == myId) player.deaths++;
@@ -246,19 +255,48 @@ var EurecaClientSetup = function() {
 		bot.baseSprite.body.velocity.y = status.velY;
 		bot.headSprite.rotation = status.rot;
 	}
-	Client.exports.makeItem = function(x,y,elementForDrop,itemID) {
-		//console.log('making item');
-		found = false;
-		for (var i in items){ 
-			if (!items[i].alive && items[i].element == elementForDrop){
-				//console.log('activated '+itemID);
-				activateItem(i, x, y,itemID);
+	Client.exports.makeItem = function(itemsArrayORx,y,elementForDrop,itemID) {
+		console.log('making item');
+		if(typeof itemsArrayORx != 'object')
+			var itemsArray = [{
+				x:itemsArrayORx,
+				y:y,
+				element:elementForDrop,
+				id:itemID
+			}]
+		else
+			var itemsArray = itemsArrayORx;
+
+		for(j=0;j<itemsArray.length;j++){
+			var x = itemsArray[j].x;
+			var y = itemsArray[j].y;
+			var elementForDrop = itemsArray[j].element;
+			var itemID = itemsArray[j].id;
+
+			found = false;
+			for (var i in items){ 
+				if (!items[i].alive && items[i].element == elementForDrop){
+					//console.log('activated '+itemID);
+					activateItem(i, x, y,itemID);
+				}
+				if (found) break;
 			}
-			if (found) break;
+			if (!found){
+				//console.log('created '+itemID);
+				createItem(x, y, elementForDrop,itemID);
+			}
 		}
-		if (!found){
-			//console.log('created '+itemID);
-			createItem(x, y, elementForDrop,itemID);
+
+	}
+	Client.exports.reMakeItems = function(itemsArray) {
+		for(i=0;i<items.length;i++){
+			items[i].shadow.destroy()
+			items[i].destroy()
+		};
+		items = [];
+
+		for(j=0;j<itemsArray.length;j++){
+			createItem(itemsArray[j].x, itemsArray[j].y, itemsArray[j].element,itemsArray[j].id);
 		}
 
 	}

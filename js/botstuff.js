@@ -12,8 +12,7 @@ Character.prototype.updateBot = function(){
     }
 
     //Speed of the bot (no reason to have x and y separately tbh)
-    //Also lower bots speed for testing
-    this.realSpeed = this.SpeedX*this.speedMultiplier-50;
+    this.realSpeed = this.SpeedX*this.speedMultiplier;
 
     //Remember previous state before updating
     this.statusChanged = false;
@@ -121,7 +120,7 @@ Character.prototype.initBot = function(){
             this.spells.CloseFighting.cast(this,{x: this.closestTarget.baseSprite.x,y: this.closestTarget.baseSprite.y});
         }
         else{
-            if (game.physics.arcade.distanceBetween(this.baseSprite, this.closestTarget.baseSprite) < 500){
+            if (game.physics.arcade.distanceBetween(this.baseSprite, this.closestTarget.baseSprite) < 1000){
                 
                 var angle = game.physics.arcade.angleBetween(this.baseSprite, this.closestTarget.baseSprite);
                 var point = new Phaser.Point(this.closestTarget.baseSprite.x,this.closestTarget.baseSprite.y);
