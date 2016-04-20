@@ -281,7 +281,7 @@ Character.prototype.recreate = function (x,y) {
     }
 
     if (this.id==myId) {
-        player.hpline.scale.setTo(Phaser.Math.min(player.health/maxHealth,1), 1);
+        this.HUD.hpline.scale.setTo(maxHealth, 1);
         //player.hpline_secondary.scale.setTo(Phaser.Math.max((player.health-maxHealth)/180,0), 1);
     }
 
