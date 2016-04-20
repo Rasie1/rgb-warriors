@@ -1,4 +1,4 @@
-var password = 0000;
+var password = '0000';
 
 var mapWidth  =  2000;
 var mapHeight =  2000;
