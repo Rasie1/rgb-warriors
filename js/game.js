@@ -416,9 +416,9 @@ function update () {
 function render () {
 }
 
-function addbots (num){
-    Server.addbots(myId,num);
+function addbots (num,pass){
+    Server.addbots(myId,num,pass);
 }
-function toggleBounce(){
-    Server.toggleBounce();
+function toggleBounce(pass){
+    Server.toggleBounce(pass);
 }

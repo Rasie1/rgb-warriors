@@ -1,3 +1,5 @@
+var password = 0000;
+
 var mapWidth  =  2000;
 var mapHeight =  2000;
 
@@ -397,7 +399,9 @@ Server.exports.doSpike = function(id, x, y, time, damage)
     for (var c in clients)
         clients[c].remote.doSpike(id, x, y, time, damage);
 }
-Server.exports.addbots = function(owner,num){
+Server.exports.addbots = function(owner,num,pass){
+	if(pass != password)
+		return;
 	for(j=0;j<num;j++){
 		bots[owner+'bot'+botCounter] = {
 			ownerId:owner,
@@ -467,7 +471,9 @@ Server.exports.updateBot = function(botId,ownerId,status){
 		}
 	}
 }
-Server.exports.toggleBounce = function(){
+Server.exports.toggleBounce = function(pass){
+	if(pass != password)
+		return;
 	for (var c in clients)
 		clients[c].remote.toggleBounce(!bounceEnabled);
 	bounceEnabled = !bounceEnabled;
