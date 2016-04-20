@@ -154,10 +154,8 @@ Server.onDisconnect(function (conn) {
 	}
 	console.log('Killing bots: ',botsToKill);
 
-	console.log(scoreBoard);
 	delete clients[removeId];
 	delete scoreBoard[removeId];
-	console.log(scoreBoard);
 	for (var c in clients)
 	{
 		var remote = clients[c].remote;

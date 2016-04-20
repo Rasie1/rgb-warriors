@@ -282,6 +282,7 @@ Character.prototype.recreate = function (x,y) {
 
     if (myId != this.baseSprite.id) {
         this.hpBar.reset(x - 32, y - 32);
+        this.hpBar.scale.setTo(1,1);
         this.hpBar.anchor.set(0.5);
     }
 
