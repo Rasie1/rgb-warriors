@@ -100,7 +100,7 @@ TouchControls.prototype.init = function create(game) {
     ]
     this.buttonMap = [
       'E',
-      '_',
+      'space',
       'Q',
       1,
       2,
@@ -131,11 +131,22 @@ TouchControls.prototype.init = function create(game) {
       this.buttonsGroup.add(this.buttons[i]);
 
       //Keys for buttons
+      if(this.buttonMap[i] == 'space'){
+        var style = { font: "12px monospace", fill: "#ffffff", align: "right" };
+        var x = window.innerWidth - 132 + 3;
+        var y = this.offsetY + (this.segmentSize*i) + 55 - 13;
+      }
+      else{
+        var style = { font: "18px monospace", fill: "#ffffff", align: "right" };
+        var x = window.innerWidth - 132 + 26;
+        var y = this.offsetY + (this.segmentSize*i) + 55 - 19;
+      }
+
       this.buttonMapping[i] = game.add.text(
-        window.innerWidth - 132 + 26, 
-        this.offsetY + (this.segmentSize*i) + 55 - 19,
+        x, 
+        y,
         this.buttonMap[i],
-        { font: "18px monospace", fill: "#ffffff", align: "left" }
+        style
       );
       this.buttonMapping[i].fixedToCamera = true;
       this.buttonMapping[i].alpha = 0;

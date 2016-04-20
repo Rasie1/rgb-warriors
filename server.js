@@ -2,6 +2,7 @@ var password = '0000';
 
 var mapWidth  =  2000;
 var mapHeight =  2000;
+var playerSpeed = 200;
 
 var elementForDrop;
 
@@ -48,6 +49,7 @@ var Server = new Eureca.Server({allow:[
 	'respawnPlayer',
 	'updateState',
 	'updateHP',
+	'updateSpeed',
 	'makeItem',
 	'reMakeItems',
 	'dropItem',
@@ -82,7 +84,8 @@ Server.onConnect(function (conn) {
     var remote = Server.getClient(conn.id);
 
 	//register the client
-	clients[conn.id] = {id:conn.id, remote:remote}
+	clients[conn.id] = {id:conn.id, remote:remote};
+	clients[conn.id].speed = playerSpeed;
 
 	//add player to scoreboard
 	scoreBoard[conn.id] = {
@@ -126,7 +129,13 @@ Server.onConnect(function (conn) {
 	clients[conn.id].remote.createObstacles(obstaclesList);
 	for(b in bots){
 		var bot = bots[b];
-		remote.spawnBot(bot.id,bot.x,bot.y,bot.ownerId)
+		var options = {
+			id:bot.id,
+			x:bot.x,
+			y:bot.y,
+			owner:bot.ownerId
+		}
+		remote.spawnBot(options)
 	}
 
 });
@@ -165,14 +174,23 @@ Server.onDisconnect(function (conn) {
 });
 
 
-Server.exports.handshake = function(id,x,y,r,g,b,color)
+Server.exports.handshake = function(id,x,y)
 {
 	var enemy=clients[id]
 	for (var c in clients)
 		if (c!=id) {
-			clients[c].remote.spawnEnemy(id,x,y,r,g,b,color)
-			var cl = clients[c]
-			enemy.remote.spawnEnemy(c,cl.lastX,cl.lastY,cl.r,cl.g,cl.b,clients[c].color)
+			clients[c].remote.spawnEnemy({
+				id:id,
+				x:x,
+				y:y
+			});
+			var cl = clients[c];
+			enemy.remote.spawnEnemy({
+				id:c,
+				x:cl.lastX,
+				y:cl.lastY,
+				speed:cl.speed
+			});
 		}
 	enemy.remote.toggleBounce(bounceEnabled);
 }
@@ -310,6 +328,14 @@ Server.exports.updateHP = function(id, difHP, attackerId,playAnim)
 	for (var c in clients)
 		clients[c].remote.updateHP(id, difHP, attackerId,playAnim);
 }
+Server.exports.updateSpeed = function(id, newSpeed)
+{
+	clients[id].speed = newSpeed;
+	for (var c in clients){
+		if(c != id)
+			clients[c].remote.updateSpeed(id, newSpeed);
+	}
+}
 
 Server.exports.dropItem = function(x, y, elementForDrop)
 {
@@ -437,11 +463,22 @@ Server.exports.addbots = function(owner,num,pass){
 
 		for (var c in clients){
 			if(!outOfPlaces){
-				clients[c].remote.spawnBot(owner+'bot'+botCounter,x,y,owner)
+				var options = {
+					id:owner+'bot'+botCounter,
+					x:x,
+					y:y,
+					owner:owner
+				}
 			}
 			else{
-				clients[c].remote.spawnBot(owner+'bot'+botCounter,0,0,owner)
+				var options = {
+					id:owner+'bot'+botCounter,
+					x:0,
+					y:0,
+					owner:owner
+				}
 			}
+			clients[c].remote.spawnBot(options);
 		}
 		if(!outOfPlaces){
 			bots[owner+'bot'+botCounter].x = x;

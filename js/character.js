@@ -15,29 +15,22 @@ var spellAliases = [
     'Vape',
     'CloseFighting'
 ]
-Character = function (index, game, x, y, r, g, b,color,isBot,owner) {
-    this.cursor = {
-        left:false,
-        right:false,
-        up:false,
-        down:false,
-        w:false,
-        a:false,
-        s:false,
-        d:false
-    }
+Character = function (options) {
+    this.options = {
+        id:null,
+        game:game,
+        x:0,
+        y:0,
+        speed:playerSpeedX,
+        color:false,
+        isBot:false,
+        owner:null
+    };
+    for(o in options)
+        this.options[o] = options[o];
 
-    this.input = {
-        left:false,
-        right:false,
-        up:false,
-        down:false,
-        w:false,
-        a:false,
-        s:false,
-        d:false
-    }
-
+    this.cursor = {}
+    this.input = {}
     
     this.touchInput = { 
         joystickX:0.0, 
@@ -54,17 +47,14 @@ Character = function (index, game, x, y, r, g, b,color,isBot,owner) {
     this.status = {};
     this.statusActual = {};
 
-    this.game = game;
+    this.game = this.options.game;
     this.health = maxHealth;
     this.HPTimer = 0;
 
     //Bot stuff
-    if(typeof isBot == 'undefined')
-        var isBot = false;
-    if(typeof owner == 'undefined')
-        var owner = null;
-    this.isBot = isBot;
-    this.owner = owner;
+    this.isBot = this.options.isBot;
+    this.owner = this.options.owner;
+
     this.lastUpdate = 0;
     this.touching  = {};
 
@@ -96,8 +86,8 @@ Character = function (index, game, x, y, r, g, b,color,isBot,owner) {
     this.goingY = 0;
 
     //Player speed
-    this.SpeedX = playerSpeedX;
-    this.SpeedY = playerSpeedY;
+    this.SpeedX = this.options.speed;
+    this.SpeedY = this.options.speed;
     this.speedMultiplier = 1;
     this.canMove = true;
 
@@ -150,6 +140,9 @@ Character = function (index, game, x, y, r, g, b,color,isBot,owner) {
     this.alive = true;
     this.hasDied = false;
 
+    var x = this.options.x;
+    var y = this.options.y;
+
     //Shadow
     this.shadow = game.add.sprite(x, y, 'player-head');
     this.shadow.anchor.set(0.5);
@@ -164,8 +157,9 @@ Character = function (index, game, x, y, r, g, b,color,isBot,owner) {
 
     this.headSprite = game.add.sprite(x, y, 'player-head');
     this.headSprite.animations.add('move');
-    if(color)
-        this.headSprite.tint = color;
+
+    if(this.options.color)
+        this.headSprite.tint = this.options.color;
     
     this.deadSprite = game.add.sprite(x, y, 'dead');
     this.deadSprite.kill()
@@ -186,8 +180,8 @@ Character = function (index, game, x, y, r, g, b,color,isBot,owner) {
     this.auraSprite.scale.setTo(10, 10);
 
     //Applying player ID
-    this.id = index;
-    this.baseSprite.id = index;
+    this.id = this.options.id;
+    this.baseSprite.id = this.options.id;
     if(this.id != myId)
         this.baseSprite.tag = 'enemy'
     else
@@ -215,15 +209,9 @@ Character = function (index, game, x, y, r, g, b,color,isBot,owner) {
     //Inventory
     this.inventory = [];
 
-    if ((r!=-1 && r!=undefined) || (g!=-1 && g!=undefined) || (b!=-1 && b!=undefined)) {
-        this.RCounter = r
-        this.GCounter = g
-        this.BCounter = b
-    } else {
-        this.RCounter = 0
-        this.GCounter = 0
-        this.BCounter = 0
-    }
+    this.RCounter = 0
+    this.GCounter = 0
+    this.BCounter = 0
     this.recolorAura()
 
     //Spells
@@ -779,9 +767,10 @@ Character.prototype.pickUpItem = function(itemSprite) {
     //Elements counter for Aura
     var counter = this.RCounter+this.GCounter+this.BCounter
     if (counter <= 20) {
-        this.SpeedX = playerSpeedX - counter*5
-        this.SpeedY = playerSpeedY - counter*5
-    }
+        this.SpeedX = playerSpeedX - counter*5;
+        this.SpeedY = playerSpeedY - counter*5;
+    };
+    Server.updateSpeed(this.id,this.SpeedX);
     this.recolorAura();
 }
 

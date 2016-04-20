@@ -234,8 +234,14 @@ function create ()
     playersGroup = game.add.group();
 
     //Creating local player
-    player = new Character(myId, game, initialSpawnLocationX, initialSpawnLocationY, -1, -1, -1); // -1 чтобы можно было отличить потрачено было или не задано
-    
+    var options = {
+        id:myId,
+        game:game,
+        x:initialSpawnLocationX,
+        y:initialSpawnLocationY
+    }
+    player = new Character(options); 
+
     //Creating HUD
     player.HUD = game.add.group();
 

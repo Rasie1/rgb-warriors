@@ -33,11 +33,12 @@ var EurecaClientSetup = function() {
 		Server.handshake(id,initialSpawnLocationX,initialSpawnLocationY);
 		ready = true;
 	}	
-	Client.exports.spawnBot = function(id,x,y,owner){
-		console.log('Bot spawned ',id);
-		charactersList[id] = new Character(id, game, x, y, -1, -1, -1,false,true,owner);
-		if(owner == myId)
-			charactersList[id].initBot()
+	Client.exports.spawnBot = function(options){
+		console.log('Bot spawned ',options.id);
+		options.isBot = true;
+		charactersList[options.id] = new Character(options);
+		if(options.owner == myId)
+			charactersList[options.id].initBot()
 	}
 	Client.exports.kill = function(id)
 	{	
@@ -100,6 +101,12 @@ var EurecaClientSetup = function() {
 				console.log('----------------');
 			}
 
+		}
+	}
+	Client.exports.updateSpeed = function(id, newSpeed){
+		console.log(id, newSpeed);
+		if(charactersList[id]){
+			charactersList[id].SpeedX = charactersList[id].SpeedY = newSpeed;
 		}
 	}
 	Client.exports.castProjectile = function(characterId,bulletType,bulletFrame,bulletSpeed,bulletDamage,spellPowerBoost,spellId,spellPower,tx,ty){
@@ -214,12 +221,13 @@ var EurecaClientSetup = function() {
             }
     }
 	
-	Client.exports.spawnEnemy = function(i, x, y, r, g, b)
+	Client.exports.spawnEnemy = function(options)
 	{
-		if (i == myId) return; //this is me
-		
-		var char = new Character(i,game,x,y,r,g,b);
-		charactersList[i] = char;
+		console.log(options);
+		if (options.id == myId) 
+			return; //this is me
+		var char = new Character(options);
+		charactersList[options.id] = char;
 	}
 	Client.exports.respawnPlayer = function(id,x,y){
 		if(charactersList[id])
