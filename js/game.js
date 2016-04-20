@@ -1,5 +1,6 @@
 var land;
 var obstacles
+var obstaclesShadows
 var player;
 var playersGroup;
 var charactersList = {};
@@ -127,6 +128,8 @@ function handleInput(player)
     cursors.spell5 = game.input.keyboard.addKey(Phaser.Keyboard.THREE)
     cursors.spell6 = game.input.keyboard.addKey(Phaser.Keyboard.FOUR)
 
+    cursors.tab = game.input.keyboard.addKey(Phaser.Keyboard.TAB)
+
     //this.touchControls.processInput(player);
     //touchCursors = touchControls.touchInput
 
@@ -241,6 +244,9 @@ function create ()
     }
     player = new Character(options);
 
+    //HUD
+    player.HUD = new HUD();
+
     //Players list and shortcuts
     charactersList[myId] = player;
     baseSprite = player.baseSprite;
@@ -313,11 +319,7 @@ function update () {
 
 
     //Update HUD
-    player.HUD.healthIndicator.setText(Math.max(Math.round(player.health),0)+'/'+maxHealth);
-    player.HUD.hpline.scale.setTo(Phaser.Math.max(player.health/maxHealth,0), 1);
-    //player.hpline_secondary.scale.setTo(Phaser.Math.max((player.health-maxHealth)/180,0), 1);
-    player.HUD.deaths_counter.setText(player.deaths+"")
-    player.HUD.kills_counter.setText(player.kills+"")
+    player.HUD.updateStatus(player);
     
     player.headSprite.rotation = game.physics.arcade.angleToPointer(player.headSprite) + 3.14/2;  
 
@@ -349,6 +351,9 @@ function update () {
                 charactersList[i].update();
         }
     };
+
+    if((cursors.tab.isDown && player.HUD.SBHidden) || (!cursors.tab.isDown && !player.HUD.SBHidden))
+        player.HUD.toggleScoreboard();
 }
 
 function render () {

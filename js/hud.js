@@ -25,6 +25,14 @@ HUD = function(){
       4
     ]
 
+    this.SBWidth = window.innerWidth < 820 ? window.innerWidth*0.9 : 820; 
+    this.SBHeight = 300;
+    this.SBOffsetX = (window.innerWidth - this.SBWidth)/2;
+    this.SBOffsetY = (window.innerHeight - this.SBHeight)/2;
+    this.SBColumnWidth = 150;
+    this.SBHidden = true;
+
+
     //Creating HUDGroup
     this.HUDGroup = game.add.group();
 
@@ -40,8 +48,7 @@ HUD = function(){
 
     this.createStatusbar();
     this.createSpellbar();
-
-    return this;
+    this.createScoreBoard();
 }
 
 HUD.prototype.createStatusbar = function(){
@@ -207,4 +214,133 @@ HUD.prototype.createSpellbar = function(){
     }
 
     this.HUDGroup.bringToTop(this.HUDGroup);
+}
+
+HUD.prototype.createScoreBoard = function(){
+
+    this.scoreBoard = [];
+    this.scoreBoardSorted = [];
+    this.SBGroup = game.add.group();
+    this.SBBackground = game.add.tileSprite(this.SBOffsetX, this.SBOffsetY, this.SBWidth, this.SBHeight , 'scoreboardbackground');
+    this.SBBackground.fixedToCamera = true;
+    this.SBBackground.alpha = 0.8;
+    this.SBGroup.add(this.SBBackground);
+    this.SBNames = game.add.text(
+        this.SBOffsetX + 10,
+        this.SBOffsetY + 10,
+        'Players',
+        { font: "32px Arial", fill: "#ffffff", align: "left" }
+    );
+    this.SBNames.fixedToCamera = true;
+    this.SBGroup.add(this.SBNames);
+    this.SBKills = game.add.text(
+        this.SBOffsetX + 10 + this.SBColumnWidth*2 + 12,
+        this.SBOffsetY + 10,
+        'Kills',
+        { font: "32px Arial", fill: "#ffffff", align: "left" }
+    );
+    this.SBKills.fixedToCamera = true;
+    this.SBGroup.add(this.SBKills);
+    this.SBDeaths = game.add.text(
+        this.SBOffsetX + 10 + this.SBColumnWidth*3 + 12,
+        this.SBOffsetY + 10,
+        'Deaths',
+        { font: "32px Arial", fill: "#ffffff", align: "left" }
+    );
+    this.SBDeaths.fixedToCamera = true;
+    this.SBGroup.add(this.SBDeaths);
+    this.SBSuicides = game.add.text(
+        this.SBOffsetX + 10 + this.SBColumnWidth*4 + 12,
+        this.SBOffsetY + 10,
+        'Suicides',
+        { font: "32px Arial", fill: "#ffffff", align: "left" }
+    );
+    this.SBSuicides.fixedToCamera = true;
+    this.SBGroup.add(this.SBSuicides);
+    this.SBGroup.bringToTop(this.SBGroup);
+    for(c=0;c<this.SBGroup.children.length;c++)
+        if(typeof this.SBGroup.children[c].kill != 'undefined')
+            this.SBGroup.children[c].kill()
+        else
+            this.SBGroup.children[c].visible = false
+}
+
+HUD.prototype.updateScoreBoard = function(scoreBoard){
+    this.scoreBoard = scoreBoard;
+    this.scoreBoardSorted = [];
+    var i = 0;
+    for(p in this.scoreBoard){
+        this.scoreBoardSorted[i] = [];
+        for(e in this.scoreBoard[p])
+            this.scoreBoardSorted[i][e] = this.scoreBoard[p][e];
+        i++;
+    }
+    this.scoreBoardSorted = this.scoreBoardSorted.sort(function (a, b) {
+      if (a.kills < b.kills) {
+        return 1;
+      }
+      if (a.kills > b.kills) {
+        return -1;
+      }
+      if (a.deaths < b.deaths) {
+        return -1;
+      }
+      if (a.deaths > b.deaths) {
+        return 1;
+      }
+      if (a.suicides < b.suicides) {
+        return -1;
+      }
+      if (a.suicides > b.suicides) {
+        return 1;
+      }
+      return 0;
+    });
+
+    this.SBNamesText = 'Players';
+    this.SBKillsText = 'Kills';
+    this.SBDeathsText = 'Deaths';
+    this.SBSuicidesText = 'Suicides';
+    for(p=0;p<this.scoreBoardSorted.length;p++){
+        if(this.scoreBoardSorted[p].isBot)
+            var name = this.scoreBoardSorted[p].id.substring(
+                this.scoreBoardSorted[p].id.search('bot'),
+                this.scoreBoardSorted[p].id.length
+            )
+        else
+            var name = this.scoreBoardSorted[p].id.length>14 ? this.scoreBoardSorted[p].id.substring(0,13)+'...' : this.scoreBoardSorted[p].id;
+        this.SBNamesText += '\n'+name;
+        this.SBKillsText += '\n'+this.scoreBoardSorted[p].kills;
+        this.SBDeathsText += '\n'+this.scoreBoardSorted[p].deaths;
+        this.SBSuicidesText += '\n'+this.scoreBoardSorted[p].suicides;
+    };
+    this.SBNames.setText(this.SBNamesText);
+    this.SBKills.setText(this.SBKillsText);
+    this.SBDeaths.setText(this.SBDeathsText);
+    this.SBSuicides.setText(this.SBSuicidesText);
+}
+
+HUD.prototype.updateStatus = function(player){
+    this.healthIndicator.setText(Math.max(Math.round(player.health),0)+'/'+maxHealth);
+    this.hpline.scale.setTo(Phaser.Math.max(player.health/maxHealth,0), 1);
+    //player.hpline_secondary.scale.setTo(Phaser.Math.max((player.health-maxHealth)/180,0), 1);
+    this.deaths_counter.setText(player.deaths+"")
+    this.kills_counter.setText(player.kills+"")
+}
+
+HUD.prototype.toggleScoreboard = function(){
+    if(!this.SBHidden){
+        var word = 'kill';
+        var state = false
+    }
+    else{
+        var word = 'reset';
+        var state = true
+    }
+    for(c=0;c<this.SBGroup.children.length;c++)
+        if(typeof this.SBGroup.children[c].kill != 'undefined')
+            this.SBGroup.children[c][word]()
+        else
+            this.SBGroup.children[c].visible = state;
+    this.SBHidden = !this.SBHidden;
 }

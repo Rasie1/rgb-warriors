@@ -38,7 +38,6 @@ var meleeRange = 100;
 
 //Assets
 function preload () {
-    game.load.atlas('character', 'assets/tanks.png', 'assets/tanks.json');
     game.load.image('bullet', 'assets/bullet.png');
     game.load.spritesheet('bullets', 'assets/bullets.png',54,17,3);
     game.load.image('vape', 'assets/vape.png');
@@ -84,4 +83,7 @@ function preload () {
     game.load.image('reload', 'assets/logo/fill.png')
     game.load.image('levelup', 'assets/logo/levelup.png')
     game.load.image('lineOfSight', 'assets/lineofsight.png')
+
+    game.load.image('texture0', 'assets/Textures/brick1.png')
+    game.load.image('scoreboardbackground', 'assets/Textures/rock1.png')
 }

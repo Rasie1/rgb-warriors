@@ -14,7 +14,7 @@ var EurecaClientSetup = function() {
 	
 	//methods defined under "exports" namespace become available in the server side
 	
-	Client.exports.setId = function(id,x,y) 
+	Client.exports.setId = function(id,x,y,scoreBoard) 
 	{
 		//create() is moved here to make sure nothing is created before uniq id assignation
 		if(typeof myId != 'undefined'){
@@ -30,6 +30,7 @@ var EurecaClientSetup = function() {
 		initialSpawnLocationX = x;
 		initialSpawnLocationY = y;
 		create();
+		player.HUD.updateScoreBoard(scoreBoard);
 		Server.handshake(id,initialSpawnLocationX,initialSpawnLocationY);
 		ready = true;
 	}	
@@ -95,14 +96,12 @@ var EurecaClientSetup = function() {
 						}
 					}
 				}
-				console.log('---Scoreboard---');
-				for(a in charactersList){
-					console.log(a,': ',charactersList[a].kills,'/',charactersList[a].deaths)
-				}
-				console.log('----------------');
 			}
 
 		}
+	}
+	Client.exports.updateScoreBoard = function(scoreBoard){
+		player.HUD.updateScoreBoard(scoreBoard)
 	}
 	Client.exports.castProjectile = function(characterId,bulletType,bulletFrame,bulletSpeed,bulletDamage,spellPowerBoost,spellId,spellPower,tx,ty){
         var character = charactersList[characterId];
@@ -218,7 +217,7 @@ var EurecaClientSetup = function() {
 	
 	Client.exports.spawnEnemy = function(options)
 	{
-		console.log(options);
+		//console.log(options);
 		if (options.id == myId) 
 			return; //this is me
 		var char = new Character(options);
@@ -309,9 +308,11 @@ var EurecaClientSetup = function() {
 			v.body.immovable = true;
 			v.scale.setTo(1, 1);
 			v.shadow = game.add.sprite(obstaclesList[i].x+3, obstaclesList[i].y+10, obstaclesList[i].spriteType);
+			obstaclesShadows.add(v.shadow);
 		    v.shadow.anchor.set(0);
 		    v.shadow.tint = 0x000000;
 		    v.shadow.alpha = 0.4;
+		    obstaclesShadows.sendToBack(obstaclesShadows)
 	    }
 	} 
 	Client.exports.toggleBounce = function(bounce){

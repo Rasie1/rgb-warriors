@@ -22,7 +22,7 @@ var colors = [
 var botCounter = 0;
 var bots = {};
 
-var scoreBoard = [];
+var scoreBoard = {};
 
 var bounceEnabled = false;
 
@@ -63,15 +63,13 @@ var Server = new Eureca.Server({allow:[
     'freezePlayer',
     'spawnBot',
     'updateBot',
+    'updateScoreBoard',
     'toggleBounce'
 ]
 });
 
 //attach eureca.io to our http server
 Server.attach(server);
-
-
-
 
 //eureca.io provides events to detect clients connect/disconnect
 
@@ -91,7 +89,8 @@ Server.onConnect(function (conn) {
 		id:conn.id,
 		kills:0,
 		deaths:0,
-		suicides:0
+		suicides:0,
+		isBot:false
 	}
 
     var color = colors[Math.floor(Math.random()*colors.length)];
@@ -116,12 +115,12 @@ Server.onConnect(function (conn) {
 			outOfPlaces = true;
 		};
 	}
-
+	//console.log(scoreBoard)
 	if(!outOfPlaces){
-		remote.setId(conn.id,x,y)
+		remote.setId(conn.id,x,y,scoreBoard)
 	}
 	else{
-		remote.setId(conn.id,0,0)
+		remote.setId(conn.id,0,0,scoreBoard)
 	}
 
 	Server.exports.sendAllItems(conn.id,true);
@@ -147,7 +146,7 @@ Server.onDisconnect(function (conn) {
 
 	var botsToKill = [];
 	for(b in bots){
-		if(bots[b].ownerId == conn.id){
+		if(bots[b].ownerId == removeId){
 			botsToKill.push(bots[b].id)
 			delete bots[b]
 			delete scoreBoard[b]
@@ -155,20 +154,25 @@ Server.onDisconnect(function (conn) {
 	}
 	console.log('Killing bots: ',botsToKill);
 
-	delete clients[conn.id];
-	delete scoreBoard[conn.id];
+	console.log(scoreBoard);
+	delete clients[removeId];
+	delete scoreBoard[removeId];
+	console.log(scoreBoard);
 	for (var c in clients)
 	{
 		var remote = clients[c].remote;
 
 		//here we call kill() method defined in the client side
-		remote.kill(conn.id);
+		remote.kill(removeId);
 
 		//kill bots
 		
 		for(i=0;i<botsToKill.length;i++){
 			remote.kill(botsToKill[i]);
 		}
+
+		//update scoreboard
+		remote.updateScoreBoard(scoreBoard);
 	}
 });
 
@@ -190,6 +194,7 @@ Server.exports.handshake = function(id,x,y)
 				y:cl.lastY,
 				speed:cl.speed
 			});
+			clients[c].remote.updateScoreBoard(scoreBoard);
 		}
 	enemy.remote.toggleBounce(bounceEnabled);
 }
@@ -236,6 +241,10 @@ Server.exports.killPlayer = function(id,killerId)
 {
 	if(!clients[id] && !bots[id])
 		return;
+
+	for (var c in clients)
+		clients[c].remote.kill(id);
+
 	if(scoreBoard[id] && scoreBoard[killerId]){
 		var victim = scoreBoard[id];
 		var killer = scoreBoard[killerId];
@@ -247,44 +256,10 @@ Server.exports.killPlayer = function(id,killerId)
 		else{
 			killer.kills++;
 		};
-		var realScoreBoard = [];
-		var i = 0;
-		for(p in scoreBoard){
-			realScoreBoard[i] = [];
-			for(e in scoreBoard[p])
-				realScoreBoard[i][e] = scoreBoard[p][e];
-			i++;
-		}
-		realScoreBoard = realScoreBoard.sort(function (a, b) {
-		  if (a.kills < b.kills) {
-		    return 1;
-		  }
-		  if (a.kills > b.kills) {
-		    return -1;
-		  }
-		  if (a.deaths < b.deaths) {
-		    return -1;
-		  }
-		  if (a.deaths > b.deaths) {
-		    return 1;
-		  }
-		  if (a.suicides < b.suicides) {
-		    return -1;
-		  }
-		  if (a.suicides > b.suicides) {
-		    return 1;
-		  }
-		  return 0;
-		});
-		console.log('-------------Scoreboard-------------')
-		for(p=0;p<realScoreBoard.length;p++){
-			console.log(realScoreBoard[p].id+': '+realScoreBoard[p].kills+'/'+realScoreBoard[p].deaths+' '+realScoreBoard[p].suicides)
-		}
-		console.log('------------------------------------')
+		for (var c in clients)
+			clients[c].remote.updateScoreBoard(scoreBoard);
 	};
 
-	for (var c in clients)
-		clients[c].remote.kill(id);
 	setTimeout(function(){
 		if(!clients[id] && !bots[id])
 			return;
@@ -431,7 +406,8 @@ Server.exports.addbots = function(owner,num,pass){
 			id:owner+'bot'+botCounter,
 			kills:0,
 			deaths:0,
-			suicides:0
+			suicides:0,
+			isBot:true
 		}
 		shuffle(obstaclesPositions);
 		var isOccupied = true;
@@ -470,6 +446,7 @@ Server.exports.addbots = function(owner,num,pass){
 				}
 			}
 			clients[c].remote.spawnBot(options);
+			clients[c].remote.updateScoreBoard(scoreBoard);
 		}
 		if(!outOfPlaces){
 			bots[owner+'bot'+botCounter].x = x;

@@ -113,7 +113,8 @@ Character = function (options) {
     this.bullets.setAll('checkWorldBounds', true); 
     this.vapelosions.forEach(function(explosion){
         explosion.animations.add('vapelosion');
-    },this)
+    },this);
+    this.vapelosions.sendToBack(this.vapelosions)
 
     //Weapon properties
     this.fireRate = 500;
@@ -228,17 +229,21 @@ Character = function (options) {
     {
         this.hpBar = game.add.sprite(x - 32, y - 32, 'hpBar');
         this.hpBar.anchor.set(0.5);
+        playersGroup.add(this.hpBar);
+        playersGroup.sendToBack(this.hpBar);
     };
 
-    //Put players behind the HUD (doesn't work properly??)
+    //Put players behind the HUD
     playersGroup.add(this.baseSprite);
-    playersGroup.add(this.weapon)
+    playersGroup.add(this.headSprite);
+    playersGroup.add(this.shadow);
+    playersGroup.add(this.deadSprite);
+    playersGroup.add(this.weapon);    
     playersGroup.sendToBack(playersGroup)
-    playersGroup.sendToBack(this.weapon)
-
-    //HUD
-    if(this.id == myId)
-        this.HUD = new HUD();
+    playersGroup.sendToBack(this.headSprite);
+    playersGroup.sendToBack(this.baseSprite);
+    playersGroup.sendToBack(this.deadSprite);
+    playersGroup.sendToBack(this.weapon); 
 
 console.log(this.HUD);
     //mousewheel detection
@@ -276,7 +281,7 @@ Character.prototype.recreate = function (x,y) {
     this.recolorAura();
 
     if (myId != this.baseSprite.id) {
-        this.hpBar = game.add.sprite(x - 32, y - 32, 'hpBar');
+        this.hpBar.reset(x - 32, y - 32);
         this.hpBar.anchor.set(0.5);
     }
 
