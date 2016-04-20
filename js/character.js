@@ -631,10 +631,6 @@ Character.prototype.pickUpItem = function(itemSprite) {
     itemSprite.kill();
     itemSprite.shadow.kill();
     this.inventory.push(itemSprite.element);
-    Server.updateHP(this.id,pickupHealthValue); //Heal on item pickup
-
-    //Send information to server if local player
-    Server.pickUpItem(itemSprite.id,itemSprite.element,this.id);
 
     //Add a new spell or upgrade already existing
     this.spellsAddSpell = function(spellId,alias){
@@ -770,8 +766,13 @@ Character.prototype.pickUpItem = function(itemSprite) {
         this.SpeedX = playerSpeedX - counter*5;
         this.SpeedY = playerSpeedY - counter*5;
     };
-    Server.updateSpeed(this.id,this.SpeedX);
     this.recolorAura();
+
+    //Send information to server if local player
+    Server.pickUpItem(itemSprite.id,itemSprite.element,this.id,this.SpeedX);
+
+    Server.updateHP(this.id,pickupHealthValue); //Heal on item pickup
+
 }
 
 Character.prototype.mouseWheel = function(d){

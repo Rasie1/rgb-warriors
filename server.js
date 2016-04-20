@@ -49,7 +49,6 @@ var Server = new Eureca.Server({allow:[
 	'respawnPlayer',
 	'updateState',
 	'updateHP',
-	'updateSpeed',
 	'makeItem',
 	'reMakeItems',
 	'dropItem',
@@ -328,14 +327,6 @@ Server.exports.updateHP = function(id, difHP, attackerId,playAnim)
 	for (var c in clients)
 		clients[c].remote.updateHP(id, difHP, attackerId,playAnim);
 }
-Server.exports.updateSpeed = function(id, newSpeed)
-{
-	clients[id].speed = newSpeed;
-	for (var c in clients){
-		if(c != id)
-			clients[c].remote.updateSpeed(id, newSpeed);
-	}
-}
 
 Server.exports.dropItem = function(x, y, elementForDrop)
 {
@@ -352,10 +343,10 @@ Server.exports.dropItem = function(x, y, elementForDrop)
 	itemIdCounter++;
 }
 
-Server.exports.pickUpItem = function(itemID,element,playerId)
+Server.exports.pickUpItem = function(itemID,element,playerId,newSpeed)
 {
 	for (var c in clients)
-		clients[c].remote.pickUpItem(itemID,element,playerId);
+		clients[c].remote.pickUpItem(itemID,element,playerId,newSpeed);
 	for(i=0;i<itemsList.length;i++){
 
 		if(typeof itemsList[i] != 'undefined'){

@@ -45,15 +45,16 @@ var EurecaClientSetup = function() {
 		if (charactersList[id]) charactersList[id].kill();
 	}	
 
-	Client.exports.pickUpItem = function(itemID,element,playerId){
+	Client.exports.pickUpItem = function(itemID,element,playerId,newSpeed){
 		if(playerId != myId){
-			console.log('picking up')
+			//console.log('picking up')
 			for (var i in items){
 				if(items[i].id == itemID){
 					items[i].kill();
 					items[i].shadow.kill();
 				}
 			}
+			charactersList[playerId].SpeedX = charactersList[playerId].SpeedY = newSpeed;
 		}
 	}
 	Client.exports.updateHP = function(victimId, difHP, attackerId, playAnim)
@@ -101,12 +102,6 @@ var EurecaClientSetup = function() {
 				console.log('----------------');
 			}
 
-		}
-	}
-	Client.exports.updateSpeed = function(id, newSpeed){
-		console.log(id, newSpeed);
-		if(charactersList[id]){
-			charactersList[id].SpeedX = charactersList[id].SpeedY = newSpeed;
 		}
 	}
 	Client.exports.castProjectile = function(characterId,bulletType,bulletFrame,bulletSpeed,bulletDamage,spellPowerBoost,spellId,spellPower,tx,ty){
