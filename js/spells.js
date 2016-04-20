@@ -37,12 +37,12 @@ Spell.prototype.castProjectile = function(character,bulletType,bulletFrame,bulle
 
 Spell.prototype.displayCooldowns = function(character,spellId){
     if(!character.isBot){
-        touchControls.reload[spellId].scale.y = 1;
-        game.add.tween(touchControls.reload[spellId].scale).to( { x: 1, y: 0 }, this.cooldown, Phaser.Easing.Linear.None, true);  
-        for(i=0;i<touchControls.reload.length;i++){
-            if(character.spellsAvailable[i] && i != spellId && touchControls.reload[i].scale.y == 0){
-                touchControls.reload[i].scale.y = 1;
-                game.add.tween(touchControls.reload[i].scale).to( { x: 1, y: 0 }, character.fireRate, Phaser.Easing.Linear.None, true);  
+        character.HUD.reload[spellId].scale.y = 1;
+        game.add.tween(character.HUD.reload[spellId].scale).to( { x: 1, y: 0 }, this.cooldown, Phaser.Easing.Linear.None, true);  
+        for(i=0;i<character.HUD.reload.length;i++){
+            if(character.spellsAvailable[i] && i != spellId && character.HUD.reload[i].scale.y == 0){
+                character.HUD.reload[i].scale.y = 1;
+                game.add.tween(character.HUD.reload[i].scale).to( { x: 1, y: 0 }, character.fireRate, Phaser.Easing.Linear.None, true);  
             }
         }
     }

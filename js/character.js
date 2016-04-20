@@ -32,17 +32,7 @@ Character = function (options) {
     this.cursor = {}
     this.input = {}
     
-    this.touchInput = { 
-        joystickX:0.0, 
-        joystickY:0.0,
-        button0:false,
-        button1:false,
-        button2:false,
-        button3:false,
-        button4:false,
-        button5:false,
-        button6:false
-    }
+    //this.touchInput = {}
 
     this.status = {};
     this.statusActual = {};
@@ -246,6 +236,11 @@ Character = function (options) {
     playersGroup.sendToBack(playersGroup)
     playersGroup.sendToBack(this.weapon)
 
+    //HUD
+    if(this.id == myId)
+        this.HUD = new HUD();
+
+console.log(this.HUD);
     //mousewheel detection
     if(this.baseSprite.id == myId){
         var dis = this;
@@ -320,15 +315,15 @@ Character.prototype.kill = function() {
 
     if (this.id==myId){
         inventoryItem.kill();
-        touchControls.moveHighlight(6); //Reset to default weapon
+        this.HUD.moveHighlight(6); //Reset to default weapon
 
         //Reset inventory helper
-        for (i=0;i<touchControls.buttons.length-1;i++){
-            touchControls.buttons[i].kill();
-            touchControls.buttons[i].alpha = 0;
-            touchControls.elementReminder[i].kill();
-            touchControls.buttonMapping[i].alpha = 0;
-            touchControls.spellPowerCounter[i].alpha = 0;
+        for (i=0;i<this.HUD.buttons.length-1;i++){
+            this.HUD.buttons[i].kill();
+            this.HUD.buttons[i].alpha = 0;
+            this.HUD.elementReminder[i].kill();
+            this.HUD.buttonMapping[i].alpha = 0;
+            this.HUD.spellPowerCounter[i].alpha = 0;
         }
         window.removeEventListener('wheel',mouseWheel);
         
@@ -370,7 +365,7 @@ Character.prototype.update = function() {
         this.input.speedX = this.SpeedX;
         this.input.speedY = this.SpeedY;
 
-        this.touchInput = touchCursors;
+        //this.touchInput = touchCursors;
 
         //Checks difference between current input and last saved
         function checkInputChange(set1,set2,additional){
@@ -389,19 +384,19 @@ Character.prototype.update = function() {
         }
         var inputChanged = checkInputChange(this.cursor,this.input);
         //var inputChanged = (this.input.velX != this.cursor.velX || this.input.velY != this.cursor.velY);
-        var touchInputChanged = checkInputChange(touchControls.touchInput,this.touchInput,['joystickX','joystickY']);
+        //var touchInputChanged = checkInputChange(this.HUD.touchInput,this.touchInput,['joystickX','joystickY']);
 
-        if (inputChanged || touchInputChanged)
+        if (inputChanged)// || touchInputChanged)
         {    
             // send latest valid state to the server
 
            Server.handleKeys(this.input,this.baseSprite.x,this.baseSprite.y,this.RCounter,this.GCounter,this.BCounter,myId);
 
-            if (touchInputChanged)
+            /*if (touchInputChanged)
             {
                 Server.handleTouchInput(this.touchInput)
 
-            }
+            }*/
                 
         }
     }      
@@ -413,13 +408,13 @@ Character.prototype.update = function() {
     var down = false;
     var left = false;
     var right = false;
-    if(this.input.up || this.input.w || touchControls.touchInput.joystickY < -0.5)
+    if(this.input.up || this.input.w)// || this.HUD.touchInput.joystickY < -0.5)
         up = true;
-    if(this.input.down  || this.input.s || touchControls.touchInput.joystickY > 0.5)
+    if(this.input.down  || this.input.s)// || this.HUD.touchInput.joystickY > 0.5)
         down = true;
-    if(this.input.left || this.input.a  || touchControls.touchInput.joystickX < -0.5)
+    if(this.input.left || this.input.a)//  || this.HUD.touchInput.joystickX < -0.5)
         left = true;
-    if(this.input.right || this.input.d || touchControls.touchInput.joystickX > 0.5)
+    if(this.input.right || this.input.d)// || this.HUD.touchInput.joystickX > 0.5)
         right = true;
 
     var speed;
@@ -480,7 +475,7 @@ Character.prototype.update = function() {
     {
         if(!this.spellsAvailable[this.fireType]){
             this.fireType=6;
-            touchControls.moveHighlight(6)
+            this.HUD.moveHighlight(6)
         }
         this.fire({x:this.tx, y:this.ty},this.fireType);
     }
@@ -488,7 +483,8 @@ Character.prototype.update = function() {
     //Spell select
     if(this.id == myId){
         for(k=0;k<7;k++){
-            if ((cursors['spell'+k].isDown || this.touchInput['button'+k]) && this.spellsAvailable[k]){
+            //if ((cursors['spell'+k].isDown || this.touchInput['button'+k]) && this.spellsAvailable[k]){
+            if ((cursors['spell'+k].isDown) && this.spellsAvailable[k]){
                 if(/[0,1,2]/.test(k)){
                     if(this.spellsAvailable[this.fireType]){
                         this.fire({x:this.tx, y:this.ty},k);
@@ -496,7 +492,7 @@ Character.prototype.update = function() {
                 }
                 else{
                     this.fireType=k;
-                    touchControls.moveHighlight(k)
+                    this.HUD.moveHighlight(k)
                 }
             }
         }
@@ -632,60 +628,6 @@ Character.prototype.pickUpItem = function(itemSprite) {
     itemSprite.shadow.kill();
     this.inventory.push(itemSprite.element);
 
-    //Add a new spell or upgrade already existing
-    this.spellsAddSpell = function(spellId,alias){
-        if(this.spells[alias].spellPower==0){
-            if(spellId > 2){
-                this.fireType=spellId;       
-                if(!this.isBot)     
-                    touchControls.moveHighlight(spellId);
-            }
-            if(!this.isBot)
-                touchControls.spellPowerCounter[spellId].alpha = 1;
-        }
-        else{
-            if(!this.isBot){
-                touchControls.spellPowerCounter[spellId].setText(
-                    this.spells[alias].spellPower<maxSpellsLevel ? 'lvl '+(this.spells[alias].spellPower+1) : 'max lvl'
-                );
-                touchControls.levelup[spellId].alpha = 1;
-                game.add.tween(touchControls.levelup[spellId]).to( { alpha: 0 }, 500, Phaser.Easing.Linear.None, true); 
-            }
-            this.spells[alias].levelup(); 
-        }
-        this.spells[alias].spellPower = Phaser.Math.min(maxSpellsLevel, this.spells[alias].spellPower + 1);
-        this.spellsAvailable[spellId] = true;
-        if(!this.isBot){
-            touchControls.buttons[spellId].reset();
-            touchControls.buttonMapping[spellId].alpha = 1;
-            touchControls.buttons[spellId].alpha = 1;
-        }
-    };
-
-    //Handles inventory when picking up items
-    function inventorySwitch(spellsRegEx,frame,reminderFrame,isBot){
-        if(isBot)
-            return;
-        for(i=0;i<touchControls.buttons.length;i++){
-            if(spellsRegEx.test(i)){
-                if(touchControls.buttons[i].alpha != 1){
-                    touchControls.buttons[i].reset();
-                    touchControls.buttons[i].alpha = 0.3;
-                }
-                touchControls.elementReminder[i].reset();
-                if(typeof reminderFrame == 'boolean' && reminderFrame)                       
-                    if(i==1)
-                        touchControls.elementReminder[i].frame = touchControls.frames[i][0]
-                    else
-                        touchControls.elementReminder[i].frame = touchControls.frames[i][1]
-                else
-                    touchControls.elementReminder[i].frame = touchControls.frames[i][reminderFrame]
-            }
-        }
-        inventoryItem.reset();
-        inventoryItem.frame = frame;
-    }
-
     if(this.inventory.length>=2){
         switch(this.inventory[0]){
             case 1:
@@ -733,12 +675,12 @@ Character.prototype.pickUpItem = function(itemSprite) {
 
         //Reset inventory helper
         if(!this.isBot){
-            for(i=0;i<touchControls.buttons.length;i++){
+            for(i=0;i<this.HUD.buttons.length;i++){
                 if(i!=6)
-                    touchControls.elementReminder[i].kill();
-                if(touchControls.buttons[i].alpha == 0.3){
-                    touchControls.buttons[i].kill();
-                    touchControls.buttons[i].alpha = 0;
+                    this.HUD.elementReminder[i].kill();
+                if(this.HUD.buttons[i].alpha == 0.3){
+                    this.HUD.buttons[i].kill();
+                    this.HUD.buttons[i].alpha = 0;
                 }
             }
         }
@@ -747,15 +689,15 @@ Character.prototype.pickUpItem = function(itemSprite) {
         switch (itemSprite.element) {
             case 1:
                 this.RCounter++;
-                inventorySwitch(/[3,1,5]/,0,1,this.isBot);
+                this.inventorySwitch(/[3,1,5]/,0,1);
                 break;
             case 2:
                 this.GCounter++;
-                inventorySwitch(/[0,1,2]/,1,true,this.isBot);
+                this.inventorySwitch(/[0,1,2]/,1,true);
                 break;
             case 3:
                 this.BCounter++;
-                inventorySwitch(/[0,4,5]/,2,0,this.isBot);
+                this.inventorySwitch(/[0,4,5]/,2,0);
                 break ;
         }
     }
@@ -775,6 +717,60 @@ Character.prototype.pickUpItem = function(itemSprite) {
 
 }
 
+//Add a new spell or upgrade already existing
+Character.prototype.spellsAddSpell = function(spellId,alias){
+    if(this.spells[alias].spellPower==0){
+        if(spellId > 2){
+            this.fireType=spellId;       
+            if(!this.isBot)     
+                this.HUD.moveHighlight(spellId);
+        }
+        if(!this.isBot)
+            this.HUD.spellPowerCounter[spellId].alpha = 1;
+    }
+    else{
+        if(!this.isBot){
+            this.HUD.spellPowerCounter[spellId].setText(
+                this.spells[alias].spellPower<maxSpellsLevel ? 'lvl '+(this.spells[alias].spellPower+1) : 'max lvl'
+            );
+            this.HUD.levelup[spellId].alpha = 1;
+            game.add.tween(this.HUD.levelup[spellId]).to( { alpha: 0 }, 500, Phaser.Easing.Linear.None, true); 
+        }
+        this.spells[alias].levelup(); 
+    }
+    this.spells[alias].spellPower = Phaser.Math.min(maxSpellsLevel, this.spells[alias].spellPower + 1);
+    this.spellsAvailable[spellId] = true;
+    if(!this.isBot){
+        this.HUD.buttons[spellId].reset();
+        this.HUD.buttonMapping[spellId].alpha = 1;
+        this.HUD.buttons[spellId].alpha = 1;
+    }
+};
+
+//Handles inventory when picking up items
+Character.prototype.inventorySwitch = function(spellsRegEx,frame,reminderFrame){
+    if(this.isBot)
+        return;
+    for(i=0;i<this.HUD.buttons.length;i++){
+        if(spellsRegEx.test(i)){
+            if(this.HUD.buttons[i].alpha != 1){
+                this.HUD.buttons[i].reset();
+                this.HUD.buttons[i].alpha = 0.3;
+            }
+            this.HUD.elementReminder[i].reset();
+            if(typeof reminderFrame == 'boolean' && reminderFrame)                       
+                if(i==1)
+                    this.HUD.elementReminder[i].frame = this.HUD.frames[i][0]
+                else
+                    this.HUD.elementReminder[i].frame = this.HUD.frames[i][1]
+            else
+                this.HUD.elementReminder[i].frame = this.HUD.frames[i][reminderFrame]
+        }
+    }
+    inventoryItem.reset();
+    inventoryItem.frame = frame;
+}
+
 Character.prototype.mouseWheel = function(d){
     if (game.time.now > this.reMouseWheel && this.id == myId){
         this.reMouseWheel = game.time.now + 10;
@@ -789,7 +785,7 @@ Character.prototype.mouseWheel = function(d){
                     else
                         checkingWeapon = 3;
                     if(this.spellsAvailable[checkingWeapon]){
-                        touchControls.moveHighlight(checkingWeapon);
+                        this.HUD.moveHighlight(checkingWeapon);
                         this.fireType = checkingWeapon;
                         stopScrolling = true;
                     }
@@ -804,7 +800,7 @@ Character.prototype.mouseWheel = function(d){
                     else
                         checkingWeapon = 6;
                     if(this.spellsAvailable[checkingWeapon]){
-                        touchControls.moveHighlight(checkingWeapon);
+                        this.HUD.moveHighlight(checkingWeapon);
                         this.fireType = checkingWeapon;
                         stopScrolling = true;
                     }

@@ -30,7 +30,6 @@ var touchCursors = {
     button5:false,
     button6:false
 };
-var touchControls;
 
 
 var screenWidth = window.innerWidth;
@@ -101,11 +100,11 @@ window.addEventListener("orientationchange",onScreenChange);
 
 
 
-function initializeInput ()
+/*function initializeInput ()
 {
     touchControls = new TouchControls(player)
     touchControls.init(game)
-}
+}*/
 
 function handleInput(player)
 {
@@ -128,8 +127,8 @@ function handleInput(player)
     cursors.spell5 = game.input.keyboard.addKey(Phaser.Keyboard.THREE)
     cursors.spell6 = game.input.keyboard.addKey(Phaser.Keyboard.FOUR)
 
-    this.touchControls.processInput(player);
-    touchCursors = touchControls.touchInput
+    //this.touchControls.processInput(player);
+    //touchCursors = touchControls.touchInput
 
 }
 
@@ -240,72 +239,7 @@ function create ()
         x:initialSpawnLocationX,
         y:initialSpawnLocationY
     }
-    player = new Character(options); 
-
-    //Creating HUD
-    player.HUD = game.add.group();
-
-    //Healthbar
-    var shift = 80
-    //player.hpline_red = game.add.sprite(10+shift, 10, 'window_health_2')
-    //player.hpline_red.fixedToCamera = true
-    //player.HUD.add(player.hpline_red)
-    //player.hpline_red.kill()
-
-    player.hpline_green = game.add.sprite(10+shift, 10, 'window_health_2')
-    player.hpline_green.fixedToCamera = true
-    player.HUD.add(player.hpline_green)
-
-    player.hpline = game.add.sprite(25+shift, 10, 'window_health_1')
-    player.hpline.fixedToCamera = true
-    player.HUD.add(player.hpline)
-
-    //player.hpline_secondary = game.add.sprite(12+shift, 10, 'window_health_secondary')
-    //player.hpline_secondary.fixedToCamera = true
-    //player.hpline_secondary.scale.setTo(0,1)
-    //player.HUD.add(player.hpline_secondary)
-
-    player.healthIndicator = game.add.text(20+shift, 10, maxHealth+'/'+maxHealth,
-        { font: "28px Arial", fill: "#ffffff", align: "left" });
-    player.healthIndicator.fixedToCamera = true
-    player.HUD.add(player.healthIndicator);
-
-    player.hpline_glass = game.add.sprite(10+shift, 10, 'window_health_0')
-    player.hpline_glass.fixedToCamera = true
-    player.HUD.add(player.hpline_glass)
-
-    //Inventory Item
-    var wiScale = 0.7
-
-    inventoryItem = game.add.sprite(10, 80, 'inventoryItem');
-    inventoryItem.frame = 0;
-    inventoryItem.scale.setTo(wiScale,wiScale);
-    inventoryItem.fixedToCamera = true;
-    inventoryItem.kill();
-    player.HUD.add(inventoryItem);
-
-    //Counters
-    var window_counter_circle_secondary = game.add.sprite(60, 10, 'window_counter')
-    window_counter_circle_secondary.scale.setTo(wiScale,wiScale)
-    window_counter_circle_secondary.fixedToCamera = true
-    player.HUD.add(window_counter_circle_secondary)
-
-    player.deaths_counter = game.add.text(80, 20, "0",
-        { font: "20px Arial", fill: "#ff0000", align: "center" })
-    player.deaths_counter.fixedToCamera = true
-    player.deaths_counter.anchor.setTo(0.5,0)
-    player.HUD.add(player.deaths_counter)
-
-    var window_counter_circle = game.add.sprite(10, 10, 'window_counter')
-    window_counter_circle.scale.setTo(1,1)
-    window_counter_circle.fixedToCamera = true
-    player.HUD.add(window_counter_circle)
-
-    player.kills_counter = game.add.text(38, 23, "0",
-        { font: "32px Arial", fill: "#ffffff", align: "center" })
-    player.kills_counter.fixedToCamera = true
-    player.kills_counter.anchor.setTo(0.5,0)
-    player.HUD.add(player.kills_counter)
+    player = new Character(options);
 
     //Players list and shortcuts
     charactersList[myId] = player;
@@ -313,8 +247,6 @@ function create ()
     headSprite = player.headSprite;
     bullets = player.bullets;
 
-    //baseSprite.bringToTop();
-    player.HUD.bringToTop(player.HUD);
     if(game.renderType!=2){
 	    game.scale.pageAlignHorizontally = true;
 	    game.scale.pageAlignVertically = true;
@@ -330,10 +262,10 @@ function create ()
                              gameHeight*cameraDeadzoneHeight);
     game.camera.focusOnXY(baseSprite.x, baseSprite.y);
 
-    initializeInput()
+    //initializeInput()
 
     //Debug
-    initDebugMessage(game);
+    //initDebugMessage(game);
 
 }
 createItem = function(x, y, elementForDrop,itemID)
@@ -381,11 +313,11 @@ function update () {
 
 
     //Update HUD
-    player.healthIndicator.setText(Math.max(Math.round(player.health),0)+'/'+maxHealth);
-    player.hpline.scale.setTo(Phaser.Math.max(player.health/maxHealth,0), 1);
+    player.HUD.healthIndicator.setText(Math.max(Math.round(player.health),0)+'/'+maxHealth);
+    player.HUD.hpline.scale.setTo(Phaser.Math.max(player.health/maxHealth,0), 1);
     //player.hpline_secondary.scale.setTo(Phaser.Math.max((player.health-maxHealth)/180,0), 1);
-    player.deaths_counter.setText(player.deaths+"")
-    player.kills_counter.setText(player.kills+"")
+    player.HUD.deaths_counter.setText(player.deaths+"")
+    player.HUD.kills_counter.setText(player.kills+"")
     
     player.headSprite.rotation = game.physics.arcade.angleToPointer(player.headSprite) + 3.14/2;  
 

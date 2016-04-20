@@ -417,7 +417,7 @@ Server.exports.doSpike = function(id, x, y, time, damage)
         clients[c].remote.doSpike(id, x, y, time, damage);
 }
 Server.exports.addbots = function(owner,num,pass){
-	if(pass != password)
+	if(pass !== password)
 		return;
 	for(j=0;j<num;j++){
 		bots[owner+'bot'+botCounter] = {
@@ -500,7 +500,7 @@ Server.exports.updateBot = function(botId,ownerId,status){
 	}
 }
 Server.exports.toggleBounce = function(pass){
-	if(pass != password)
+	if(pass !== password)
 		return;
 	for (var c in clients)
 		clients[c].remote.toggleBounce(!bounceEnabled);
