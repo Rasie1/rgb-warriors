@@ -360,8 +360,8 @@ function render () {
 }
 
 function addbots (num,pass){
-    Server.addbots(myId,num,pass);
+    Client.addbots(myId,num,pass);
 }
 function toggleBounce(pass){
-    Server.toggleBounce(pass);
+    Client.toggleBounce(pass);
 }

@@ -27,8 +27,8 @@ Spell.prototype.castProjectile = function(character,bulletType,bulletFrame,bulle
         character.nextFire = game.time.now + character.fireRate;
         this.displayCooldowns(character,spellId);
         if(!character.isBot)
-            Server.handleKeys(character.input,character.baseSprite.x,character.baseSprite.y,character.RCounter,character.GCounter,character.BCounter,character.id);
-        Server.castProjectile(character.id,bulletType,bulletFrame,bulletSpeed,bulletDamage,spellPowerBoost,spellId,this.spellPower,target.x,target.y);
+            Client.handleKeys(character.input,character.baseSprite.x,character.baseSprite.y,character.RCounter,character.GCounter,character.BCounter,character.id);
+        Client.castProjectile(character.id,bulletType,bulletFrame,bulletSpeed,bulletDamage,spellPowerBoost,spellId,this.spellPower,target.x,target.y);
         return true
     }
     else
@@ -137,7 +137,7 @@ HealingSpell.prototype.cast = function(character){
         character.nextFire = game.time.now + character.fireRate; 
         this.displayCooldowns(character,0);
 
-        Server.updateHP(character.id, this.healingSpellHealing + 5 * this.spellPower,null,true);
+        Client.updateHP(character.id, this.healingSpellHealing + 5 * this.spellPower,null,true);
     }
 };
 
@@ -187,7 +187,7 @@ Leap.prototype.cast = function(character,target){
             character.nextFire = game.time.now + character.fireRate;     
             this.displayCooldowns(character,1);
 
-            Server.doLeap(character.id, target.x, target.y,curPos.x,curPos.y);
+            Client.doLeap(character.id, target.x, target.y,curPos.x,curPos.y);
         }
     }
 };
@@ -223,7 +223,7 @@ Spike.prototype.cast = function(character,target){
 
         target.x = offset.x * this.distance + curPos.x
         target.y = offset.y * this.distance + curPos.y
-        Server.doSpike(character.id,
+        Client.doSpike(character.id,
                          target.x,
                          target.y,
                          this.stayTime,
@@ -251,8 +251,8 @@ CloseFighting.prototype.cast = function(character,target)
         character.nextFire = game.time.now + character.fireRate; 
         this.displayCooldowns(character,6);
         if(!character.isBot)
-            Server.handleKeys(character.input,character.baseSprite.x,character.baseSprite.y,character.RCounter,character.GCounter,character.BCounter,character.id);
-    	Server.castCloseAttack(character.id, {x: target.x,
+            Client.handleKeys(character.input,character.baseSprite.x,character.baseSprite.y,character.RCounter,character.GCounter,character.BCounter,character.id);
+    	Client.castCloseAttack(character.id, {x: target.x,
         									y: target.y});
         return true
     }
@@ -268,7 +268,7 @@ function bulletHit (victim, bullet) {
     bullet.kill();
     if(((this.id == myId && victim.tag == 'enemy') || (this.isBot && this.owner == myId && (victim.tag == 'enemy' || victim.tag == 'me'))) && bullet.damage!=0 ){
         if(victim.health>0) {
-            Server.updateHP(victim.id, bullet.damage - bullet.spellPowerBoost, this.id);
+            Client.updateHP(victim.id, bullet.damage - bullet.spellPowerBoost, this.id);
         }
     }
     if(bullet.type==3){
@@ -276,7 +276,7 @@ function bulletHit (victim, bullet) {
     }
     if(bullet.type==5){
         if(((this.id == myId && victim.tag == 'enemy') || (this.isBot && this.owner == myId && (victim.tag == 'enemy' || victim.tag == 'me'))))
-            Server.castFreeze(victim.id, 3)
+            Client.castFreeze(victim.id, 3)
     }
     if(bullet.type==6){
             var vape = this.vapelosions.getFirstDead();
@@ -299,6 +299,6 @@ function bulletBounce (victim, bullet) {
 //Vape cloud hit
 function vapeHit (victim, vapelosion,spellPowerBoost) {
    if ((victim.health>0 && ((this.id == myId) || (this.isBot && this.owner == myId && this.id != victim.id))) && (victim.tag == 'enemy' || victim.tag == 'me'))
-        Server.updateHP(victim.id, -0.5 - 0.1*this.spells.Vape.spellPower, this.id);
+        Client.updateHP(victim.id, -0.5 - 0.1*this.spells.Vape.spellPower, this.id);
 }
 
