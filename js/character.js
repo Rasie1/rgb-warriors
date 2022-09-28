@@ -245,7 +245,6 @@ Character = function (options) {
     playersGroup.sendToBack(this.deadSprite);
     playersGroup.sendToBack(this.weapon); 
 
-console.log(this.HUD);
     //mousewheel detection
     if(this.baseSprite.id == myId){
         var dis = this;

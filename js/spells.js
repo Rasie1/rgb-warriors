@@ -26,8 +26,10 @@ Spell.prototype.castProjectile = function(character,bulletType,bulletFrame,bulle
         this.nextFire = game.time.now + this.cooldown;
         character.nextFire = game.time.now + character.fireRate;
         this.displayCooldowns(character,spellId);
-        if(!character.isBot)
+        if(!character.isBot) {
             Client.handleKeys(character.input,character.baseSprite.x,character.baseSprite.y,character.RCounter,character.GCounter,character.BCounter,character.id);
+        }
+            
         Client.castProjectile(character.id,bulletType,bulletFrame,bulletSpeed,bulletDamage,spellPowerBoost,spellId,this.spellPower,target.x,target.y);
         return true
     }

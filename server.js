@@ -53,58 +53,65 @@ io.on('connection', function(socket) {
 		speed: playerSpeed
 	};
 
-	//add player to scoreboard
-	scoreBoard[socket.id] = {
-		id: socket.id,
-		kills: 0,
-		deaths: 0,
-		suicides: 0,
-		isBot: false
-	}
-
-	var color = colors[Math.floor(Math.random() * colors.length)];
-    clients[socket.id].color = color;
-
-	//here we call setId (defined in the client side)
-	shuffle(obstaclesPositions);
-	var isOccupied = true;
-	var i = 0;
-	var x,y;
-	var outOfPlaces=false;
-	while(isOccupied==true && !outOfPlaces){
-		if(typeof obstaclesPositions[i] != 'undefined'){
-			if(!obstaclesPositions[i].occupied){
-				isOccupied=false;
-				x = obstaclesPositions[i].x;
-				y = obstaclesPositions[i].y;
-			}
-			i++
-		}
-		else{
-			outOfPlaces = true;
+	socket.on('createPlayer', function() {
+		clients[socket.id] = {
+			id: socket.id,
+			speed: playerSpeed
 		};
-	}
-
-	if (outOfPlaces) {
-		x = 0;
-		y = 0;
-	}
-
-	io.to(socket.id).emit('setId', socket.id, x, y, scoreBoard); 
-
-	sendAllItems(socket.id, true);
-	io.to(socket.id).emit('createObstacles', obstaclesList);
-
-	for(b in bots){
-		var bot = bots[b];
-		var options = {
-			id:bot.id,
-			x:bot.x,
-			y:bot.y,
-			owner:bot.ownerId
+	
+		//add player to scoreboard
+		scoreBoard[socket.id] = {
+			id: socket.id,
+			kills: 0,
+			deaths: 0,
+			suicides: 0,
+			isBot: false
 		}
-		io.to(socket.id).emit('spawnBot', options);
-	}
+	
+		var color = colors[Math.floor(Math.random() * colors.length)];
+		clients[socket.id].color = color;
+	
+		//here we call setId (defined in the client side)
+		shuffle(obstaclesPositions);
+		var isOccupied = true;
+		var i = 0;
+		var x,y;
+		var outOfPlaces=false;
+		while(isOccupied==true && !outOfPlaces){
+			if(typeof obstaclesPositions[i] != 'undefined'){
+				if(!obstaclesPositions[i].occupied){
+					isOccupied=false;
+					x = obstaclesPositions[i].x;
+					y = obstaclesPositions[i].y;
+				}
+				i++
+			}
+			else{
+				outOfPlaces = true;
+			};
+		}
+	
+		if (outOfPlaces) {
+			x = 0;
+			y = 0;
+		}
+	
+		io.to(socket.id).emit('setId', socket.id, x, y, scoreBoard); 
+	
+		sendAllItems(socket.id, true);
+		io.to(socket.id).emit('createObstacles', obstaclesList);
+	
+		for(b in bots){
+			var bot = bots[b];
+			var options = {
+				id:bot.id,
+				x:bot.x,
+				y:bot.y,
+				owner:bot.ownerId
+			}
+			io.to(socket.id).emit('spawnBot', options);
+		}
+	});
 
 	socket.on('disconnect', function() {
 		console.log('Disconnected %s', socket.id);
@@ -135,9 +142,19 @@ io.on('connection', function(socket) {
 		var enemy = clients[id]
 		for (var c in clients)
 			if (c != id) {
-				io.to(c).emit('spawnEnemy', id. x, y);
+				io.to(c).emit('spawnEnemy', {
+					id: id, 
+					x: x, 
+					y: y
+				});
+
 				var cl = clients[c];
-				io.to(enemy.id).emit('spawnEnemy', c, cl.lastX, cl.lastX, cl.speed);
+				io.to(enemy.id).emit('spawnEnemy', {
+					id: c, 
+					x: cl.lastX, 
+					y: cl.lastX, 
+					speed: cl.speed
+				});
 					
 				io.to(c).emit('updateScoreBoard', scoreBoard);
 			}
@@ -221,7 +238,7 @@ io.on('connection', function(socket) {
 		if(typeof playAnim == 'undefined')
 			var playAnim = false;
 		for (var c in clients)
-			io.to(c).emit('updateHP', difHP, attackerId, playAnim);
+			io.to(c).emit('updateHP', id, difHP, attackerId, playAnim);
 	});
 
 	socket.on('dropItem', function(x, y, elementForDrop) {
@@ -260,9 +277,9 @@ io.on('connection', function(socket) {
 		sendAllItems(playerId, isOnconnect);
 	});
 
-	socket.on('castProjetile', function(characterId,bulletType,bulletFrame,bulletSpeed,bulletDamage,spellPowerBoost,spellId,spellPower,tx,ty) {
+	socket.on('castProjectile', function(characterId,bulletType,bulletFrame,bulletSpeed,bulletDamage,spellPowerBoost,spellId,spellPower,tx,ty) {
 		for (var c in clients)
-			io.to(c).emit('castProjetile', characterId,bulletType,bulletFrame,bulletSpeed,bulletDamage,spellPowerBoost,spellId,spellPower,tx,ty);
+			io.to(c).emit('castProjectile', characterId,bulletType,bulletFrame,bulletSpeed,bulletDamage,spellPowerBoost,spellId,spellPower,tx,ty);
 	});
 
 	socket.on('castCloseAttack', function(id, target) {

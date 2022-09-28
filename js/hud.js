@@ -116,7 +116,7 @@ HUD.prototype.createStatusbar = function(){
 HUD.prototype.createSpellbar = function(){
     //Make buttons
     for(i=0;i<=6;i++){
-        console.log(window.innerWidth - this.segmentSize - this.margin,this.offsetY + (this.segmentSize*i))
+        //console.log(window.innerWidth - this.segmentSize - this.margin,this.offsetY + (this.segmentSize*i))
         //Spell buttons
         this.buttons[i] = game.add.button(
             window.innerWidth - this.segmentSize - this.margin, 

@@ -49,7 +49,8 @@ var SocketClientSetup = function() {
 					items[i].shadow.kill();
 				}
 			}
-			charactersList[playerId].SpeedX = charactersList[playerId].SpeedY = newSpeed;
+			charactersList[playerId].SpeedX = newSpeed;
+			charactersList[playerId].SpeedY = newSpeed;
 		}
 	});
 		
@@ -253,7 +254,6 @@ var SocketClientSetup = function() {
 	});
 
 	Client.socket.on('makeItem', function(itemsArrayORx,y,elementForDrop,itemID) {
-		console.log('making item');
 		if(typeof itemsArrayORx != 'object')
 			var itemsArray = [{
 				x:itemsArrayORx,
@@ -312,14 +312,19 @@ var SocketClientSetup = function() {
 	});
 
 	Client.socket.on('toggleBounce', function(bounce){
-		console.log(bounce,charactersList);
 		for(c in charactersList){
 			charactersList[c].enableProjectileBounce = bounce;
 		}
 	});
+
+	Client.createPlayer();
 }
 
 //===========================================
+
+Client.createPlayer = function() {
+	Client.socket.emit('createPlayer');
+}
 
 Client.handshake = function(id,initialSpawnLocationX,initialSpawnLocationY) {
 	Client.socket.emit('handshake', id,initialSpawnLocationX,initialSpawnLocationY);
