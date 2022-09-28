@@ -1,10 +1,10 @@
 var Server;
 var ready = false;
 var found = false;
+var Client = {};
+
+Client.socket = io.connect();
 
 var SocketClientSetup = function() {
-	//create an instance of eureca.io client
-
-    console.log();
-	var socket = io("http://localhost:8000");
+	console.log('ID: ' + Client.socket.id);
 }

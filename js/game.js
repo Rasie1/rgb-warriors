@@ -57,7 +57,7 @@ var game = new Phaser.Game(
 	gameHeight, 
 	!Phaser.Device.Desktop ? Phaser.CANVAS : Phaser.WEBGL, 
 	'phaser-example', 
-	{ preload: preload, create: EurecaClientSetup, update: update, render: render }
+	{ preload: preload, create: SocketClientSetup, update: update, render: render }
 );
 
 var onScreenChange = function() {

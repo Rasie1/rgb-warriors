@@ -26,75 +26,44 @@ var scoreBoard = {};
 
 var bounceEnabled = false;
 
-var express = require('express')
-  , app = express(app)
-  , server = require('http').createServer(app);
+var express = require('express');
+var app = express();
+var server = require('http').Server(app);
+var io = require('socket.io').listen(server);
 
-// serve static files from the current directory
-app.use(express.static(__dirname));
-// app.use(express.static("./js/phaser.js"));
-// app.use(express.static("./js/tanks.js"));
+app.use('/js', express.static(__dirname + '/js'));
+app.use('/assets', express.static(__dirname + '/assets'));
 
 //we'll keep clients data here
 var clients = {};
 
-//get Server class
-var Eureca = require('eureca.io');
-
-//create an instance of Server
-var Server = new Eureca.Server({allow:[
-	'setId',
-	'spawnEnemy',
-	'kill',
-	'respawnPlayer',
-	'updateState',
-	'updateHP',
-	'makeItem',
-	'reMakeItems',
-	'dropItem',
-	'pickUpItem',
-	'createObstacles',
-	'castProjectile',
-	'castCloseAttack',
-	'castFreeze',
-	'doLeap',
-    'doSpike',
-    'scaleSpeed',
-    'freezePlayer',
-    'spawnBot',
-    'updateBot',
-    'updateScoreBoard',
-    'toggleBounce'
-]
+app.get('/', function(req, res){
+	res.sendFile(__dirname + '/index.html');
 });
 
-//attach eureca.io to our http server
-Server.attach(server);
+server.listen(process.env.PORT || 8000, function() {
+	console.log('Listening on ' + server.address().port);
+});
 
-//eureca.io provides events to detect clients connect/disconnect
+io.on('connection', function(socket) {
+	console.log('Connected %s ', socket.id);
 
-//detect client connection
-Server.onConnect(function (conn) {
-    console.log('New Client id=%s ', conn.id, conn.remoteAddress);
-
-	//the getClient method provide a proxy allowing us to call remote client functions
-    var remote = Server.getClient(conn.id);
-
-	//register the client
-	clients[conn.id] = {id:conn.id, remote:remote};
-	clients[conn.id].speed = playerSpeed;
+	clients[socket.id] = {
+		id: socket.id,
+		speed: playerSpeed
+	};
 
 	//add player to scoreboard
-	scoreBoard[conn.id] = {
-		id:conn.id,
-		kills:0,
-		deaths:0,
-		suicides:0,
-		isBot:false
+	scoreBoard[socket.id] = {
+		id: socket.id,
+		kills: 0,
+		deaths: 0,
+		suicides: 0,
+		isBot: false
 	}
 
-    var color = colors[Math.floor(Math.random()*colors.length)];
-    clients[conn.id].color = color;
+	var color = colors[Math.floor(Math.random() * colors.length)];
+    clients[socket.id].color = color;
 
 	//here we call setId (defined in the client side)
 	shuffle(obstaclesPositions);
@@ -115,16 +84,17 @@ Server.onConnect(function (conn) {
 			outOfPlaces = true;
 		};
 	}
-	//console.log(scoreBoard)
-	if(!outOfPlaces){
-		remote.setId(conn.id,x,y,scoreBoard)
-	}
-	else{
-		remote.setId(conn.id,0,0,scoreBoard)
+
+	if (outOfPlaces) {
+		x = 0;
+		y = 0;
 	}
 
-	Server.exports.sendAllItems(conn.id,true);
-	clients[conn.id].remote.createObstacles(obstaclesList);
+	io.to(socket.id).emit('setId', socket.id, x, y, scoreBoard); 
+
+	sendAllItems(socket.id, true);
+	io.to(socket.id).emit('createObstacles', obstaclesList);
+
 	for(b in bots){
 		var bot = bots[b];
 		var options = {
@@ -133,208 +103,289 @@ Server.onConnect(function (conn) {
 			y:bot.y,
 			owner:bot.ownerId
 		}
-		remote.spawnBot(options)
+		io.to(socket.id).emit('spawnBot', options);
 	}
 
-});
+	socket.on('disconnect', function() {
+		console.log('Disconnected %s', socket.id);
 
-//detect client disconnection
-Server.onDisconnect(function (conn) {
-    console.log('Client disconnected ', conn.id);
+		var removeId = clients[socket.id].id;
 
-	var removeId = clients[conn.id].id;
-
-	var botsToKill = [];
-	for(b in bots){
-		if(bots[b].ownerId == removeId){
-			botsToKill.push(bots[b].id)
-			delete bots[b]
-			delete scoreBoard[b]
+		var botsToKill = [];
+		for(b in bots){
+			if(bots[b].ownerId == removeId){
+				botsToKill.push(bots[b].id)
+				delete bots[b]
+				delete scoreBoard[b]
+			}
 		}
-	}
-	console.log('Killing bots: ',botsToKill);
+		console.log('Killing bots: ', botsToKill);
 
-	delete clients[removeId];
-	delete scoreBoard[removeId];
-	for (var c in clients)
-	{
-		var remote = clients[c].remote;
+		delete clients[removeId];
+		delete scoreBoard[removeId];
 
-		//here we call kill() method defined in the client side
-		remote.kill(removeId);
-
-		//kill bots
-		
+		socket.broadcast.emit('kill', socket.id);
 		for(i=0;i<botsToKill.length;i++){
-			remote.kill(botsToKill[i]);
+			socket.broadcast.emit('kill', botsToKill[i]);
 		}
+		socket.broadcast.emit('updateScoreBoard', scoreBoard);
+	});
 
-		//update scoreboard
-		remote.updateScoreBoard(scoreBoard);
-	}
-});
-
-
-Server.exports.handshake = function(id,x,y)
-{
-	var enemy=clients[id]
-	for (var c in clients)
-		if (c!=id) {
-			clients[c].remote.spawnEnemy({
-				id:id,
-				x:x,
-				y:y
-			});
-			var cl = clients[c];
-			enemy.remote.spawnEnemy({
-				id:c,
-				x:cl.lastX,
-				y:cl.lastY,
-				speed:cl.speed
-			});
-			clients[c].remote.updateScoreBoard(scoreBoard);
-		}
-	enemy.remote.toggleBounce(bounceEnabled);
-}
-
-
-//be exposed to client side
-Server.exports.handleKeys = function (keys,x,y,r,g,b,id) {
-    var conn = this.connection;
-    var updatedClient = clients[conn.id];
-
-    for (var c in clients)
-    {
-        var remote = clients[c].remote;
-        if(c != id)
-        	remote.updateState(updatedClient.id, keys);
-        //keep last known state so we can send it to new connected clients
-        clients[c].laststate = keys;
-        clients[c].lastX = x;
-        clients[c].lastY = y;
-        clients[c].r = r;
-        clients[c].g = g;
-        clients[c].b = b;
-    }
-}
-
-Server.exports.handleTouchInput = function (input) {
-    var conn = this.connection;
-    var updatedClient = clients[conn.id];
-
-    for (var c in clients)
-    {
-        // var remote = clients[c].remote;
-        // remote.updateState(updatedClient.id, keys);
-        // //keep last known state so we can send it to new connected clients
-        // clients[c].laststate = keys;
-        // clients[c].lastX = x;
-        // clients[c].lastY = y;
-        // clients[c].r = r;
-        // clients[c].g = g;
-        // clients[c].b = b;
-    }
-}
-Server.exports.killPlayer = function(id,killerId)
-{
-	if(!clients[id] && !bots[id])
-		return;
-
-	for (var c in clients)
-		clients[c].remote.kill(id);
-
-	if(scoreBoard[id] && scoreBoard[killerId]){
-		var victim = scoreBoard[id];
-		var killer = scoreBoard[killerId];
-		victim.deaths++;
-		if(killer.id == victim.id){
-			victim.kills--;
-			victim.suicides++;
-		}
-		else{
-			killer.kills++;
-		};
+	socket.on('handshake', function(id, x, y) {
+		var enemy = clients[id]
 		for (var c in clients)
-			clients[c].remote.updateScoreBoard(scoreBoard);
-	};
+			if (c != id) {
+				io.to(c).emit('spawnEnemy', id. x, y);
+				var cl = clients[c];
+				io.to(enemy.id).emit('spawnEnemy', c, cl.lastX, cl.lastX, cl.speed);
+					
+				io.to(c).emit('updateScoreBoard', scoreBoard);
+			}
+		io.to(enemy.id).emit('toggleBounce', bounceEnabled);
+	});
 
-	setTimeout(function(){
+	socket.on('handleKeys', function(keys, x, y, r, g, b, id) {
+		for (var c in clients)
+		{
+			if(c != id)
+				io.to(c).emit('updateState', socket.id, keys);
+
+			//keep last known state so we can send it to new connected clients
+			clients[c].laststate = keys;
+			clients[c].lastX = x;
+			clients[c].lastY = y;
+			clients[c].r = r;
+			clients[c].g = g;
+			clients[c].b = b;
+		}
+	});
+
+	socket.on('killPlayer', function(id, killerId) {
 		if(!clients[id] && !bots[id])
 			return;
-		shuffle(obstaclesPositions);
-		var isOccupied = true;
-		var i = 0;
-		var x,y;
-		var outOfPlaces=false;
-		while(isOccupied==true && !outOfPlaces){
-			if(typeof obstaclesPositions[i] != 'undefined'){
-				if(!obstaclesPositions[i].occupied){
-					isOccupied=false;
-					x = obstaclesPositions[i].x;
-					y = obstaclesPositions[i].y;
-				}
-				i++
+
+		for (var c in clients)
+			io.to(c).emit('kill', id);
+
+		if(scoreBoard[id] && scoreBoard[killerId]){
+			var victim = scoreBoard[id];
+			var killer = scoreBoard[killerId];
+			victim.deaths++;
+			if(killer.id == victim.id){
+				victim.kills--;
+				victim.suicides++;
 			}
 			else{
-				outOfPlaces = true;
+				killer.kills++;
 			};
-		}
+			for (var c in clients)
+				io.to(c).emit('updateScoreBoards', scoreBoard);
+		};
 
-		if(!outOfPlaces){
-			for (var c in clients){
-				clients[c].remote.respawnPlayer(id,x,y)
+		setTimeout(function(){
+			if(!clients[id] && !bots[id])
+				return;
+			shuffle(obstaclesPositions);
+			var isOccupied = true;
+			var i = 0;
+			var x,y;
+			var outOfPlaces=false;
+			while(isOccupied==true && !outOfPlaces){
+				if(typeof obstaclesPositions[i] != 'undefined'){
+					if(!obstaclesPositions[i].occupied){
+						isOccupied=false;
+						x = obstaclesPositions[i].x;
+						y = obstaclesPositions[i].y;
+					}
+					i++
+				}
+				else{
+					outOfPlaces = true;
+				};
 			}
-		}
-		else{
-			for (var c in clients){
-				clients[c].remote.respawnPlayer(id,0,0)
+	
+			if(!outOfPlaces){
+				for (var c in clients){
+					io.to(c).emit('respawnPlayer', id, x, y);
+				}
 			}
-		}
-	},3000)
-}
-
-Server.exports.updateHP = function(id, difHP, attackerId,playAnim)
-{
-	if(typeof playAnim == 'undefined')
-		var playAnim = false;
-	for (var c in clients)
-		clients[c].remote.updateHP(id, difHP, attackerId,playAnim);
-}
-
-Server.exports.dropItem = function(x, y, elementForDrop)
-{
-	elementForDrop = Math.round(Math.random()*2)+1;
-	for (var c in clients){
-		clients[c].remote.makeItem(x, y, elementForDrop);
-	}
-	itemsList.push({
-		x:x,
-		y:y,
-		element:elementForDrop,
-		id:itemIdCounter
+			else{
+				for (var c in clients){
+					io.to(c).emit('respawnPlayer', id, 0, 0);
+				}
+			}
+		}, 3000);
 	});
-	itemIdCounter++;
-}
 
-Server.exports.pickUpItem = function(itemID,element,playerId,newSpeed)
-{
-	for (var c in clients)
-		clients[c].remote.pickUpItem(itemID,element,playerId,newSpeed);
-	for(i=0;i<itemsList.length;i++){
+	socket.on('updateHP', function(id, difHP, attackerId, playAnim) {
+		if(typeof playAnim == 'undefined')
+			var playAnim = false;
+		for (var c in clients)
+			io.to(c).emit('updateHP', difHP, attackerId, playAnim);
+	});
 
-		if(typeof itemsList[i] != 'undefined'){
-			if(itemID==itemsList[i].id){
-				//console.log('List lenght: ',itemsList.length,'; Item id: ',itemID,';List: ',itemsList)
-				if(typeof itemsList[i].gridPosition !='undefined')
-					itemsList[i].gridPosition.occupied = false;
-				index = itemsList.indexOf(itemsList[i]);
-				itemsList = itemsList.slice(0,index).concat(itemsList.slice(index+1,itemsList.length));
+	socket.on('dropItem', function(x, y, elementForDrop) {
+		elementForDrop = Math.round(Math.random()*2)+1;
+		for (var c in clients){
+			io.to(c).emit('makeItem', x, y, elementForDrop);
+		}
+		itemsList.push({
+			x:x,
+			y:y,
+			element:elementForDrop,
+			id:itemIdCounter
+		});
+		itemIdCounter++;
+	});
+
+	socket.on('pickUpItem', function(itemID, element, playerId, newSpeed) {
+		for (var c in clients)
+			io.to(c).emit('pickUpItem', itemID, element, playerId, newSpeed);
+
+		for(i=0;i<itemsList.length;i++){
+			if(typeof itemsList[i] != 'undefined'){
+				if(itemID==itemsList[i].id){
+					//console.log('List lenght: ',itemsList.length,'; Item id: ',itemID,';List: ',itemsList)
+					if(typeof itemsList[i].gridPosition !='undefined')
+						itemsList[i].gridPosition.occupied = false;
+					index = itemsList.indexOf(itemsList[i]);
+					itemsList = itemsList.slice(0,index).concat(itemsList.slice(index+1,itemsList.length));
+				}
+			}
+			//console.log(itemsList)
+		}
+	});
+
+	socket.on('sendAllItems', function(playerId, isOnconnect) {
+		sendAllItems(playerId, isOnconnect);
+	});
+
+	socket.on('castProjetile', function(characterId,bulletType,bulletFrame,bulletSpeed,bulletDamage,spellPowerBoost,spellId,spellPower,tx,ty) {
+		for (var c in clients)
+			io.to(c).emit('castProjetile', characterId,bulletType,bulletFrame,bulletSpeed,bulletDamage,spellPowerBoost,spellId,spellPower,tx,ty);
+	});
+
+	socket.on('castCloseAttack', function(id, target) {
+		for (var c in clients)
+			io.to(c).emit('caseCloseAttack', id, target);	
+	});
+
+	socket.on('castFreeze', function(id, time, speedMultiplier) {
+		for (var c in clients) {
+			io.to(c).emit('freezePlayer', id, 0.5);
+		}
+		setTimeout(function() {
+				for (var c in clients) {
+					 io.to(c).emit('freezePlayer', id, 1);
+				}
+			},
+			time * 1000)
+	});
+
+	socket.on('doLeap', function(id, new_x, new_y, old_x, old_y) {
+		for (var c in clients)
+        	io.to(c).emit('doLeap', id, new_x, new_y, old_x, old_y);
+	});
+
+	socket.on('doSpike', function(id, x, y, time, damage) {
+		for (var c in clients)
+        	io.to(c).emit('doSpike', id, x, y, time, damage);
+	});
+
+	socket.on('addbots', function(owner, num, pass) {
+		if(pass !== password)
+			return;
+		for(j=0;j<num;j++){
+			bots[owner+'bot'+botCounter] = {
+				ownerId:owner,
+				botId:botCounter,
+				id:owner+'bot'+botCounter,
+				velocityX:0,
+				velocityY:0
+			}
+			scoreBoard[owner+'bot'+botCounter] = {
+				id:owner+'bot'+botCounter,
+				kills:0,
+				deaths:0,
+				suicides:0,
+				isBot:true
+			}
+			shuffle(obstaclesPositions);
+			var isOccupied = true;
+			var i = 0;
+			var x,y;
+			var outOfPlaces=false;
+			while(isOccupied==true && !outOfPlaces){
+				if(typeof obstaclesPositions[i] != 'undefined'){
+					if(!obstaclesPositions[i].occupied){
+						isOccupied=false;
+						x = obstaclesPositions[i].x;
+						y = obstaclesPositions[i].y;
+					}
+					i++
+				}
+				else{
+					outOfPlaces = true;
+				};
+			}
+			for (var c in clients){
+				if(!outOfPlaces){
+					var options = {
+						id:owner+'bot'+botCounter,
+						x:x,
+						y:y,
+						owner:owner
+					}
+				}
+				else{
+					var options = {
+						id:owner+'bot'+botCounter,
+						x:0,
+						y:0,
+						owner:owner
+					}
+				}
+				io.to(c).emit('spawnBot', options);
+				io.to(c).emit('updateScoreBoard', scoreBoard);
+			}
+			if(!outOfPlaces){
+				bots[owner+'bot'+botCounter].x = x;
+				bots[owner+'bot'+botCounter].y = y;
+	
+			}
+			else{
+				bots[owner+'bot'+botCounter].x = 0;
+				bots[owner+'bot'+botCounter].y = 0;
+			}
+			botCounter++;
+		}
+	});
+
+	socket.on('updateBot', function(botId, ownerId, status) {
+		var bot = bots[botId];
+		if(bot){
+			bot.x = status.x;
+			bot.y = status.y;
+			bot.rot = status.rot;
+
+			for (var c in clients){
+				if(c != ownerId){
+					io.to(c).emit('updateBot', botId, status);
+				}
 			}
 		}
-		//console.log(itemsList)
-	}
-}
-Server.exports.sendAllItems = function(playerId,isOnconnect){
+	});
+
+	socket.on('toggleBounce', function(pass) {
+		if(pass !== password)
+			return;
+		for (var c in clients)
+			io.to(c).emit('toggleBounce', !bounceEnabled);
+		bounceEnabled = !bounceEnabled;
+	})
+});
+
+function sendAllItems(playerId, isOnconnect) {
 	if(itemsList.length){
 		var itemsToSend = [];
 		for(i=0;i<itemsList.length;i++){
@@ -349,137 +400,11 @@ Server.exports.sendAllItems = function(playerId,isOnconnect){
 		}
 		if(itemsToSend.length){
 			if(isOnconnect)
-				clients[playerId].remote.makeItem(itemsToSend)
+				io.to(playerId).emit('makeItem', itemsToSend);
 			else
-				clients[playerId].remote.reMakeItems(itemsToSend)
+				io.to(playerId).emit('reMakeItems', itemsToSend);
 		}
 	};
-}
-
-Server.exports.castProjectile = function(characterId,bulletType,bulletFrame,bulletSpeed,bulletDamage,spellPowerBoost,spellId,spellPower,tx,ty){
-	for (var c in clients)
-		clients[c].remote.castProjectile(characterId,bulletType,bulletFrame,bulletSpeed,bulletDamage,spellPowerBoost,spellId,spellPower,tx,ty);
-}
-Server.exports.castCloseAttack = function(id, target)
-{
-	for (var c in clients)
-		clients[c].remote.castCloseAttack(id, target);
-}
-Server.exports.castFreeze = function(id, time,speedMultiplier)
-{
-    for (var c in clients) {
-        clients[c].remote.freezePlayer(id,0.5)
-    }
-    setTimeout(function() {
-            for (var c in clients) {
-                 clients[c].remote.freezePlayer(id,1)
-            }
-        },
-        time * 1000)
-}
-
-Server.exports.doLeap = function(id, new_x, new_y, old_x, old_y)
-{
-    for (var c in clients)
-        clients[c].remote.doLeap(id, new_x, new_y, old_x, old_y);
-}
-
-Server.exports.doSpike = function(id, x, y, time, damage)
-{
-    for (var c in clients)
-        clients[c].remote.doSpike(id, x, y, time, damage);
-}
-Server.exports.addbots = function(owner,num,pass){
-	if(pass !== password)
-		return;
-	for(j=0;j<num;j++){
-		bots[owner+'bot'+botCounter] = {
-			ownerId:owner,
-			botId:botCounter,
-			id:owner+'bot'+botCounter,
-			velocityX:0,
-			velocityY:0
-		}
-		scoreBoard[owner+'bot'+botCounter] = {
-			id:owner+'bot'+botCounter,
-			kills:0,
-			deaths:0,
-			suicides:0,
-			isBot:true
-		}
-		shuffle(obstaclesPositions);
-		var isOccupied = true;
-		var i = 0;
-		var x,y;
-		var outOfPlaces=false;
-		while(isOccupied==true && !outOfPlaces){
-			if(typeof obstaclesPositions[i] != 'undefined'){
-				if(!obstaclesPositions[i].occupied){
-					isOccupied=false;
-					x = obstaclesPositions[i].x;
-					y = obstaclesPositions[i].y;
-				}
-				i++
-			}
-			else{
-				outOfPlaces = true;
-			};
-		}
-
-		for (var c in clients){
-			if(!outOfPlaces){
-				var options = {
-					id:owner+'bot'+botCounter,
-					x:x,
-					y:y,
-					owner:owner
-				}
-			}
-			else{
-				var options = {
-					id:owner+'bot'+botCounter,
-					x:0,
-					y:0,
-					owner:owner
-				}
-			}
-			clients[c].remote.spawnBot(options);
-			clients[c].remote.updateScoreBoard(scoreBoard);
-		}
-		if(!outOfPlaces){
-			bots[owner+'bot'+botCounter].x = x;
-			bots[owner+'bot'+botCounter].y = y;
-
-		}
-		else{
-			bots[owner+'bot'+botCounter].x = 0;
-			bots[owner+'bot'+botCounter].y = 0;
-		}
-		botCounter++;
-
-	}
-
-}
-Server.exports.updateBot = function(botId,ownerId,status){
-	var bot = bots[botId];
-	if(bot){
-		bot.x = status.x;
-		bot.y = status.y;
-		bot.rot = status.rot;
-
-		for (var c in clients){
-			if(c != ownerId){
-				clients[c].remote.updateBot(botId,status)
-			}
-		}
-	}
-}
-Server.exports.toggleBounce = function(pass){
-	if(pass !== password)
-		return;
-	for (var c in clients)
-		clients[c].remote.toggleBounce(!bounceEnabled);
-	bounceEnabled = !bounceEnabled;
 }
 
 //obstacles
@@ -592,7 +517,7 @@ function spawnAnItem(num){
 	if(itemsToSend.length){
 		for (var c in clients){
 			//console.log(itemIdCounter,itemsList.length);
-			clients[c].remote.makeItem(itemsToSend);
+			io.to(c).emit('makeItem', itemsToSend);
 		};
 	}
 }
@@ -602,4 +527,3 @@ setInterval(function(){
 	if(itemsList.length<5)
 		spawnAnItem(5)
 },5000)
-server.listen(8000, '0.0.0.0');
