@@ -245,7 +245,6 @@ Character = function (options) {
     playersGroup.sendToBack(this.deadSprite);
     playersGroup.sendToBack(this.weapon); 
 
-console.log(this.HUD);
     //mousewheel detection
     if(this.baseSprite.id == myId){
         var dis = this;
@@ -396,13 +395,7 @@ Character.prototype.update = function() {
         {    
             // send latest valid state to the server
 
-           Server.handleKeys(this.input,this.baseSprite.x,this.baseSprite.y,this.RCounter,this.GCounter,this.BCounter,myId);
-
-            /*if (touchInputChanged)
-            {
-                Server.handleTouchInput(this.touchInput)
-
-            }*/
+           Client.handleKeys(this.input,this.baseSprite.x,this.baseSprite.y,this.RCounter,this.GCounter,this.BCounter,myId);
                 
         }
     }      
@@ -512,7 +505,7 @@ Character.prototype.updateGenericBefore = function(){
     if (game.time.now > this.HPTimer && (this.id == myId || (this.isBot && this.owner == myId))){
         this.HPTimer = game.time.now + regenInterval;
         if (this.health < maxHealth && this.alive)
-            Server.updateHP(this.id, regenValue);
+            Client.updateHP(this.id, regenValue);
     }    
 
     //Collisions
@@ -609,7 +602,7 @@ Character.prototype.fire = function(target,fireType) {
 }
 
 Character.prototype.dropItem = function() {
-    Server.dropItem(this.baseSprite.x,this.baseSprite.y)
+    Client.dropItem(this.baseSprite.x,this.baseSprite.y)
 }
 
 Character.prototype.recolorAura = function() {
@@ -717,9 +710,9 @@ Character.prototype.pickUpItem = function(itemSprite) {
     this.recolorAura();
 
     //Send information to server if local player
-    Server.pickUpItem(itemSprite.id,itemSprite.element,this.id,this.SpeedX);
+    Client.pickUpItem(itemSprite.id,itemSprite.element,this.id,this.SpeedX);
 
-    Server.updateHP(this.id,pickupHealthValue); //Heal on item pickup
+    Client.updateHP(this.id,pickupHealthValue); //Heal on item pickup
 
 }
 

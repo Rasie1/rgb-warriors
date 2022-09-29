@@ -56,7 +56,7 @@ Character.prototype.updateBot = function(){
         this.statusChanged = true;
     if (this.statusChanged){
         this.lastUpdate = game.time.now;
-        Server.updateBot(this.id,myId,this.statusActual)
+        Client.updateBot(this.id,myId,this.statusActual);
     }
 }
 
